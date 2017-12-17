@@ -10,5 +10,8 @@ setup(
 	classifiers=['Development Status :: 3 - Alpha'],
 	packages=['hpbandster'],
 	python_requires='>=3',
-	install_requires=['Pyro4', 'serpent', 'ConfigSpace']
+	install_requires=['Pyro4', 'serpent', 'ConfigSpace', 'numpy'],
+	extras_require = {
+	    'Kernel Density Estimator support': ['statsmodels']
+	},
 )

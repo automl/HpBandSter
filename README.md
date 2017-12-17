@@ -2,6 +2,15 @@
 a distributed Hyperband implementation on Steroids
 
 
+##TODOs
+
+- fix/adjust/add unit tests
+- add reentrance for jobs on unresponsive hosts
+- HMAC key for the nameserver and the dispatcher/master/worker
+- add option for workers to die immediately if no dispatcher is available
+- add idle time for workers before shutting down (to release workers early)
+- add mechanism to determine maximum number of parallel jobs to release workers early
+
 ## How to install
 
 A simple
