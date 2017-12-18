@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
 	name='hpbandster',
@@ -8,7 +8,7 @@ setup(
 	author_email='sfalkner@cs.uni-freiburg.de',
 	license='Use as you wish. No guarantees whatsoever.',
 	classifiers=['Development Status :: 3 - Alpha'],
-	packages=['hpbandster'],
+        packages=find_packages(),
 	python_requires='>=3',
 	install_requires=['Pyro4', 'serpent', 'ConfigSpace', 'numpy'],
 	extras_require = {
