@@ -1,8 +1,3 @@
-import sys
-sys.path.append('../..')
-sys.path.append('/ihome/sfalkner/repositories/github/ConfigSpace/')
-
-
 import hpbandster
 import ConfigSpace as CS
 

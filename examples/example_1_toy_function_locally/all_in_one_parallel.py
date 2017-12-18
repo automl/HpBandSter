@@ -1,15 +1,10 @@
-import sys
-sys.path.append('../..')
-sys.path.append('/home/sfalkner/repositories/github/ConfigSpace/')
-
-
 import hpbandster
 from hpbandster.distributed.worker import Worker
 import hpbandster.distributed.utils
 import ConfigSpace as CS
 
 import logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 # starts a local nameserve
 nameserver, ns_port = hpbandster.distributed.utils.start_local_nameserver()

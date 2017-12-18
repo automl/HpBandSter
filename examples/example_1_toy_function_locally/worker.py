@@ -1,7 +1,3 @@
-import sys
-sys.path.append('../..')
-sys.path.append('/ihome/sfalkner/repositories/github/ConfigSpace/')
-
 import time
 import numpy as np
 import random
