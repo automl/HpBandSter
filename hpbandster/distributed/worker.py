@@ -45,7 +45,6 @@ class Worker(object):
 					work.
 		"""
 		if background:
-			print(threading.get_ident())
 			self.worker_id += str(threading.get_ident())
 			self.thread = threading.Thread(target=self._run, name='worker %s thread'%self.worker_id)
 			self.thread.daemon=True
