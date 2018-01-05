@@ -8,7 +8,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 
-# starts a local nameserve
+# starts a local nameserver
 nameserver, ns_port = hpbandster.distributed.utils.start_local_nameserver()
 
 
