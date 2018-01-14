@@ -5,6 +5,14 @@ import Pyro4
 import Pyro4.naming
 
 
+def nic_name_to_host(nic_name):
+	from netifaces import ifaddresses, AF_INET
+	host = ifaddresses(nic_name).setdefault(AF_INET, [{'addr': 'No IP addr'}] )[0]['addr']
+	return(host)
+
+
+
+
 
 def start_local_nameserver(host=None, port=0, nic_name=None):
 	"""
@@ -29,9 +37,8 @@ def start_local_nameserver(host=None, port=0, nic_name=None):
 		if nic_name is None:
 			host = 'localhost'
 		else:
-			from netifaces import ifaddresses, AF_INET
-			host = ifaddresses(nic_name).setdefault(AF_INET, [{'addr': 'No IP addr'}] )[0]['addr']
-		
+			host = nic_name_to_host(nic_name)
+
 	uri, ns, _ = Pyro4.naming.startNS(host=host, port=port)
 	host, port = ns.locationStr.split(':')
 	
