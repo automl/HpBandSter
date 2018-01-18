@@ -129,7 +129,7 @@ class HpBandSter(object):
 		self.dispatcher.shutdown(shutdown_workers)
 		self.dispatcher_thread.join()
 
-	def run(self, n_iterations, iteration_class=SuccessiveHalving, min_n_workers=1):
+	def run(self, n_iterations, iteration_class=SuccessiveHalving, min_n_workers=1, iteration_class_kwargs=None):
 		"""
 			method to run n_iterations of SuccessiveHalving
 
@@ -142,7 +142,9 @@ class HpBandSter(object):
 				algorithm. The API is defined by the SuccessiveHalving implementation
 			min_n_workers: int
 				minimum number of workers present before the run starts
-			
+			iteration_class_kwargs: dict
+				Additional keyward arguments passed to iteration_class
+
 		"""
 
 
@@ -163,7 +165,7 @@ class HpBandSter(object):
 			n0 = int(np.floor((self.max_SH_iter)/(s+1)) * self.eta**s)
 			ns = [max(int(n0*(self.eta**(-i))), 1) for i in range(s+1)]
 
-			self.iterations.append(iteration_class(it, ns, self.budgets[(-s-1):], self.config_generator.get_config))
+			self.iterations.append(iteration_class(iter_number=it, num_configs=ns, budgets=self.budgets[(-s-1):], config_sampler=self.config_generator.get_config, **iteration_class_kwargs))
 
 		while len(self.active_iterations()) > 0:
 			# find a new run to start
