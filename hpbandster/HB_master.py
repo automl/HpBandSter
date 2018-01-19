@@ -129,7 +129,7 @@ class HpBandSter(object):
 		self.dispatcher.shutdown(shutdown_workers)
 		self.dispatcher_thread.join()
 
-	def run(self, n_iterations, iteration_class=SuccessiveHalving, min_n_workers=1, iteration_class_kwargs=None):
+	def run(self, n_iterations, iteration_class=SuccessiveHalving, min_n_workers=1, iteration_class_kwargs={}):
 		"""
 			method to run n_iterations of SuccessiveHalving
 
