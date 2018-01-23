@@ -1,6 +1,8 @@
 import ConfigSpace
 import numpy as np
+import threading
 import logging
+logging.basicConfig(level=logging.INFO)
 
 from robo.models.lcnet import LCNet, get_lc_net
 
@@ -11,7 +13,7 @@ class LCNetWrapper(base_config_generator):
     def __init__(self,
                  config_space,
                  max_budget,
-                 n_points=5,
+                 n_points=20,
                  n_candidates=1024,
                  **kwargs):
         """
@@ -45,6 +47,8 @@ class LCNetWrapper(base_config_generator):
         self.train_targets = None
         self.n_points = n_points
         self.is_trained = False
+        self.counter = 0
+        self.lock = threading.Lock()
 
     def get_config(self, budget):
         """
@@ -63,10 +67,12 @@ class LCNetWrapper(base_config_generator):
 
         """
 
+        self.lock.acquire()
         if not self.is_trained:
             c = self.config_space.sample_configuration().get_array()
         else:
-            candidates = np.array([self.config_space.sample_configuration().get_array() for _ in range(self.n_candidates)])
+            candidates = np.array([self.config_space.sample_configuration().get_array()
+                                   for _ in range(self.n_candidates)])
 
             # We are only interested on the asymptotic value
             projected_candidates = np.concatenate((candidates, np.ones([self.n_candidates, 1])), axis=1)
@@ -82,7 +88,7 @@ class LCNetWrapper(base_config_generator):
             c = candidates[idx][0]
 
         config = ConfigSpace.Configuration(self.config_space, vector=c)
-
+        self.lock.release()
         return config.get_dictionary(), {}
 
     def new_result(self, job):
@@ -126,7 +132,13 @@ class LCNetWrapper(base_config_generator):
             self.train = np.append(self.train, x_new, axis=0)
             self.train_targets = np.append(self.train_targets, lc_new, axis=0)
 
-        if self.train.shape[0] % self.n_points == 0:
+        if self.counter >= self.n_points:
 
+            self.lock.acquire()
             self.model.train(self.train, self.train_targets)
             self.is_trained = True
+            self.counter = 0
+            self.lock.release()
+
+        else:
+            self.counter += epochs

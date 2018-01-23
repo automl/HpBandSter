@@ -1,9 +1,10 @@
 import time
 import numpy as np
-import hpbandster
 
 from hpbandster.distributed.worker import Worker
+from hpbandster.config_generators.lcnet import LCNetWrapper
 import hpbandster.distributed.utils
+
 
 import ConfigSpace as CS
 
@@ -33,39 +34,30 @@ class ToyExample(Worker):
         })
 
 
-# starts a local nameserver
 nameserver, ns_port = hpbandster.distributed.utils.start_local_nameserver()
 
 min_budget = 1
 max_budget = 100
 
-# starting the worker in a separate thread
 w = ToyExample(min_budget=min_budget, max_budget=max_budget, nameserver=nameserver, ns_port=ns_port)
 w.run(background=True)
 
-# simple config space here: just one float between 0 and 1
 config_space = CS.ConfigurationSpace()
 config_space.add_hyperparameter(CS.UniformFloatHyperparameter('a', lower=0, upper=1))
 config_space.add_hyperparameter(CS.UniformFloatHyperparameter('b', lower=0, upper=1))
-CG = hpbandster.config_generators.lcnet.LCNetWrapper(config_space=config_space, max_budget=max_budget)
+CG = LCNetWrapper(config_space=config_space, max_budget=max_budget)
 
-# instantiating Hyperband with some minimal configuration
 HB = hpbandster.HB_master.HpBandSter(
     config_generator=CG,
-    run_id='0',  # this needs to be unique for concurent runs, i.e. when multiple
-    # instances run at the same time, they have to have different ids
-    # For this all_in_one example, it doesn't reall matter, as the
-    # nameserver is unique to this run
-
+    run_id='0',
     eta=2, min_budget=min_budget, max_budget=max_budget,  # HB parameters
     nameserver=nameserver,
     ns_port=ns_port,
     job_queue_sizes=(0, 1),
 )
-# runs one iteration if at least one worker is available
 res = HB.run(1, min_n_workers=1)
 
-# shutdown the worker and the dispatcher
+
 HB.shutdown(shutdown_workers=True)
 
 print(res.get_incumbent_trajectory())
