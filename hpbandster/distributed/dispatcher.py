@@ -39,7 +39,6 @@ class Worker(object):
 		self.runs_job = None
 
 	def is_alive(self):
-
 		try:
 			self.proxy._pyroReconnect(1)
 		except Pyro4.errors.ConnectionClosedError:

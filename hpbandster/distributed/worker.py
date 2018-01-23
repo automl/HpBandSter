@@ -45,7 +45,6 @@ class Worker(object):
 					work.
 		"""
 		if background:
-			print(threading.get_ident())
 			self.worker_id += str(threading.get_ident())
 			self.thread = threading.Thread(target=self._run, name='worker %s thread'%self.worker_id)
 			self.thread.daemon=True
@@ -56,6 +55,7 @@ class Worker(object):
 	def _run(self):
 		# initial ping to the dispatcher to register the worker
 		with Pyro4.locateNS(host=self.nameserver, port=self.ns_port) as ns:
+			self.logger.debug('WORKER: Connected to nameserver %s'%(str(ns)))
 			dispatchers = ns.list(prefix="hpbandster.run_%s.dispatcher"%self.run_id)
 
 		for dn, uri in dispatchers.items():

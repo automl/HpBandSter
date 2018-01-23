@@ -15,8 +15,16 @@ nameserver, ns_port = hpbandster.distributed.utils.start_local_nameserver()
 # import the definition of the worker (could be in here as well, but is imported to reduce code duplication)
 from worker import MyWorker
 
+
+# Every run has to have a unique (at runtime) id.
+# This needs to be unique for concurent runs, i.e. when multiple
+# instances run at the same time, they have to have different ids
+# Here we pick '0'
+run_id = '0'
+
+
 # starting the worker in a separate thread
-w = MyWorker(nameserver=nameserver, ns_port=ns_port)
+w = MyWorker(nameserver=nameserver, run_id=run_id, ns_port=ns_port)
 w.run(background=True)
 
 
@@ -30,11 +38,7 @@ CG = hpbandster.config_generators.RandomSampling(config_space)
 # instantiating Hyperband with some minimal configuration
 HB = hpbandster.HB_master.HpBandSter(
 				config_generator = CG,
-				run_id = '0',							# this needs to be unique for concurent runs, i.e. when multiple
-														# instances run at the same time, they have to have different ids
-														# For this all_in_one example, it doesn't reall matter, as the
-														# nameserver is unique to this run
-														
+				run_id = run_id,
                 eta=2,min_budget=1, max_budget=64,      # HB parameters
 				nameserver=nameserver,
 				ns_port = ns_port,

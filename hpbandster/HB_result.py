@@ -128,7 +128,7 @@ class HB_result(object):
 		all_runs.sort(key=lambda r: r.time_stamps['finished'])
 		
 		return_dict = { 'config_ids' : [],
-						'time_finished': [],
+						'times_finished': [],
 						'budgets'    : [],
 						'losses'     : [],
 		}
@@ -142,7 +142,7 @@ class HB_result(object):
 				current_incumbent = r.loss
 				
 				return_dict['config_ids'].append(r.config_id)
-				return_dict['time_finished'].append(r.time_stamps['finished'])
+				return_dict['times_finished'].append(r.time_stamps['finished'])
 				return_dict['budgets'].append(r.budget)
 				return_dict['losses'].append(r.loss)
 		return (return_dict)
