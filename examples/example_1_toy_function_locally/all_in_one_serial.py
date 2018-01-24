@@ -5,7 +5,7 @@ import hpbandster.distributed.utils
 import ConfigSpace as CS
 
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 # starts a local nameserver
