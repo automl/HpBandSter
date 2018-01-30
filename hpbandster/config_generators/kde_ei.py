@@ -13,8 +13,8 @@ from hpbandster.config_generators.base import base_config_generator
 class KDEEI(base_config_generator):
     
     def __init__(self, configspace, top_n_percent=10, update_after_n_points=1,
-                 min_points_in_model = None, mode='DE',
-                 num_samples = 1024, random_fraction=0.0,
+                 min_points_in_model = None, mode='sampling',
+                 num_samples = 64, random_fraction=0.5,
                 **kwargs):
         """
             Fits for each given budget a kernel density estimator on the best N percent of the
