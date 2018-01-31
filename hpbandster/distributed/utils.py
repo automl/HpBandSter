@@ -1,16 +1,14 @@
 import threading
 
-
 import Pyro4
 import Pyro4.naming
 
 
 def nic_name_to_host(nic_name):
+	""" translates the name of a network card into a valid host name"""
 	from netifaces import ifaddresses, AF_INET
 	host = ifaddresses(nic_name).setdefault(AF_INET, [{'addr': 'No IP addr'}] )[0]['addr']
 	return(host)
-
-
 
 
 
