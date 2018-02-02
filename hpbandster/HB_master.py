@@ -205,7 +205,7 @@ class HpBandSter(object):
 				self.thread_cond.notify()
 
 			self.iterations[job.id[0]].register_result(job)
-			self.config_generator.new_result(job)
+		self.config_generator.new_result(job)
 
 
 	def _submit_job(self, config_id, config, budget):

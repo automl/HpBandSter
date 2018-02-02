@@ -20,8 +20,8 @@ from pdb import set_trace
 class BOHB(base_config_generator):
 	
 	def __init__(self, configspace, min_points_in_model = None,
-				 top_n_percent=10, num_samples = 32, random_fraction=0.25,
-				 bandwidth_factor=4,
+				 top_n_percent=10, num_samples = 64, random_fraction=0.5,
+				 minimum_bandwidth=0.05,
 				**kwargs):
 		"""
 			Fits for each given budget a kernel density estimator on the best N percent of the
@@ -42,14 +42,14 @@ class BOHB(base_config_generator):
 				number of samples drawn to optimize EI via sampling
 			random_fraction: float
 				fraction of random configurations returned
-			bandwidth_factor: float
-				factor to increase diversity for sampling candidates to evaluate EI
+			minimum_bandwidth: float
+				smallest value for the bandwidth for the good configurations
 
 		"""
 		super().__init__(**kwargs)
 		self.top_n_percent=top_n_percent
 		self.configspace = configspace
-		self.bw_factor = bandwidth_factor
+		self.min_bw = minimum_bandwidth
 
 
 		self.min_points_in_model = min_points_in_model
@@ -60,11 +60,7 @@ class BOHB(base_config_generator):
 		self.random_fraction = random_fraction
 
 
-		# TODO: so far we only consider continuous configuration spaces
-
-
 		hps = self.configspace.get_hyperparameters()
-
 
 		self.kde_vartypes = ""
 		self.vartypes = []
@@ -118,7 +114,6 @@ class BOHB(base_config_generator):
 		best_vector = None
 
 		if sample is None:
-			set_trace()
 			try:
 
 				# If we haven't seen anything with this budget, we sample from the kde trained on the highest budget
@@ -141,11 +136,17 @@ class BOHB(base_config_generator):
 
 					vector = []
 					
-					for m,bw,t in zip(kde_good.data[idx], self.bw_factor*kde_good.bw, self.vartypes):
+					for m,bw,t in zip(kde_good.data[idx], kde_good.bw, self.vartypes):
+
+						bw = max(bw, self.min_bw)
 						if t == 0:
-							vector += sps.truncnorm.rvs(-m/bw,(1-m)/bw, loc=m, scale=bw)
+							vector.append(sps.truncnorm.rvs(-m/bw,(1-m)/bw, loc=m, scale=bw))
 						else:
 							
+							if np.random.rand() < (1-bw):
+								vector.append(m)
+							else:
+								vector.append(np.random.randint(t))
 					
 					val = minimize_me(vector) 
 					if val < best:
@@ -160,9 +161,6 @@ class BOHB(base_config_generator):
 					self.logger.debug('best_vector: {}, {}'.format(best_vector, best))
 					sample = ConfigSpace.Configuration(self.configspace, vector=best_vector).get_dictionary()
 					info_dict['model_based_pick'] = True
-
-				import pdb
-				pdb.set_trace()
 
 			except:
 				self.logger.warning("Sampling based optimization with %i samples failed\n %s \nUsing random configuration"%(self.num_samples, traceback.format_exc()))
@@ -255,7 +253,6 @@ class BOHB(base_config_generator):
 		}
 
 		# update probs for the categorical parameters for later sampling
-		self.cat_probs = []
-
-		
+		print(good_kde.data.shape, good_kde.bw)
+		print(bad_kde.data.shape, bad_kde.bw)
 		self.logger.debug('done building a new model for budget %f based on %i/%i split\nBest loss for this budget:%f\n\n\n\n\n'%(budget, n_good, n_bad, np.min(train_losses)))
