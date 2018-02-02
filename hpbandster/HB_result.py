@@ -145,6 +145,16 @@ class HB_result(object):
 				return_dict['times_finished'].append(r.time_stamps['finished'])
 				return_dict['budgets'].append(r.budget)
 				return_dict['losses'].append(r.loss)
+
+
+		r = all_runs[-1]
+		
+		return_dict['config_ids'].append(return_dict['config_ids'][-1])
+		return_dict['times_finished'].append(all_runs[-1].time_stamps['finished'])
+		return_dict['budgets'].append(return_dict['budgets'][-1])
+		return_dict['losses'].append(return_dict['losses'][-1])
+
+			
 		return (return_dict)
 
 
