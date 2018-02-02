@@ -21,6 +21,7 @@ class BOHB(base_config_generator):
 	
 	def __init__(self, configspace, min_points_in_model = None,
 				 top_n_percent=10, num_samples = 32, random_fraction=0.25,
+				 bandwidth_factor=4,
 				**kwargs):
 		"""
 			Fits for each given budget a kernel density estimator on the best N percent of the
@@ -41,12 +42,14 @@ class BOHB(base_config_generator):
 				number of samples drawn to optimize EI via sampling
 			random_fraction: float
 				fraction of random configurations returned
+			bandwidth_factor: float
+				factor to increase diversity for sampling candidates to evaluate EI
 
 		"""
 		super().__init__(**kwargs)
 		self.top_n_percent=top_n_percent
 		self.configspace = configspace
-
+		self.bw_factor = bandwidth_factor
 
 
 		self.min_points_in_model = min_points_in_model
@@ -58,7 +61,29 @@ class BOHB(base_config_generator):
 
 
 		# TODO: so far we only consider continuous configuration spaces
-		self.var_type = "c" * len(self.configspace.get_hyperparameters())
+
+
+		hps = self.configspace.get_hyperparameters()
+
+
+		self.kde_vartypes = ""
+		self.vartypes = []
+
+
+		for h in hps:
+			if hasattr(h, 'choices'):
+				self.kde_vartypes += 'u'
+				self.vartypes +=[ len(h.choices)]
+			else:
+				self.kde_vartypes += 'c'
+				self.vartypes +=[0]
+		
+		self.vartypes = np.array(self.vartypes, dtype=int)
+
+		# store precomputed probs for the categorical parameters
+		self.cat_probs = []
+		
+
 		self.configs = dict()
 		self.losses = dict()
 		self.good_config_rankings = dict()
@@ -93,7 +118,9 @@ class BOHB(base_config_generator):
 		best_vector = None
 
 		if sample is None:
+			set_trace()
 			try:
+
 				# If we haven't seen anything with this budget, we sample from the kde trained on the highest budget
 				#if budget not in self.kde_models.keys():
 				#    budget = max(self.kde_models.keys())
@@ -110,7 +137,15 @@ class BOHB(base_config_generator):
 
 				for i in range(self.num_samples):
 					idx = np.random.choice(range(kde_good.data.shape[0]), 1)[0]
-					vector = [sps.truncnorm.rvs(-m/bw,(1-m)/bw, loc=m, scale=bw) for m,bw in zip(kde_good.data[idx], 4*kde_good.bw)]
+
+
+					vector = []
+					
+					for m,bw,t in zip(kde_good.data[idx], self.bw_factor*kde_good.bw, self.vartypes):
+						if t == 0:
+							vector += sps.truncnorm.rvs(-m/bw,(1-m)/bw, loc=m, scale=bw)
+						else:
+							
 					
 					val = minimize_me(vector) 
 					if val < best:
@@ -125,6 +160,9 @@ class BOHB(base_config_generator):
 					self.logger.debug('best_vector: {}, {}'.format(best_vector, best))
 					sample = ConfigSpace.Configuration(self.configspace, vector=best_vector).get_dictionary()
 					info_dict['model_based_pick'] = True
+
+				import pdb
+				pdb.set_trace()
 
 			except:
 				self.logger.warning("Sampling based optimization with %i samples failed\n %s \nUsing random configuration"%(self.num_samples, traceback.format_exc()))
@@ -171,6 +209,7 @@ class BOHB(base_config_generator):
 			return
 
 
+
 		# We want to get a numerical representation of the configuration in the original space
 
 		conf = ConfigSpace.Configuration(self.configspace, job.kwargs["config"])
@@ -180,6 +219,7 @@ class BOHB(base_config_generator):
 
 		if len(self.configs[budget]) <= self.min_points_in_model+1:
 			return
+
 
 		train_configs = np.array(self.configs[budget])
 		train_losses =  np.array(self.losses[budget])
@@ -206,11 +246,16 @@ class BOHB(base_config_generator):
 		# quick rule of thumb
 		bw_estimation = 'normal_reference'
 
-		bad_kde = sm.nonparametric.KDEMultivariate(data=train_data_bad,  var_type=self.var_type, bw=bw_estimation)
-		good_kde = sm.nonparametric.KDEMultivariate(data=train_data_good, var_type=self.var_type, bw=bw_estimation)
+		bad_kde = sm.nonparametric.KDEMultivariate(data=train_data_bad,  var_type=self.kde_vartypes, bw=bw_estimation)
+		good_kde = sm.nonparametric.KDEMultivariate(data=train_data_good, var_type=self.kde_vartypes, bw=bw_estimation)
 
 		self.kde_models[budget] = {
 				'good': good_kde,
 				'bad' : bad_kde
 		}
+
+		# update probs for the categorical parameters for later sampling
+		self.cat_probs = []
+
+		
 		self.logger.debug('done building a new model for budget %f based on %i/%i split\nBest loss for this budget:%f\n\n\n\n\n'%(budget, n_good, n_bad, np.min(train_losses)))
