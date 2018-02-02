@@ -253,6 +253,6 @@ class BOHB(base_config_generator):
 		}
 
 		# update probs for the categorical parameters for later sampling
-		print(good_kde.data.shape, good_kde.bw)
-		print(bad_kde.data.shape, bad_kde.bw)
+		#print(good_kde.data.shape, good_kde.bw)
+		#print(bad_kde.data.shape, bad_kde.bw)
 		self.logger.debug('done building a new model for budget %f based on %i/%i split\nBest loss for this budget:%f\n\n\n\n\n'%(budget, n_good, n_bad, np.min(train_losses)))
