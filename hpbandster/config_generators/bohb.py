@@ -20,8 +20,8 @@ from pdb import set_trace
 class BOHB(base_config_generator):
 	
 	def __init__(self, configspace, min_points_in_model = None,
-				 top_n_percent=10, num_samples = 64, random_fraction=0.5,
-				 minimum_bandwidth=0.05,
+				 top_n_percent=15, num_samples = 32, random_fraction=1/3,
+				 bandwidth_factor=3,
 				**kwargs):
 		"""
 			Fits for each given budget a kernel density estimator on the best N percent of the
@@ -42,14 +42,14 @@ class BOHB(base_config_generator):
 				number of samples drawn to optimize EI via sampling
 			random_fraction: float
 				fraction of random configurations returned
-			minimum_bandwidth: float
-				smallest value for the bandwidth for the good configurations
+			bandwidth_factor: float
+				widens the bandwidth for contiuous parameters for proposed points to optimize EI
 
 		"""
 		super().__init__(**kwargs)
 		self.top_n_percent=top_n_percent
 		self.configspace = configspace
-		self.min_bw = minimum_bandwidth
+		self.bw_factor = bandwidth_factor
 
 
 		self.min_points_in_model = min_points_in_model
@@ -138,9 +138,8 @@ class BOHB(base_config_generator):
 					
 					for m,bw,t in zip(kde_good.data[idx], kde_good.bw, self.vartypes):
 
-						bw = max(bw, self.min_bw)
 						if t == 0:
-							vector.append(sps.truncnorm.rvs(-m/bw,(1-m)/bw, loc=m, scale=bw))
+							vector.append(sps.truncnorm.rvs(-m/bw,(1-m)/bw, loc=m, scale=self.bw_factor*bw))
 						else:
 							
 							if np.random.rand() < (1-bw):
@@ -253,6 +252,4 @@ class BOHB(base_config_generator):
 		}
 
 		# update probs for the categorical parameters for later sampling
-		#print(good_kde.data.shape, good_kde.bw)
-		#print(bad_kde.data.shape, bad_kde.bw)
 		self.logger.debug('done building a new model for budget %f based on %i/%i split\nBest loss for this budget:%f\n\n\n\n\n'%(budget, n_good, n_bad, np.min(train_losses)))
