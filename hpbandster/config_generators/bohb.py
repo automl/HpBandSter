@@ -20,8 +20,8 @@ from pdb import set_trace
 class BOHB(base_config_generator):
 	
 	def __init__(self, configspace, min_points_in_model = None,
-				 top_n_percent=15, num_samples = 256, random_fraction=1/3,
-				 bandwidth_factor=2,
+				 top_n_percent=15, num_samples = 64, random_fraction=1/3,
+				 bandwidth_factor=3,
 				**kwargs):
 		"""
 			Fits for each given budget a kernel density estimator on the best N percent of the
@@ -54,7 +54,7 @@ class BOHB(base_config_generator):
 
 		self.min_points_in_model = min_points_in_model
 		if min_points_in_model is None:
-			self.min_points_in_model = 2*len(self.configspace.get_hyperparameters())
+			self.min_points_in_model = len(self.configspace.get_hyperparameters())+1
 
 		self.num_samples = num_samples
 		self.random_fraction = random_fraction
@@ -126,7 +126,7 @@ class BOHB(base_config_generator):
 				l = self.kde_models[budget]['good'].pdf
 				g = self.kde_models[budget]['bad' ].pdf
 			
-				minimize_me = lambda x: max(1-e8, g(x))/max(l(x), 1e-8)
+				minimize_me = lambda x: max(1e-8, g(x))/max(l(x), 1e-8)
 				
 				kde_good = self.kde_models[budget]['good']
 
