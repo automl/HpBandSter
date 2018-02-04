@@ -20,8 +20,8 @@ from pdb import set_trace
 class BOHB(base_config_generator):
 	
 	def __init__(self, configspace, min_points_in_model = None,
-				 top_n_percent=15, num_samples = 32, random_fraction=1/3,
-				 bandwidth_factor=2,
+				 top_n_percent=10, num_samples = 32, random_fraction=1/3,
+				 bandwidth_factor=3,
 				**kwargs):
 		"""
 			Fits for each given budget a kernel density estimator on the best N percent of the
