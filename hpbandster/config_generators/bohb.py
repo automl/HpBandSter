@@ -20,8 +20,8 @@ from pdb import set_trace
 class BOHB(base_config_generator):
 	
 	def __init__(self, configspace, min_points_in_model = None,
-				 top_n_percent=10, num_samples = 32, random_fraction=1/3,
-				 bandwidth_factor=3,
+				 top_n_percent=15, num_samples = 256, random_fraction=1/3,
+				 bandwidth_factor=2,
 				**kwargs):
 		"""
 			Fits for each given budget a kernel density estimator on the best N percent of the
@@ -126,18 +126,17 @@ class BOHB(base_config_generator):
 				l = self.kde_models[budget]['good'].pdf
 				g = self.kde_models[budget]['bad' ].pdf
 			
-				minimize_me = lambda x: g(x)/np.clip(l(x), 1e-8, None)
+				minimize_me = lambda x: max(1-e8, g(x))/max(l(x), 1e-8)
 				
 				kde_good = self.kde_models[budget]['good']
 
 				for i in range(self.num_samples):
-					idx = np.random.choice(range(kde_good.data.shape[0]), 1)[0]
-
+					#idx = np.random.choice(range(kde_good.data.shape[0]), 1)[0]
+					idx = np.random.randint(0, len(kde_good.data))
 
 					vector = []
 					
 					for m,bw,t in zip(kde_good.data[idx], kde_good.bw, self.vartypes):
-
 						if t == 0:
 							vector.append(sps.truncnorm.rvs(-m/bw,(1-m)/bw, loc=m, scale=self.bw_factor*bw))
 						else:
@@ -192,7 +191,7 @@ class BOHB(base_config_generator):
 			# assign a +inf loss and count them as bad configurations
 			loss = np.inf
 		else:
-			loss = job.result["loss"]           
+			loss = job.result["loss"]
 
 		budget = job.kwargs["budget"]
 
@@ -223,7 +222,7 @@ class BOHB(base_config_generator):
 
 		#n_good= max(len(self.configspace.get_hyperparameters())+1, int(max(1, np.sqrt(len(train_configs))/4)))
 		n_good= max(self.min_points_in_model, (self.top_n_percent * train_configs.shape[0])//100 )
-		n_bad = max(self.min_points_in_model, train_configs.shape[0] - n_good)
+		n_bad = max(self.min_points_in_model, ((100-self.top_n_percent)*train_configs.shape[0])//100)
 
 
 		# Refit KDE for the current budget
