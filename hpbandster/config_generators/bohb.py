@@ -54,7 +54,7 @@ class BOHB(base_config_generator):
 
 		self.min_points_in_model = min_points_in_model
 		if min_points_in_model is None:
-			self.min_points_in_model = len(self.configspace.get_hyperparameters())+1
+			self.min_points_in_model = 2*len(self.configspace.get_hyperparameters())
 
 		self.num_samples = num_samples
 		self.random_fraction = random_fraction
