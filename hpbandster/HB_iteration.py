@@ -1,3 +1,5 @@
+import sys
+
 import numpy as np
 import pdb
 
@@ -68,7 +70,6 @@ class SuccessiveHalving(object):
 									'budget'     : self.budgets[self.SH_iter]
 								}
 		self.actual_num_configs[self.SH_iter] += 1
-
 		return(config_id)
 
 	def register_result(self, job):
@@ -162,7 +163,6 @@ class SuccessiveHalving(object):
 		
 		# collect all config_ids that need to be compared
 		config_ids = list(filter(lambda cid: self.data[cid]['status'] == 'REVIEW', self.data.keys()))
-
 
 		if (self.SH_iter >= len(self.num_configs)):
 			self.cleanup()
