@@ -24,7 +24,7 @@ class HpBandSter(object):
 					ns_port=None,
 					host=None,
 					shutdown_workers=True,
-					job_queue_sizes=(0,np.inf),
+					job_queue_sizes=(0,1),
 					dynamic_queue_size=False,
 					logger=None
 					):
@@ -62,10 +62,10 @@ class HpBandSter(object):
 			flag to control whether the workers are shutdown after the computation is done
 		job_queue_size: tuple of ints
 			min and max size of the job queue. During the run, when the number of jobs in the queue
-			reaches the min value, it will be filled up to contain
+			reaches the min value, it will be filled up to the max size. Default: (0,1)
 		dynamic_queue_size: bool
 			Whether or not to change the queue size based on the number of workers available.
-			If true, the job_queue_sizes are relative to the current number of workers.
+			If true (default), the job_queue_sizes are relative to the current number of workers.
 
 		"""
 
@@ -210,9 +210,9 @@ class HpBandSter(object):
 
 	def _submit_job(self, config_id, config, budget):
 		"""
-			hidden function to submit a new job to the dispy cluster
+			hidden function to submit a new job to the dispatcher
 
-			This function handles the actual dispy submission, keeping the number
+			This function handles the actual submission, keeping the number
 			of jobs in the queue in the job_queue_sizes range
 		"""
 		self.thread_cond.acquire()
@@ -224,6 +224,7 @@ class HpBandSter(object):
 		self.num_running_jobs += 1
 		self.thread_cond.release()
 
+		#shouldn't the next line be executed while holding the condition?
 		job = self.dispatcher.submit_job(config_id, config=config, budget=budget, working_directory=self.working_directory)
 		self.logger.debug("HBMASTER: job %s submitted to dispatcher"%str(config_id))
 
@@ -232,6 +233,4 @@ class HpBandSter(object):
 		return(list(filter(lambda idx: not self.iterations[idx].is_finished, range(len(self.iterations)))))
 
 	def __del__(self):
-		if hasattr(self, 'cluster') and not self.cluster is None:
-			self.shutdown()
-
+		pass

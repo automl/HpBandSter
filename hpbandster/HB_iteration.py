@@ -4,6 +4,25 @@ import numpy as np
 import pdb
 
 
+
+
+
+def 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class SuccessiveHalving(object):
 	"""
 		Class to handle a run of SuccessiveHalving (SH)
