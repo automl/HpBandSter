@@ -145,7 +145,7 @@ class HpBandSter(object):
 				HB_iteration: a valid HB iteration object
 		"""
 		
-
+		raise NotImplementedError('implement get_next_iteration for %s'%(type(self).__name__))
 
 
 	def run(self, n_iterations, iteration_class=SuccessiveHalving, min_n_workers=1, iteration_class_kwargs={}):
@@ -174,47 +174,33 @@ class HpBandSter(object):
 
 
 
-		self.iterations.append(get_next_iteration(len(self.iterations)))
-		n_iterations -= 1
+		self.thread_cond.acquire()
 
-		while len(self.active_iterations()) > 0:
-			self._queue_wait()
+		while True:
+			
+			# find a new run to schedule
 			for i in self.active_iterations():
 				next_run = self.iterations[i].get_next_run()
-				if not next_run is None:
-					break
+				if not next_run is None: break
 
 
-			self.logger.debug('HBMASTER: schedule new run for iteration %i'%i)
-			self._submit_job(*next_run)
-					break # makes sure that iterations with lower numbers are scheduled first
+			if not next_run is None:
+				self.logger.debug('HBMASTER: schedule new run for iteration %i'%i)
+				self._submit_job(*next_run)
+			
+			else:						# if no run can be scheduled right now
+				if n_iterations > 0:	#we might be able to start the next iteration
+					self.iterations.append(get_next_iteration(len(self.iterations)))
+					n_iterations -= 1
+				else:					#or we have to wait for some job to finish
+					self._queue_wait()
+				continue				# try again to schedule a new run
 
 
-		while n_iterations > 0:
+			if not self.active_iterations():
+				break # current run is finished if there are no active iterations at this point
 
-
-
-			while len(self.active_iterations()
-
-		
-		for it in range(len(self.iterations), len(self.iterations)+n_iterations):
-			# number of SH iterations
-			s = self.max_SH_iter - 1 - (it%self.max_SH_iter)
-			# number of configurations in that bracket
-			n0 = int(np.floor((self.max_SH_iter)/(s+1)) * self.eta**s)
-			ns = [max(int(n0*(self.eta**(-i))), 1) for i in range(s+1)]
-
-			self.iterations.append(iteration_class(iter_number=it, num_configs=ns, budgets=self.budgets[(-s-1):], config_sampler=self.config_generator.get_config, **iteration_class_kwargs))
-
-		while len(self.active_iterations()) > 0:
-			# find a new run to start
-			for i in self.active_iterations():
-				next_run = self.iterations[i].get_next_run()
-				if not next_run is None:
-					self.logger.debug('HBMASTER: schedule new run for iteration %i'%i)
-					self._submit_job(*next_run)
-					break # makes sure that iterations with lower numbers are scheduled first
-
+		self.thread_cond.release()
 		return HB_result([copy.deepcopy(i.data) for i in self.iterations], self.config)
 
 
@@ -274,8 +260,15 @@ class HpBandSter(object):
 		self.logger.debug("HBMASTER: job %s submitted to dispatcher"%str(config_id))
 
 	def active_iterations(self):
-		""" function that returns a list of all iterations that are not marked as finished """
-		return(list(filter(lambda idx: not self.iterations[idx].is_finished, range(len(self.iterations)))))
+		""" function to find active (not marked as finished) iterations 
+
+			Returns:
+			--------
+				list: all active iteration objects (empty if there are none)
+		"""
+
+		l = list(filter(lambda idx: not self.iterations[idx].is_finished, range(len(self.iterations))))
+		return(l)
 
 	def __del__(self):
 		pass
