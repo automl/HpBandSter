@@ -2,7 +2,7 @@ import time
 import numpy as np
 import random
 
-from hpbandster.distributed.worker import Worker
+from hpbandster.core.worker import Worker
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -26,7 +26,7 @@ class MyWorker(Worker):
 		time.sleep(1)
 
 		# simulate some random failure
-		if random.random() < 0.2:
+		if random.random() < 0.:
 			raise RuntimeError("Random runtime error!")
 		
 		

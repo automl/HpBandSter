@@ -9,11 +9,11 @@ import Pyro4
 
 
 class Worker(object):
-	def __init__(self, run_id='0', nameserver=None, ns_port=None, logger=None, host=None, id=None):
+	def __init__(self, run_id='0', nameserver=None, nameserver_port=None, logger=None, host=None, id=None):
 		self.run_id = run_id
 		self.host = host
 		self.nameserver = nameserver
-		self.ns_port = ns_port
+		self.nameserver_port = nameserver_port
 		self.worker_id =  "hpbandster.run_%s.worker.%s.%i"%(self.run_id, socket.gethostname(), os.getpid())
 		
 		if not id is None:
@@ -54,7 +54,7 @@ class Worker(object):
 
 	def _run(self):
 		# initial ping to the dispatcher to register the worker
-		with Pyro4.locateNS(host=self.nameserver, port=self.ns_port) as ns:
+		with Pyro4.locateNS(host=self.nameserver, port=self.nameserver_port) as ns:
 			self.logger.debug('WORKER: Connected to nameserver %s'%(str(ns)))
 			dispatchers = ns.list(prefix="hpbandster.run_%s.dispatcher"%self.run_id)
 
@@ -77,13 +77,13 @@ class Worker(object):
 
 		self.pyro_daemon = Pyro4.core.Daemon(host=self.host)
 
-		with Pyro4.locateNS(self.nameserver, port=self.ns_port) as ns:
+		with Pyro4.locateNS(self.nameserver, port=self.nameserver_port) as ns:
 			uri = self.pyro_daemon.register(self, self.worker_id)
 			ns.register(self.worker_id, uri)
 		
 		self.pyro_daemon.requestLoop()
 
-		with Pyro4.locateNS(self.nameserver, port=self.ns_port) as ns:
+		with Pyro4.locateNS(self.nameserver, port=self.nameserver_port) as ns:
 			ns.remove(self.worker_id)
 		
 		

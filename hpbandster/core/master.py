@@ -9,22 +9,21 @@ import logging
 import numpy as np
 
 
-from hpbandster.distributed.dispatcher import Dispatcher
-from hpbandster.HB_iteration import SuccessiveHalving
-from hpbandster.HB_result import HB_result
+from hpbandster.core.dispatcher import Dispatcher
+from hpbandster.api.results.result import Result
 
-class HpBandSter(object):
+class Master(object):
 	def __init__(self,
 					run_id,
 					config_generator,
 					working_directory='.',
 					ping_interval=60,
 					nameserver='127.0.0.1',
-					ns_port=None,
+					nameserver_port=None,
 					host=None,
 					shutdown_workers=True,
-					job_queue_sizes=(0,1),
-					dynamic_queue_size=False,
+					job_queue_sizes=(-1,0),
+					dynamic_queue_size=True,
 					logger=None
 					):
 		"""
@@ -32,7 +31,7 @@ class HpBandSter(object):
 		Parameters
 		----------
 		run_id : string
-			A unique identifier of that Hyperband run. Use the cluster's JobID when running multiple
+			A unique identifier of that Hyperband run. Use, for example, the cluster's JobID when running multiple
 			concurrent runs to separate them
 		config_generator: hpbandster.config_generators object
 			An object that can generate new configurations and registers results of executed runs
@@ -53,7 +52,7 @@ class HpBandSter(object):
 			number of seconds between pings to discover new nodes. Default is 60 seconds.
 		nameserver: str
 			address of the Pyro4 nameserver
-		ns_port: int
+		nameserver_port: int
 			port of Pyro4 nameserver
 		host: str
 			ip (or name that resolves to that) of the network interface to use
@@ -101,7 +100,7 @@ class HpBandSter(object):
 						'time_ref'   : self.time_ref
 					}
 
-		self.dispatcher = Dispatcher( self.job_callback, queue_callback=self.adjust_queue_size, run_id=run_id, ping_interval=ping_interval, nameserver=nameserver, ns_port=ns_port, host=host)
+		self.dispatcher = Dispatcher( self.job_callback, queue_callback=self.adjust_queue_size, run_id=run_id, ping_interval=ping_interval, nameserver=nameserver, nameserver_port=nameserver_port, host=host)
 
 		self.dispatcher_thread = threading.Thread(target=self.dispatcher.run)
 		self.dispatcher_thread.start()
@@ -113,7 +112,7 @@ class HpBandSter(object):
 		self.dispatcher_thread.join()
 
 
-	def wait_for_workers(min_num_workers=1):
+	def wait_for_workers(self, min_n_workers=1):
 		"""
 			helper function to hold execution until some workers are active
 
@@ -123,11 +122,16 @@ class HpBandSter(object):
 				minimum number of workers present before the run starts		
 
 		"""
-		while (self.dispatcher.number_of_workers() < min_n_workers):
-			self.logger.debug('HBMASTER: only %i worker(s) available, waiting for at least %i.'%(self.dispatcher.number_of_workers(), min_n_workers))
-			time.sleep(1)
-
-
+	
+		self.logger.debug('wait_for_workers trying to get the condition')
+		with self.thread_cond:
+			self.logger.debug('wait_for_workers holding the condition, currently %i workers available, waiting for %i'%(self.dispatcher.number_of_workers(), min_n_workers))
+			while (self.dispatcher.number_of_workers() < min_n_workers):
+				self.logger.debug('HBMASTER: only %i worker(s) available, waiting for at least %i.'%(self.dispatcher.number_of_workers(), min_n_workers))
+				self.logger.debug('wating \n\n')
+				self.thread_cond.wait(1)
+		self.logger.debug('wait_for_workers released the condition')
+			
 
 	def get_next_iteration(self, iteration):
 		"""
@@ -148,7 +152,7 @@ class HpBandSter(object):
 		raise NotImplementedError('implement get_next_iteration for %s'%(type(self).__name__))
 
 
-	def run(self, n_iterations, iteration_class=SuccessiveHalving, min_n_workers=1, iteration_class_kwargs={}):
+	def run(self, n_iterations):
 		"""
 			run n_iterations of SuccessiveHalving
 
@@ -165,7 +169,6 @@ class HpBandSter(object):
 
 		"""
 
-
 		if self.time_ref is None:
 			self.time_ref = time.time()
 			self.config['time_ref'] = self.time_ref
@@ -175,11 +178,21 @@ class HpBandSter(object):
 
 
 		self.thread_cond.acquire()
+		self.logger.debug('run holding the condition')
 
 		while True:
+
+			self._queue_wait()
 			
+			next_run = None
 			# find a new run to schedule
+			self.logger.debug('1st active iterations: %s'%self.active_iterations())
 			for i in self.active_iterations():
+				self.logger.debug('i: %i'%i)
+				self.logger.debug("next run: {}".format(next_run))
+
+
+				#pdb.set_trace()
 				next_run = self.iterations[i].get_next_run()
 				if not next_run is None: break
 
@@ -187,31 +200,40 @@ class HpBandSter(object):
 			if not next_run is None:
 				self.logger.debug('HBMASTER: schedule new run for iteration %i'%i)
 				self._submit_job(*next_run)
-			
-			else:						# if no run can be scheduled right now
+				continue
+			else:
 				if n_iterations > 0:	#we might be able to start the next iteration
-					self.iterations.append(get_next_iteration(len(self.iterations)))
+					self.iterations.append(self.get_next_iteration(len(self.iterations)))
 					n_iterations -= 1
-				else:					#or we have to wait for some job to finish
-					self._queue_wait()
-				continue				# try again to schedule a new run
+					continue
 
 
-			if not self.active_iterations():
-				break # current run is finished if there are no active iterations at this point
+			# at this point there is no imediate run that can be scheduled
+			self.logger.debug("next run: {}".format(next_run))
+			self.logger.debug("n_iterations: {}".format(n_iterations))
+			self.logger.debug('active iterations: %s'%self.active_iterations())
+			self.logger.debug('num iterations: %i'%len(self.iterations))
+			
+			if self.active_iterations():
+				self.thread_cond.wait()
+			else:
+				break
+
 
 		self.thread_cond.release()
-		return HB_result([copy.deepcopy(i.data) for i in self.iterations], self.config)
+		return Result([copy.deepcopy(i.data) for i in self.iterations], self.config)
 
 
 	def adjust_queue_size(self, number_of_workers=None):
-		if self.dynamic_queue_size:
-			self.logger.debug('HBMASTER: adjusting queue size, number of workers %s'%str(number_of_workers))
-			with self.thread_cond:
+
+		self.logger.debug('HBMASTER: number of workers changed to %s'%str(number_of_workers))
+		with self.thread_cond:
+			self.logger.debug('adjust_queue_size: lock accquired')
+			if self.dynamic_queue_size:
 				nw = self.dispatcher.number_of_workers() if number_of_workers is None else number_of_workers
 				self.job_queue_sizes = (self.user_job_queue_sizes[0] + nw, self.user_job_queue_sizes[1] + nw)
 				self.logger.info('HBMASTER: adjusted queue size to %s'%str(self.job_queue_sizes))
-				self.thread_cond.notify_all()
+			self.thread_cond.notify_all()
 
 
 	def job_callback(self, job):
@@ -221,8 +243,9 @@ class HpBandSter(object):
 			this will do some book keeping and call the user defined
 			new_result_callback if one was specified
 		"""
-		self.logger.debug('job_callback for %s'%str(job.id))
+		self.logger.debug('job_callback for %s started'%str(job.id))
 		with self.thread_cond:
+			self.logger.debug('job_callback for %s got condition'%str(job.id))
 			self.num_running_jobs -= 1
 
 			if self.num_running_jobs <= self.job_queue_sizes[0]:
@@ -230,8 +253,8 @@ class HpBandSter(object):
 				self.thread_cond.notify()
 
 			self.iterations[job.id[0]].register_result(job)
-		self.config_generator.new_result(job)
-
+			self.config_generator.new_result(job)
+		self.logger.debug('job_callback for %s finished'%str(job.id))
 
 	def _queue_wait(self):
 		"""
@@ -241,6 +264,7 @@ class HpBandSter(object):
 		if self.num_running_jobs >= self.job_queue_sizes[1]:
 			while(self.num_running_jobs > self.job_queue_sizes[0]):
 				self.logger.debug('HBMASTER: running jobs: %i, queue sizes: %s -> wait'%(self.num_running_jobs, str(self.job_queue_sizes)))
+				self.logger.debug('wating \n\n')
 				self.thread_cond.wait()
 
 	def _submit_job(self, config_id, config, budget):
@@ -250,7 +274,7 @@ class HpBandSter(object):
 			This function handles the actual submission in a
 			(hopefully) thread save way
 		"""
-
+		self.logger.debug('HBMASTER: trying submitting job %s to dispatcher'%str(config_id))
 		with self.thread_cond:
 			self.logger.debug('HBMASTER: submitting job %s to dispatcher'%str(config_id))
 			job = self.dispatcher.submit_job(config_id, config=config, budget=budget, working_directory=self.working_directory)

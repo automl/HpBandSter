@@ -1,6 +1,6 @@
 import logging
 import traceback
-from hpbandster.utils import  json_result_logger
+from hpbandster.api.results.util import  json_result_logger
 
 
 class base_config_generator(object):

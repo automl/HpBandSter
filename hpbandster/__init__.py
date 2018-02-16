@@ -1,5 +1,1 @@
-from hpbandster.HB_master import *
-from hpbandster.HB_result import *
-
-
-import hpbandster.config_generators.random_sampling
+from hpbandster.api.optimizers.hyperband import HyperBand

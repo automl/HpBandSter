@@ -61,7 +61,7 @@ def extract_HB_learning_curves(runs):
 
 
 
-class HB_result(object):
+class Result(object):
 	"""
 		Object returned by the HB_master.run function
 

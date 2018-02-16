@@ -12,6 +12,7 @@ setup(
 	python_requires='>=3',
 	install_requires=['Pyro4', 'serpent', 'ConfigSpace', 'numpy'],
 	extras_require = {
-	    'Kernel Density Estimator support': ['statsmodels', 'scipy']
+	    'Kernel Density Estimator support': ['statsmodels', 'scipy'],
+	    'Automatic hostname inference': ['netifaces'],
 	},
 )

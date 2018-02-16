@@ -60,14 +60,14 @@ class Worker(object):
 class Dispatcher(object):
 	def __init__(self, new_result_callback, run_id='0',
 					ping_interval=10, nameserver='localhost',
-					ns_port=None, 
+					nameserver_port=None, 
 					host=None, logger=None, queue_callback=None):
 
 		self.new_result_callback = new_result_callback
 		self.queue_callback = queue_callback
 		self.run_id = run_id
 		self.nameserver = nameserver
-		self.ns_port = ns_port
+		self.nameserver_port = nameserver_port
 		self.host = host
 		self.ping_interval = int(ping_interval)
 		self.shutdown_all_threads = False
@@ -104,7 +104,7 @@ class Dispatcher(object):
 
 			self.pyro_daemon = Pyro4.core.Daemon(host=self.host)
 
-			with Pyro4.locateNS(host=self.nameserver, port=self.ns_port) as ns:
+			with Pyro4.locateNS(host=self.nameserver, port=self.nameserver_port) as ns:
 				uri = self.pyro_daemon.register(self, self.pyro_id)
 				ns.register(self.pyro_id, uri)
 
@@ -123,7 +123,7 @@ class Dispatcher(object):
 			
 			
 		
-			with Pyro4.locateNS(self.nameserver, port=self.ns_port) as ns:
+			with Pyro4.locateNS(self.nameserver, port=self.nameserver_port) as ns:
 				ns.remove(self.pyro_id)
 
 		t1.join()
@@ -162,7 +162,7 @@ class Dispatcher(object):
 			self.logger.debug('DISPATCHER: Starting worker discovery')
 			update = False
 		
-			with Pyro4.locateNS(host=self.nameserver, port=self.ns_port) as ns:
+			with Pyro4.locateNS(host=self.nameserver, port=self.nameserver_port) as ns:
 				worker_names = ns.list(prefix="hpbandster.run_%s.worker."%self.run_id)
 				self.logger.debug("DISPATCHER: Found %i potential workers, %i currently in the pool."%(len(worker_names), len(self.worker_pool)))
 				
@@ -204,7 +204,9 @@ class Dispatcher(object):
 			# try to submit more jobs if something changed
 			if update:
 				if not self.queue_callback is None:
+					self.discover_cond.release()
 					self.queue_callback(len(self.worker_pool))
+					self.discover_cond.acquire()
 				self.runner_cond.notify()
 
 			for crashed_job in crashed_jobs:
@@ -213,7 +215,12 @@ class Dispatcher(object):
 				self.discover_cond.acquire()
 
 			self.logger.debug('DISPATCHER: Finished worker discovery')
-			self.discover_cond.wait(self.ping_interval)
+
+			if (len(self.worker_pool) == 0): # ping for new workers if no workers are currently available
+				self.discover_cond.wait(1)
+			else:
+				self.discover_cond.wait(self.ping_interval)
+
 			if self.shutdown_all_threads:
 				self.logger.debug('DISPATCHER: discover_workers shutting down')
 				self.runner_cond.notify()
