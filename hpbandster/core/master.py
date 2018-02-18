@@ -125,12 +125,13 @@ class Master(object):
 	
 		self.logger.debug('wait_for_workers trying to get the condition')
 		with self.thread_cond:
-			self.logger.debug('wait_for_workers holding the condition, currently %i workers available, waiting for %i'%(self.dispatcher.number_of_workers(), min_n_workers))
 			while (self.dispatcher.number_of_workers() < min_n_workers):
 				self.logger.debug('HBMASTER: only %i worker(s) available, waiting for at least %i.'%(self.dispatcher.number_of_workers(), min_n_workers))
 				self.logger.debug('wating \n\n')
 				self.thread_cond.wait(1)
-		self.logger.debug('wait_for_workers released the condition')
+				self.dispatcher.trigger_discover_worker()
+				
+		self.logger.debug('Enough workers to start this run!')
 			
 
 	def get_next_iteration(self, iteration):
@@ -152,7 +153,7 @@ class Master(object):
 		raise NotImplementedError('implement get_next_iteration for %s'%(type(self).__name__))
 
 
-	def run(self, n_iterations):
+	def run(self, n_iterations, min_n_workers=1):
 		"""
 			run n_iterations of SuccessiveHalving
 
@@ -160,14 +161,11 @@ class Master(object):
 			-----------
 			n_iterations: int
 				number of iterations to be performed in this run
-			iteration_class: SuccessiveHalving like class
-				class that runs an iteration of SuccessiveHalving or a similar
-				algorithm. The API is defined by the SuccessiveHalving implementation
-
-			iteration_class_kwargs: dict
-				Additional keyward arguments passed to iteration_class
-
+			min_n_workers: int
+				minimum number of workers before starting the run
 		"""
+
+		self.wait_for_workers(min_n_workers)
 
 		if self.time_ref is None:
 			self.time_ref = time.time()
@@ -175,27 +173,16 @@ class Master(object):
 		
 			self.logger.info('HBMASTER: starting run at %s'%(str(self.time_ref)))
 
-
-
 		self.thread_cond.acquire()
-		self.logger.debug('run holding the condition')
-
 		while True:
 
 			self._queue_wait()
 			
 			next_run = None
 			# find a new run to schedule
-			self.logger.debug('1st active iterations: %s'%self.active_iterations())
 			for i in self.active_iterations():
-				self.logger.debug('i: %i'%i)
-				self.logger.debug("next run: {}".format(next_run))
-
-
-				#pdb.set_trace()
 				next_run = self.iterations[i].get_next_run()
 				if not next_run is None: break
-
 
 			if not next_run is None:
 				self.logger.debug('HBMASTER: schedule new run for iteration %i'%i)
@@ -207,18 +194,12 @@ class Master(object):
 					n_iterations -= 1
 					continue
 
-
-			# at this point there is no imediate run that can be scheduled
-			self.logger.debug("next run: {}".format(next_run))
-			self.logger.debug("n_iterations: {}".format(n_iterations))
-			self.logger.debug('active iterations: %s'%self.active_iterations())
-			self.logger.debug('num iterations: %i'%len(self.iterations))
-			
+			# at this point there is no imediate run that can be scheduled,
+			# so wait for some job to finish if there are active iterations
 			if self.active_iterations():
 				self.thread_cond.wait()
 			else:
 				break
-
 
 		self.thread_cond.release()
 		return Result([copy.deepcopy(i.data) for i in self.iterations], self.config)

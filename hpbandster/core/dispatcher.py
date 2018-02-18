@@ -150,7 +150,7 @@ class Dispatcher(object):
 	@Pyro4.expose
 	@Pyro4.oneway
 	def trigger_discover_worker(self):
-		time.sleep(1)
+		#time.sleep(1)
 		self.logger.info("DISPATCHER: A new worker triggered discover_worker")
 		with self.discover_cond:
 			self.discover_cond.notify()
@@ -158,6 +158,8 @@ class Dispatcher(object):
 	
 	def discover_workers(self):
 		self.discover_cond.acquire()
+		sleep_interval = 1
+		
 		while True:
 			self.logger.debug('DISPATCHER: Starting worker discovery')
 			update = False
@@ -216,10 +218,12 @@ class Dispatcher(object):
 
 			self.logger.debug('DISPATCHER: Finished worker discovery')
 
-			if (len(self.worker_pool) == 0): # ping for new workers if no workers are currently available
-				self.discover_cond.wait(1)
-			else:
-				self.discover_cond.wait(self.ping_interval)
+			#if (len(self.worker_pool) == 0 ): # ping for new workers if no workers are currently available
+			#	self.logger.debug('No workers available! Keep pinging')
+			#	self.discover_cond.wait(sleep_interval)
+			#	sleep_interval *= 2
+			#else:
+			self.discover_cond.wait(self.ping_interval)
 
 			if self.shutdown_all_threads:
 				self.logger.debug('DISPATCHER: discover_workers shutting down')

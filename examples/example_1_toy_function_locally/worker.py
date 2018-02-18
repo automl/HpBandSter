@@ -39,11 +39,3 @@ class MyWorker(Worker):
 					'loss': np.mean(res),   # this is the a mandatory field to run hyperband
 					'info': res             # can be used for any user-defined information - also mandatory
 				})
-
-
-
-
-# the code below makes this a runnable script to start the worker from the command line
-if __name__ == "__main__":
-	worker = MyWorker(run_id='0', nameserver='localhost')
-	worker.run()			# this starts the Pyro daemon
