@@ -17,7 +17,7 @@ from hpbandster.config_generators import RandomSampling
 
 class HyperBand(Master):
 	def __init__(self, *args,
-					config_space = None,
+					configspace = None,
 					eta=3, min_budget=0.01, max_budget=1,
 					**kwargs
 					):
@@ -25,7 +25,7 @@ class HyperBand(Master):
 
 		Parameters
 		----------
-		config_space: ConfigSpace object
+		configspace: ConfigSpace object
 			valid representation of the search space
 		eta : float
 			In each iteration, a complete run of sequential halving is executed. In it,
@@ -42,25 +42,19 @@ class HyperBand(Master):
 
 
 		# TODO: Propper check for ConfigSpace object!
-		if config_space is None:
+		if configspace is None:
 			raise ValueError("You have to provide a valid CofigSpace object")
 
-		super().__init__(*args, config_generator=RandomSampling(config_space), **kwargs)
-
-
-
-
+		super().__init__(*args, config_generator=RandomSampling(configspace), **kwargs)
 
 		# Hyperband related stuff
 		self.eta = eta
 		self.min_budget = min_budget
 		self.max_budget = max_budget
 
-
 		# precompute some HB stuff
 		self.max_SH_iter = -int(np.log(min_budget/max_budget)/np.log(eta)) + 1
 		self.budgets = max_budget * np.power(eta, -np.linspace(self.max_SH_iter-1, 0, self.max_SH_iter))
-
 
 		# condition to synchronize the job_callback and the queue
 		self.thread_cond = threading.Condition()
@@ -75,12 +69,11 @@ class HyperBand(Master):
 
 
 
-	def get_next_iteration(self, iteration):
+	def get_next_iteration(self, iteration, iteration_kwargs={}):
 		"""
-			instantiates the next iteration
-
-			Overwrite this to change the iterations for different optimizers
-
+			Hyperband uses SuccessiveHalving for each iteration.
+			See Li et al. (2016) for reference.
+			
 			Parameters:
 			-----------
 				iteration: int
@@ -88,7 +81,8 @@ class HyperBand(Master):
 
 			Returns:
 			--------
-				HB_iteration: a valid HB iteration object
+				SuccessiveHalving: the SuccessiveHalving iteration with the
+					corresponding number of configurations
 		"""
 		
 		# number of 'SH rungs'
@@ -97,4 +91,4 @@ class HyperBand(Master):
 		n0 = int(np.floor((self.max_SH_iter)/(s+1)) * self.eta**s)
 		ns = [max(int(n0*(self.eta**(-i))), 1) for i in range(s+1)]
 
-		return(SuccessiveHalving(iter_number=iteration, num_configs=ns, budgets=self.budgets[(-s-1):], config_sampler=self.config_generator.get_config))
+		return(SuccessiveHalving(HPB_iter=iteration, num_configs=ns, budgets=self.budgets[(-s-1):], config_sampler=self.config_generator.get_config, **iteration_kwargs))

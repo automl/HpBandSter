@@ -134,7 +134,7 @@ class Master(object):
 		self.logger.debug('Enough workers to start this run!')
 			
 
-	def get_next_iteration(self, iteration):
+	def get_next_iteration(self, iteration, iteration_kwargs):
 		"""
 			instantiates the next iteration
 
@@ -144,6 +144,8 @@ class Master(object):
 			-----------
 				iteration: int
 					the index of the iteration to be instantiated
+				iteration_kwargs: dict
+					additional kwargs for the iteration class
 
 			Returns:
 			--------
@@ -153,7 +155,7 @@ class Master(object):
 		raise NotImplementedError('implement get_next_iteration for %s'%(type(self).__name__))
 
 
-	def run(self, n_iterations, min_n_workers=1):
+	def run(self, n_iterations, min_n_workers=1, iteration_kwargs = {},):
 		"""
 			run n_iterations of SuccessiveHalving
 
@@ -190,7 +192,7 @@ class Master(object):
 				continue
 			else:
 				if n_iterations > 0:	#we might be able to start the next iteration
-					self.iterations.append(self.get_next_iteration(len(self.iterations)))
+					self.iterations.append(self.get_next_iteration(len(self.iterations), iteration_kwargs))
 					n_iterations -= 1
 					continue
 

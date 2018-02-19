@@ -2,6 +2,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 from hpbandster.api.optimizers.hyperband import HyperBand
+
 import hpbandster.api.util as hputil
 
 import ConfigSpace as CS
@@ -31,7 +32,7 @@ ns_host, ns_port = hputil.start_local_nameserver(host='localhost', port=0)
 # Start a bunch of workers in some threads, just to show how it works.
 # On the cluster, each worker would run in a separate job and the nameserver
 # credentials have to be distributed.
-num_workers = 2
+num_workers = 1
 
 workers=[]
 for i in range(num_workers):
@@ -43,8 +44,10 @@ for i in range(num_workers):
 	workers.append(w)
 
 
-HB = HyperBand(
-				config_space = config_space,
+HB = HyperBand(	# Try BOHB here instead of Hyperband:
+				# simply add
+				# from hpbandster.api.optimizers.bohb import BOHB
+				configspace = config_space,
 				run_id = '0',
                 eta=3,min_budget=1, max_budget=9,	# HB parameters
 				nameserver=ns_host,
@@ -54,3 +57,5 @@ HB = HyperBand(
 
 res = HB.run(2, min_n_workers=num_workers)
 HB.shutdown(shutdown_workers=True)
+
+

@@ -4,19 +4,29 @@ import numpy as np
 import pdb
 
 
+class Datum(object):
+	def __init__(self, config, config_info, results=None, time_stamps=None, exceptions=None, status='QUEUED', budget=0):
+		self.config		= config
+		self.config_info= config_info
+		self.results	= results		if not results is None else {}
+		self.time_stamps= time_stamps	if not time_stamps is None else {}
+		self.exception	= exceptions	if not exceptions is None else {}
+		self.status		= status
+		self.budget		= budget
 
 
-class SuccessiveHalving(object):
+
+class BaseIteration(object):
 	"""
-		Class to handle a run of SuccessiveHalving (SH)
+		Base class for the various iteration classes
 	"""
-	def __init__(self, iter_number, num_configs, budgets, config_sampler):
+	def __init__(self, HPB_iter, num_configs, budgets, config_sampler):
 		"""
 			Parameters:
 			-----------
 
-			iter_number: int
-				which Hyperband Iteration this run of SH corresponds to
+			HPB_iter: int
+				The current HPBandSter iteration index.
 			num_configs: list of ints
 				the number of configurations in each stage of SH
 			budgets: list of floats
@@ -29,10 +39,10 @@ class SuccessiveHalving(object):
 				to build a better autoML system.
 		"""
 
-		self.data = {}
+		self.data = {}					# this holds all the configs and results of this iteration
 		self.is_finished = False
-		self.HB_iter = iter_number
-		self.SH_iter = 0
+		self.HPB_iter = HPB_iter
+		self.stage = 0					# internal iteration, but different name for clarity
 		self.budgets = budgets
 		self.num_configs = num_configs
 		self.actual_num_configs = [0]*len(num_configs)
@@ -41,37 +51,31 @@ class SuccessiveHalving(object):
 
 	def add_configuration(self, config = None, config_info={}):
 		"""
-			function to add a new configuration to the current SH iteration
+			function to add a new configuration to the current iteration
 			
 			Parameters:
 			-----------
 			
 			config : valid configuration
-				The configuration to add. If None, a configuration is sampled from the
-				config_sampler
+				The configuration to add. If None, a configuration is sampled from the config_sampler
+			config_info: dict
+				Some information about the configuration that will be stored in the results
 		"""
 		
 		if config is None:
-			config, config_info = self.config_sampler(self.budgets[self.SH_iter])
+			config, config_info = self.config_sampler(self.budgets[self.stage])
 		
 		if self.is_finished:
-			raise RuntimeError("This HB iteration is finished, you can't  add more results!")
+			raise RuntimeError("This HPBandSter iteration is finished, you can't add more configurations!")
 
-		if self.actual_num_configs[self.SH_iter] == self.num_configs[self.SH_iter]:
-			raise RuntimeError("Can't add another configuration to SH_iteration %i in HB_iteration %i."%(self.SH_iter, self.HB_iter))
+		if self.actual_num_configs[self.stage] == self.num_configs[self.stage]:
+			raise RuntimeError("Can't add another configuration to stage %i in HPBandSter iteration %i."%(self.stage, self.HPB_iter))
 
-		config_id = (self.HB_iter, self.SH_iter, self.actual_num_configs[self.SH_iter])
+		config_id = (self.HPB_iter, self.stage, self.actual_num_configs[self.stage])
 
-		self.data[config_id] = {
-									'config'     : config,
-									'config_info': config_info,
-									'results'    : {},
-									'time_stamps': {},
-									'exceptions' : {},
-									'status'     : 'QUEUED',
-									'budget'     : self.budgets[self.SH_iter]
-								}
-		self.actual_num_configs[self.SH_iter] += 1
+		self.data[config_id] = Datum(config=config, config_info=config_info, budget = self.budgets[self.stage])
+
+		self.actual_num_configs[self.stage] += 1
 		return(config_id)
 
 	def register_result(self, job):
@@ -92,20 +96,20 @@ class SuccessiveHalving(object):
 		result = job.result
 		exception = job.exception
 		
+		d = self.data[config_id]
 		
-		assert self.data[config_id]['config'] == config, 'Configurations differ!'
-		assert self.data[config_id]['status'] == 'RUNNING', "Configuration wasn't scheduled for a run."
-		assert self.data[config_id]['budget'] == budget, 'Budgets differ (%f != %f)!'%(self.data[config_id]['budget'], budget)
+		assert d.config == config, 'Configurations differ!'
+		assert d.status == 'RUNNING', "Configuration wasn't scheduled for a run."
+		assert d.budget == budget, 'Budgets differ (%f != %f)!'%(self.data[config_id]['budget'], budget)
 
-
-		self.data[config_id]['time_stamps'][budget] = timestamps
-		self.data[config_id]['results'][budget] = result
+		d.time_stamps[budget] = timestamps
+		d.results[budget] = result
 
 		if (not job.result is None) and np.isfinite(result['loss']):
-			self.data[config_id]['status'] = 'REVIEW'
+			d.status = 'REVIEW'
 		else:
-			self.data[config_id]['status'] = 'CRASHED'
-			self.data[config_id]['exceptions'][budget] = {exception}
+			d.status = 'CRASHED'
+			d.exceptions[budget] = exception
 
 		self.num_running -= 1
 		
@@ -128,125 +132,94 @@ class SuccessiveHalving(object):
 			return(None)
 		
 		for k,v in self.data.items():
-			if v['status'] == 'QUEUED':
-				assert v['budget'] == self.budgets[self.SH_iter], 'Configuration budget does not align with current SH iteration!'
-				v['status'] = 'RUNNING'
+			if v.status == 'QUEUED':
+				assert v.budget == self.budgets[self.stage], 'Configuration budget does not align with current stage!'
+				v.status = 'RUNNING'
 				self.num_running += 1
-				return(k, v['config'], v['budget'])
+				return(k, v.config, v.budget)
 
-		# check if there are still slots to fill in the current SH_iteration
-		if (self.actual_num_configs[self.SH_iter] < self.num_configs[self.SH_iter]):
+		# check if there are still slots to fill in the current stage and return that
+		if (self.actual_num_configs[self.stage] < self.num_configs[self.stage]):
 			self.add_configuration()
 			return(self.get_next_run())
 
-			
 		if self.num_running == 0:
-			# at this point an SH iteration has finished
+			# at this point a stage is completed
 			self.process_results()
 			return(self.get_next_run())
 
 		return(None)
 
 
+	def _advance_to_next_stage(self, config_ids, losses):
+		"""
+			Function that implements the strategy to advance configs within this iteration
+			
+			Overload this to implement different strategies, like
+			SuccessiveHalving, SuccessiveResampling.
+			
+			Parameters:
+			-----------
+				config_ids: list
+					all config ids to be considered
+				losses: list
+					losses of the run on the current budget
+					
+			Returns:
+			--------
+				list of bool
+					A boolean for each entry in config_ids indicating whether to advance it or not
+			
+			
+		"""
+		raise NotImplementedError('_advance_to_next_stage not implemented for %s'%type(self).__name__)
+
 	def process_results(self):
 		"""
-			function that is called when a stage of SH has finished and
-			needs to be analyzed befor further computations
+			function that is called when a stage is completed and
+			needs to be analyzed befor further computations.
 
 			The code here implements the original SH algorithms by
 			advancing the k-best (lowest loss) configurations at the current
 			budget. k is defined by the num_configs list (see __init__)
-			and the current SH_iter value.
+			and the current stage value.
 
 			For more advanced methods like resampling after each stage,
 			overload this function only.
 		"""
-		self.SH_iter += 1
+		self.stage += 1
 		
 		# collect all config_ids that need to be compared
-		config_ids = list(filter(lambda cid: self.data[cid]['status'] == 'REVIEW', self.data.keys()))
+		config_ids = list(filter(lambda cid: self.data[cid].status == 'REVIEW', self.data.keys()))
 
-		if (self.SH_iter >= len(self.num_configs)):
-			self.cleanup()
+		if (self.stage >= len(self.num_configs)):
+			self.finish_up()
 			return
 
 
 		if len(config_ids) > 0:
 
-			budgets = [self.data[cid]['budget'] for cid in config_ids]
+			budgets = [self.data[cid].budget for cid in config_ids]
 			if len(set(budgets)) > 1:
 				raise RuntimeError('Not all configurations have the same budget!')
 			budget = budgets[0]
 
-			results = np.array([self.data[cid]['results'][budget]['loss'] for cid in config_ids])
-			ranks = np.argsort(np.argsort(results))
+			losses = np.array([self.data[cid].results[budget]['loss'] for cid in config_ids])
 
-			advance = ranks < self.num_configs[self.SH_iter]
+			advance = self._advance_to_next_stage(config_ids, losses)
+			#set_trace()
 
 			for i, cid in enumerate(config_ids):
 				if advance[i]:
-					self.data[cid]['status'] = 'QUEUED'
-					self.data[cid]['budget'] = self.budgets[self.SH_iter]
-					self.actual_num_configs[self.SH_iter] += 1
+					self.data[cid].status = 'QUEUED'
+					self.data[cid].budget = self.budgets[self.stage]
+					self.actual_num_configs[self.stage] += 1
 				else:
-					self.data[cid]['status'] = 'TERMINATED'
+					self.data[cid].status = 'TERMINATED'
 
-	def cleanup(self):
+	def finish_up(self):
 		self.is_finished = True
 
 		for k,v in self.data.items():
-			assert v['status'] in ['TERMINATED', 'REVIEW', 'CRASHED'], 'Configuration has not finshed yet!'
-			del v['status']
-			del v['budget']
-
-
-
-
-class SuccessiveResampling(SuccessiveHalving):
-	
-	resampling_rate = 0.5
-	min_samples_advance = 1
-	
-	def process_results(self):
-		"""
-			function that is called when a stage of SH has finished and
-			needs to be analyzed befor further computations
-
-			The code here implements the original SH algorithms by
-			advancing the k-best (lowest loss) configurations at the current
-			budget. k is defined by the num_configs list (see __init__)
-			and the current SH_iter value.
-
-			For more advanced methods like resampling after each stage,
-			overload this function only.
-		"""
-		self.SH_iter += 1
-		
-		# collect all config_ids that need to be compared
-		config_ids = list(filter(lambda cid: self.data[cid]['status'] == 'REVIEW', self.data.keys()))
-
-
-		if (self.SH_iter >= len(self.num_configs)):
-			self.cleanup()
-			return
-
-
-		if len(config_ids) > 0:
-
-			budgets = [self.data[cid]['budget'] for cid in config_ids]
-			if len(set(budgets)) > 1:
-				raise RuntimeError('Not all configurations have the same budget!')
-			budget = budgets[0]
-
-			results = np.array([self.data[cid]['results'][budget]['loss'] for cid in config_ids])
-			ranks = np.argsort(np.argsort(results))
-
-			advance = ranks < max(self.min_samples_advance, self.num_configs[self.SH_iter]*(1-self.resampling_rate))
-
-			for i, cid in enumerate(config_ids):
-				if advance[i]:
-					self.data[cid]['status'] = 'QUEUED'
-					self.data[cid]['budget'] = self.budgets[self.SH_iter]
-					self.actual_num_configs[self.SH_iter] += 1
-				else:
-					self.data[cid]['status'] = 'TERMINATED'
+			assert v.status in ['TERMINATED', 'REVIEW', 'CRASHED'], 'Configuration has not finshed yet!'
+			v.status = 'COMPLETED'
