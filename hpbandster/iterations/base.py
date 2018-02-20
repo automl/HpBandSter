@@ -10,7 +10,7 @@ class Datum(object):
 		self.config_info= config_info
 		self.results	= results		if not results is None else {}
 		self.time_stamps= time_stamps	if not time_stamps is None else {}
-		self.exception	= exceptions	if not exceptions is None else {}
+		self.exceptions	= exceptions	if not exceptions is None else {}
 		self.status		= status
 		self.budget		= budget
 

@@ -1,8 +1,9 @@
+import argparse
+
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
 from hpbandster.api.optimizers.hyperband import HyperBand
-
 import hpbandster.api.util as hputil
 
 import ConfigSpace as CS
@@ -13,19 +14,40 @@ config_space = CS.ConfigurationSpace()
 config_space.add_hyperparameter(CS.UniformFloatHyperparameter('x', lower=0, upper=1))
 
 
-# Every run has to have a unique (at runtime) id.
-# This needs to be unique for concurent runs, i.e. when multiple
-# instances run at the same time, they have to have different ids
-# Here we pick '0'
-run_id = '0'
+
+
+parser = argparse.ArgumentParser(description='HpBandSter example 2.')
+parser.add_argument('--run_id',      help='unique id to identify the HPB run.', default=None, type=str)
+parser.add_argument('--array_id',    help='SGE array id to tread one array of jobs as a HPB run.', default=None, type=str)
+parser.add_argument('--working_dir', help='working directory to store live data.', default='.', type=str)
 
 
 
+args=parser.parse_args()
+
+
+# resolve network ip by looking up the address of eth0
+host = hputil.nic_name_to_host('eth0')
+
+
+
+
+
+if args.array_id == 1:
+	# start nameserver
+	ns_host, ns_port = hputil.start_local_nameserver(host=host, port=0)
+
+	# store information for workers to find
+
+
+
+
+else
 
 # Every run needs a nameserver. It could be a 'static' server with a
 # permanent address, but here it will be started for the local machine
 # with a random port
-ns_host, ns_port = hputil.start_local_nameserver(host='localhost', port=0)
+
 
 
 

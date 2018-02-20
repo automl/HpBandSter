@@ -89,7 +89,7 @@ class Result(object):
 		for k,v in self.data.items():
 			try:
 				# only things run for the max budget are considered
-				res = v['results'][self.HB_config['max_budget']]
+				res = v.results[self.HB_config['max_budget']]
 				if not res is None:
 					tmp_list.append((res['loss'], k))
 			except KeyError as e:
@@ -120,7 +120,7 @@ class Result(object):
 					dictionary with all the config IDs, the times the runs
 					finished, their respective budgets, and corresponding losses
 		"""
-		all_runs = self.get_all_runs(not all_budgets)
+		all_runs = self.get_all_runs(only_largest_budget = not all_budgets)
 		
 		if not all_budgets:
 			all_runs = list(filter(lambda r: r.budget==self.HB_config['max_budget'], all_runs))
@@ -134,12 +134,15 @@ class Result(object):
 		}
 	
 		current_incumbent = float('inf')
+		incumbent_budget = -float('inf')
 		
 		for r in all_runs:
 			if r.loss is None: continue
 			
-			if r.loss < current_incumbent:
+			if ((r.budget == incumbent_budget and r.loss < current_incumbent) or \
+				(r.budget > incumbent_budget)):
 				current_incumbent = r.loss
+				incumbent_budget  = r.budget
 				
 				return_dict['config_ids'].append(r.config_id)
 				return_dict['times_finished'].append(r.time_stamps['finished'])
@@ -147,12 +150,13 @@ class Result(object):
 				return_dict['losses'].append(r.loss)
 
 
-		r = all_runs[-1]
+		if current_incumbent != r.loss:
+			r = all_runs[-1]
 		
-		return_dict['config_ids'].append(return_dict['config_ids'][-1])
-		return_dict['times_finished'].append(all_runs[-1].time_stamps['finished'])
-		return_dict['budgets'].append(return_dict['budgets'][-1])
-		return_dict['losses'].append(return_dict['losses'][-1])
+			return_dict['config_ids'].append(return_dict['config_ids'][-1])
+			return_dict['times_finished'].append(r.time_stamps['finished'])
+			return_dict['budgets'].append(return_dict['budgets'][-1])
+			return_dict['losses'].append(return_dict['losses'][-1])
 
 			
 		return (return_dict)
@@ -168,17 +172,17 @@ class Result(object):
 		d = self.data[config_id]
 
 		runs = []
-		for b in d['results'].keys():
+		for b in d.results.keys():
 			try:
-				err_logs = d['exceptions'].get(b, None)
+				err_logs = d.exceptions.get(b, None)
 
-				if d['results'][b] is None:
-					r = run(config_id, b, None, None , d['time_stamps'][b], err_logs)
+				if d.results[b] is None:
+					r = run(config_id, b, None, None , d.time_stamps[b], err_logs)
 				else:
-					r = run(config_id, b, d['results'][b]['loss'], d['results'][b]['info'] , d['time_stamps'][b], err_logs)
+					r = run(config_id, b, d.results[b]['loss'], d.results[b]['info'] , d.time_stamps[b], err_logs)
 				runs.append(r)
 			except:
-				pass
+				raise
 		runs.sort(key=lambda r: r.budget)
 		return(runs)
 
@@ -244,9 +248,9 @@ class Result(object):
 		new_dict = {}
 		for k, v in self.data.items():
 			new_dict[k] = {}
-			new_dict[k]['config'] = copy.deepcopy(v['config'])
+			new_dict[k]['config'] = copy.deepcopy(v.config)
 			try:
-				new_dict[k]['config_info'] = copy.deepcopy(v['config_info'])
+				new_dict[k]['config_info'] = copy.deepcopy(v.config_info)
 			except:
 				pass
 		return(new_dict)
@@ -261,9 +265,9 @@ class Result(object):
 			new_dict.update(it)
 
 		for k,v in new_dict.items():
-			for kk, vv, in v['time_stamps'].items():
+			for kk, vv, in v.time_stamps.items():
 				for kkk,vvv in vv.items():
-					new_dict[k]['time_stamps'][kk][kkk] = vvv - self.HB_config['time_ref']
+					new_dict[k].time_stamps[kk][kkk] = vvv - self.HB_config['time_ref']
 
 		self.data = new_dict
 

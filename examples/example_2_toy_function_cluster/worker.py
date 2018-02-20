@@ -8,6 +8,9 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 
+import argparse
+
+
 class MyWorker(Worker):
 
 
@@ -40,3 +43,5 @@ class MyWorker(Worker):
 					'loss': np.mean(res),   # this is the a mandatory field to run hyperband
 					'info': res             # can be used for any user-defined information - also mandatory
 				})
+
+
