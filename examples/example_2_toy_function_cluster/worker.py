@@ -26,7 +26,8 @@ class MyWorker(Worker):
 			the speed ups achievable with parallel workers.
 		"""
 
-		#time.sleep(1)
+		# just some delay for good measure
+		time.sleep(1)
 
 		print(config)
 		# simulate some random failure

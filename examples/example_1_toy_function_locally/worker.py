@@ -25,7 +25,6 @@ class MyWorker(Worker):
 
 		#time.sleep(1)
 
-		print(config)
 		# simulate some random failure
 		if random.random() < 0.:
 			raise RuntimeError("Random runtime error!")

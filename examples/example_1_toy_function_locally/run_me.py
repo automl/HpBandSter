@@ -25,7 +25,10 @@ run_id = '0'
 # Every run needs a nameserver. It could be a 'static' server with a
 # permanent address, but here it will be started for the local machine
 # with a random port
-ns_host, ns_port = hputil.start_local_nameserver(host='localhost', port=0)
+
+
+NS = hputil.NameServer(run_id=run_id, host='localhost', port=0)
+ns_host, ns_port = NS.start()
 
 
 
