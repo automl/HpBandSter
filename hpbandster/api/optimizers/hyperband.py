@@ -45,6 +45,10 @@ class HyperBand(Master):
 		if configspace is None:
 			raise ValueError("You have to provide a valid CofigSpace object")
 
+		if log_live_results:
+			
+
+
 		super().__init__(*args, config_generator=RandomSampling(configspace), **kwargs)
 
 		# Hyperband related stuff

@@ -4,7 +4,7 @@ from hpbandster.api.results.util import  json_result_logger
 
 
 class base_config_generator(object):
-	def __init__(self, directory=None, result_logger=json_result_logger, overwrite=False, logger=None):
+	def __init__(self, logger=None):
 		"""
 		Parameters:
 		-----------
@@ -19,10 +19,7 @@ class base_config_generator(object):
 			for some debug output
 
 		"""
-		if not directory is None:
-			self.result_logger  = result_logger(directory, overwrite=overwrite)
-		else:
-			self.result_logger = None
+		self.result_logger  = result_logger
 			
 		if logger is None:
 			self.logger=logging.getLogger('hpbandster')
@@ -63,7 +60,5 @@ class base_config_generator(object):
 			job: instance of hpbandster.distributed.dispatcher.Job
 				contains all necessary information about the job
 		"""
-		if not self.result_logger is None:
-			self.result_logger(job)
 		if not job.exception is None:
 			self.logger.warning("job {} failed with exception\n{}".format(job.id, job.exception))

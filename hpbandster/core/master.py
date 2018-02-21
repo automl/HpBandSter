@@ -24,7 +24,8 @@ class Master(object):
 					shutdown_workers=True,
 					job_queue_sizes=(-1,0),
 					dynamic_queue_size=True,
-					logger=None
+					logger=None,
+					result_logger=None,
 					):
 		"""
 
@@ -64,7 +65,10 @@ class Master(object):
 		dynamic_queue_size: bool
 			Whether or not to change the queue size based on the number of workers available.
 			If true (default), the job_queue_sizes are relative to the current number of workers.
-
+		logger: logging.logger like object
+			the logger to output some (more or less meaningful) information
+		result_logger: hpbandster.api.results.util.json_result_logger object
+			a result logger that writes live results to disk
 		"""
 
 		self.working_directory = working_directory
@@ -75,6 +79,8 @@ class Master(object):
 			self.logger = logging.getLogger('hpbandster')
 		else:
 			self.logger = logger
+
+		self.result_logger = result_logger
 
 
 		self.config_generator = config_generator
@@ -235,6 +241,8 @@ class Master(object):
 				self.logger.debug("HBMASTER: Trying to run another job!")
 				self.thread_cond.notify()
 
+			if not self.result_logger is None:
+				self.result_logger.(job)
 			self.iterations[job.id[0]].register_result(job)
 			self.config_generator.new_result(job)
 		self.logger.debug('job_callback for %s finished'%str(job.id))

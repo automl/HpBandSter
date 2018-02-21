@@ -124,31 +124,6 @@ def logged_results_to_HB_result(directory):
 						'time_ref'   : time_ref
 				}
 	return(hpbandster.HB_result([data], HB_config))
-	
-
-
-def get_paramnet_lcs(runs):
-	ret_list = []
-
-	for run in runs:
-
-		val_acc = run.info['val_loss']
-		ret_list.append([p for p in zip(range(len(val_acc)), val_acc)])
-		
-	return(ret_list)
-
-
-
-if __name__ == '__main__':
-	res = logged_results_to_HB_result('/ihome/sfalkner/hyperband_runs')
-	lcs = res.get_learning_curves(get_paramnet_lcs)
-
-	import hpbandster.visualization as viz
-
-	tmp = viz.interactive_HB_plot(lcs, log_y=True)
-
-	import IPython
-	IPython.embed()
 
 
 

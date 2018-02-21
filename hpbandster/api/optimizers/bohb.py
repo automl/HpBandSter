@@ -57,11 +57,9 @@ class BOHB(Master):
 			kwargs to be added to the instantiation of each iteration
 		"""
 
-
 		# TODO: Propper check for ConfigSpace object!
 		if configspace is None:
 			raise ValueError("You have to provide a valid CofigSpace object")
-
 
 
 
@@ -70,7 +68,8 @@ class BOHB(Master):
 					top_n_percent=top_n_percent,
 					num_samples = num_samples,
 					random_fraction=random_fraction,
-					bandwidth_factor=bandwidth_factor)
+					bandwidth_factor=bandwidth_factor,
+					)
 
 
 		super().__init__(*args, config_generator=cg, **kwargs)
