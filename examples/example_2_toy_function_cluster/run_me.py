@@ -29,13 +29,10 @@ args=parser.parse_args()
 
 if args.array_id == 1:
 	# start nameserver
-	NS = hputil.NameServer(run_id=args.run_id, host='localhost', working_directory='/tmp/')
+	NS = hputil.NameServer(run_id=args.run_id, host='localhost', working_directory=args.working_dir)
 
 
-	ns_host, ns_port = NS.start()
-	
-	print('credentials: ', ns_host, ns_port)
-	# store information for workers to find
+	ns_host, ns_port = NS.start()	# stores information for workers to find in working_directory
 
 	# BOHB is usually so cheap, that we can affort to run a worker on the master node, too.
 	worker = MyWorker(nameserver=ns_host, nameserver_port=ns_port, run_id=args.run_id)
@@ -50,11 +47,13 @@ if args.array_id == 1:
 				ping_interval=3600,	
 		)
 	
-	res = HPB.run(	n_iterations = 2, 
+	res = HPB.run(	n_iterations = 4,
 					min_n_workers = 1		# BOHB can wait until a minimum number of workers is online before starting
 		)
 	
 	# pickle result here for later analysis
+	with open(os.path.join(args.working_dir, 'results.pkl', 'wb') as fh:
+		pickle.dump(fh, res)
 	
 	# shutdown all workers
 	HPB.shutdown(shutdown_workers=True)
@@ -64,8 +63,8 @@ if args.array_id == 1:
 
 else:
 
+	# workers only instantiate the MyWorker, find the nameserver and start serving
 	w = MyWorker(nameserver=ns_host, nameserver_port=ns_port, run_id=args.run_id)
-	
-	w.load_nameserver_credentials('/tmp/')
+	w.load_nameserver_credentials(args.working_dir)
 	# run worker in the forground, 
 	w.run(background=False)
