@@ -27,9 +27,8 @@ class MyWorker(Worker):
 		"""
 
 		# just some delay for good measure
-		time.sleep(1)
+		time.sleep(0.5)
 
-		print(config)
 		# simulate some random failure
 		if random.random() < 0.:
 			raise RuntimeError("Random runtime error!")

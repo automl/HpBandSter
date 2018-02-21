@@ -1,11 +1,13 @@
 import time
 import logging
-import os, socket, signal
+import pickle
+import os, socket
 
 
 import traceback
 import threading
 import Pyro4
+
 
 
 class Worker(object):
