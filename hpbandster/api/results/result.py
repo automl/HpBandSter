@@ -1,7 +1,7 @@
 import copy
 import pdb
 
-class run(object):
+class Run(object):
 	"""
 		Not a proper class, more a 'struct' to bundle important
 		information about a particular run
@@ -177,9 +177,9 @@ class Result(object):
 				err_logs = d.exceptions.get(b, None)
 
 				if d.results[b] is None:
-					r = run(config_id, b, None, None , d.time_stamps[b], err_logs)
+					r = Run(config_id, b, None, None , d.time_stamps[b], err_logs)
 				else:
-					r = run(config_id, b, d.results[b]['loss'], d.results[b]['info'] , d.time_stamps[b], err_logs)
+					r = Run(config_id, b, d.results[b]['loss'], d.results[b]['info'] , d.time_stamps[b], err_logs)
 				runs.append(r)
 			except:
 				raise

@@ -51,7 +51,7 @@ HB = HyperBand(	# Try BOHB here instead of Hyperband:
 				# simply add
 				# from hpbandster.api.optimizers.bohb import BOHB
 				configspace = config_space,
-				run_id = '0',
+				run_id = run_id,
                 eta=3,min_budget=27, max_budget=243,	# HB parameters
 				nameserver=ns_host,
 				nameserver_port = ns_port,

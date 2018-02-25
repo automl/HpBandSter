@@ -1,7 +1,5 @@
 import logging
 import traceback
-from hpbandster.api.results.util import  json_result_logger
-
 
 class base_config_generator(object):
 	def __init__(self, logger=None):
@@ -19,8 +17,7 @@ class base_config_generator(object):
 			for some debug output
 
 		"""
-		self.result_logger  = result_logger
-			
+
 		if logger is None:
 			self.logger=logging.getLogger('hpbandster')
 		else:

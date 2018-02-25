@@ -242,7 +242,7 @@ class Master(object):
 				self.thread_cond.notify()
 
 			if not self.result_logger is None:
-				self.result_logger.(job)
+				self.result_logger(job)
 			self.iterations[job.id[0]].register_result(job)
 			self.config_generator.new_result(job)
 		self.logger.debug('job_callback for %s finished'%str(job.id))
