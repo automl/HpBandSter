@@ -21,6 +21,7 @@ class BOHB(Master):
 					eta=3, min_budget=0.01, max_budget=1,
 					min_points_in_model = None,	top_n_percent=15,
 					num_samples = 64, random_fraction=1/3, bandwidth_factor=3,
+					min_bandwidth=1e-3,
 					**kwargs
 					):
 		"""
@@ -53,9 +54,14 @@ class BOHB(Master):
 		bandwidth_factor: float
 			to encourage diversity, the points proposed to optimize EI, are sampled
 			from a 'widened' KDE where the bandwidth is multiplied by this factor (default: 3)
+		min_bandwidth: float
+			to keep diversity, even when all (good) samples have the same value for one of the parameters,
+			a minimum bandwidth (Default: 1e-3) is used instead of zero. 
 		iteration_kwargs: dict
 			kwargs to be added to the instantiation of each iteration
 		"""
+
+
 
 		# TODO: Propper check for ConfigSpace object!
 		if configspace is None:
@@ -69,8 +75,8 @@ class BOHB(Master):
 					num_samples = num_samples,
 					random_fraction=random_fraction,
 					bandwidth_factor=bandwidth_factor,
+					min_bandwidth = min_bandwidth
 					)
-
 
 		super().__init__(*args, config_generator=cg, **kwargs)
 
@@ -97,10 +103,9 @@ class BOHB(Master):
 						'top_n_percent' : top_n_percent,
 						'num_samples' : num_samples,
 						'random_fraction' : random_fraction,
-						'bandwidth_factor' : bandwidth_factor
+						'bandwidth_factor' : bandwidth_factor,
+						'min_bandwidth': min_bandwidth
 					})
-
-
 
 	def get_next_iteration(self, iteration, iteration_kwargs={}):
 		"""

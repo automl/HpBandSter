@@ -46,7 +46,6 @@ for i in range(num_workers):
 	w.run(background=True)
 	workers.append(w)
 
-
 HB = HyperBand(	# Try BOHB here instead of Hyperband:
 				# simply add
 				# from hpbandster.api.optimizers.bohb import BOHB
@@ -60,7 +59,6 @@ HB = HyperBand(	# Try BOHB here instead of Hyperband:
 
 res = HB.run(4, min_n_workers=num_workers)
 HB.shutdown(shutdown_workers=True)
-
 
 
 id2config = res.get_id2config_mapping()

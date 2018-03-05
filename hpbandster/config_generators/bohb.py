@@ -16,7 +16,7 @@ class BOHB(base_config_generator):
 	
 	def __init__(self, configspace, min_points_in_model = None,
 				 top_n_percent=15, num_samples = 64, random_fraction=1/3,
-				 bandwidth_factor=3,
+				 bandwidth_factor=3, min_bandwidth=1e-3,
 				**kwargs):
 		"""
 			Fits for each given budget a kernel density estimator on the best N percent of the
@@ -39,12 +39,16 @@ class BOHB(base_config_generator):
 				fraction of random configurations returned
 			bandwidth_factor: float
 				widens the bandwidth for contiuous parameters for proposed points to optimize EI
+			min_bandwidth: float
+				to keep diversity, even when all (good) samples have the same value for one of the parameters,
+				a minimum bandwidth (Default: 1e-3) is used instead of zero. 
 
 		"""
 		super().__init__(**kwargs)
 		self.top_n_percent=top_n_percent
 		self.configspace = configspace
 		self.bw_factor = bandwidth_factor
+		self.min_bandwidth = min_bandwidth
 
 		self.min_points_in_model = min_points_in_model
 		if min_points_in_model is None:
@@ -109,10 +113,6 @@ class BOHB(base_config_generator):
 		if sample is None:
 			try:
 
-				# If we haven't seen anything with this budget, we sample from the kde trained on the highest budget
-				#if budget not in self.kde_models.keys():
-				#    budget = max(self.kde_models.keys())
-
 				#sample from largest budget
 				budget = max(self.kde_models.keys())
 
@@ -130,6 +130,8 @@ class BOHB(base_config_generator):
 					vector = []
 					
 					for m,bw,t in zip(kde_good.data[idx], kde_good.bw, self.vartypes):
+						
+						bw = max(bw, self.min_bandwidth)
 						if t == 0:
 							vector.append(sps.truncnorm.rvs(-m/bw,(1-m)/bw, loc=m, scale=self.bw_factor*bw))
 						else:
