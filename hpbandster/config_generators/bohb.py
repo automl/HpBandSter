@@ -112,7 +112,6 @@ class BOHB(base_config_generator):
 
 		if sample is None:
 			try:
-
 				#sample from largest budget
 				budget = max(self.kde_models.keys())
 
@@ -124,12 +123,11 @@ class BOHB(base_config_generator):
 				kde_good = self.kde_models[budget]['good']
 
 				for i in range(self.num_samples):
-					#idx = np.random.choice(range(kde_good.data.shape[0]), 1)[0]
 					idx = np.random.randint(0, len(kde_good.data))
-
+					datum = kde_good.data[idx]
 					vector = []
 					
-					for m,bw,t in zip(kde_good.data[idx], kde_good.bw, self.vartypes):
+					for m,bw,t in zip(datum, kde_good.bw, self.vartypes):
 						
 						bw = max(bw, self.min_bandwidth)
 						if t == 0:
@@ -162,6 +160,36 @@ class BOHB(base_config_generator):
 
 
 		return sample, info_dict
+
+
+	def impute_conditional_data(self, array):
+
+		return_array = np.empty_like(array)
+
+		for i in range(array.shape[0]):
+			datum = np.copy(array[i])
+			nan_indices = np.argwhere(np.isnan(datum)).flatten()
+
+			while (np.any(nan_indices)):
+				nan_idx = nan_indices[0]
+				valid_indices = np.argwhere(np.isfinite(array[:,nan_idx])).flatten()
+
+				if len(valid_indices) > 0:
+					# pick one of them at random and overwrite all NaN values
+					row_idx = np.random.choice(valid_indices)
+					datum[nan_indices] = array[row_idx, nan_indices]
+
+				else:
+					# no good point in the data has this value activated, so fill it with a valid but random value
+					t = self.vartypes[nan_idx]
+					if t == 0:
+						datum[nan_idx] = np.random.rand()
+					else:
+						datum[nan_idx] = np.random.randint(t)
+
+				nan_indices = np.argwhere(np.isnan(datum)).flatten()
+				return_array[i,:] = datum
+		return(return_array)
 
 	def new_result(self, job):
 		"""
@@ -199,14 +227,11 @@ class BOHB(base_config_generator):
 		if max(list(self.kde_models.keys()) + [-np.inf]) > budget:
 			return
 
-
-
 		# We want to get a numerical representation of the configuration in the original space
 
 		conf = ConfigSpace.Configuration(self.configspace, job.kwargs["config"])
 		self.configs[budget].append(conf.get_array())
 		self.losses[budget].append(loss)
-		
 
 		if len(self.configs[budget]) <= self.min_points_in_model+1:
 			return
@@ -215,16 +240,14 @@ class BOHB(base_config_generator):
 		train_configs = np.array(self.configs[budget])
 		train_losses =  np.array(self.losses[budget])
 
-		#n_good= max(len(self.configspace.get_hyperparameters())+1, int(max(1, np.sqrt(len(train_configs))/4)))
 		n_good= max(self.min_points_in_model, (self.top_n_percent * train_configs.shape[0])//100 )
 		n_bad = max(self.min_points_in_model, ((100-self.top_n_percent)*train_configs.shape[0])//100)
-
 
 		# Refit KDE for the current budget
 		idx = np.argsort(train_losses)
 
-		train_data_good = train_configs[idx[:n_good]]
-		train_data_bad  = train_configs[idx[-n_bad:]]
+		train_data_good = self.impute_conditional_data(train_configs[idx[:n_good]])
+		train_data_bad  = self.impute_conditional_data(train_configs[idx[-n_bad:]])
 
 		if train_data_good.shape[0] <= train_data_good.shape[1]:
 			return

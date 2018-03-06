@@ -268,7 +268,7 @@ class Master(object):
 		self.logger.debug('HBMASTER: trying submitting job %s to dispatcher'%str(config_id))
 		with self.thread_cond:
 			self.logger.debug('HBMASTER: submitting job %s to dispatcher'%str(config_id))
-			job = self.dispatcher.submit_job(config_id, config=config, budget=budget, working_directory=self.working_directory)
+			self.dispatcher.submit_job(config_id, config=config, budget=budget, working_directory=self.working_directory)
 			self.num_running_jobs += 1
 
 		#shouldn't the next line be executed while holding the condition?
