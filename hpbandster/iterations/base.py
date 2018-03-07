@@ -1,5 +1,7 @@
 import sys
 
+
+import logging
 import numpy as np
 import pdb
 
@@ -20,7 +22,7 @@ class BaseIteration(object):
 	"""
 		Base class for the various iteration classes
 	"""
-	def __init__(self, HPB_iter, num_configs, budgets, config_sampler):
+	def __init__(self, HPB_iter, num_configs, budgets, config_sampler, logger=None):
 		"""
 			Parameters:
 			-----------
@@ -37,6 +39,7 @@ class BaseIteration(object):
 				scheduled for. This might be used to pick configurations
 				that perform best after this particular budget is exhausted
 				to build a better autoML system.
+			logger: a logger
 		"""
 
 		self.data = {}					# this holds all the configs and results of this iteration
@@ -48,6 +51,7 @@ class BaseIteration(object):
 		self.actual_num_configs = [0]*len(num_configs)
 		self.config_sampler = config_sampler
 		self.num_running = 0
+		self.logger=logger if not logger is None else logging.getLogger('hpbandster') 
 
 	def add_configuration(self, config = None, config_info={}):
 		"""
@@ -207,7 +211,10 @@ class BaseIteration(object):
 			losses = np.array([self.data[cid].results[budget]['loss'] for cid in config_ids])
 
 			advance = self._advance_to_next_stage(config_ids, losses)
-			#set_trace()
+
+			for i, a in enumerate(advance):
+				if a:
+					self.logger.debug('ITERATION: Advancing config %s to next budget %f'%(config_ids[i], self.budgets[self.stage]))
 
 			for i, cid in enumerate(config_ids):
 				if advance[i]:

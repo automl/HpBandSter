@@ -139,7 +139,7 @@ class BOHB(base_config_generator):
 							else:
 								vector.append(np.random.randint(t))
 					
-					val = minimize_me(vector) 
+					val = minimize_me(vector)
 					if val < best:
 						best = val
 						best_vector = vector

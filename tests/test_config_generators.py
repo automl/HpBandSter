@@ -40,7 +40,7 @@ class TestBinaryRssRegressionForest(unittest.TestCase):
 
 		raw_array = []
 		
-		for i in range(64):
+		for i in range(128):
 			
 			config = self.configspace.sample_configuration()
 			raw_array.append(config.get_array())
@@ -53,8 +53,8 @@ class TestBinaryRssRegressionForest(unittest.TestCase):
 		
 		for j in range(64):
 			conf, info = bohb.get_config(1)
+			print(conf, info)
 			self.assertTrue(info['model_based_pick'])
-
 
 if __name__ == '__main__':
 	unittest.main()
