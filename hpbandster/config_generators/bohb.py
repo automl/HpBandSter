@@ -4,6 +4,7 @@ import traceback
 
 
 import ConfigSpace
+import ConfigSpace.util
 import numpy as np
 import scipy.stats as sps
 import scipy.optimize as spo
@@ -104,7 +105,7 @@ class BOHB(base_config_generator):
 		# If no model is available, sample from prior
 		# also mix in a fraction of random configs
 		if len(self.kde_models.keys()) == 0 or np.random.rand() < self.random_fraction:
-			sample =  self.configspace.sample_configuration().get_dictionary()
+			sample =  self.configspace.sample_configuration()
 			info_dict['model_based_pick'] = False
 
 		best = np.inf
@@ -150,18 +151,22 @@ class BOHB(base_config_generator):
 
 				if best_vector is None:
 					self.logger.debug("Sampling based optimization with %i samples failed -> using random configuration"%self.num_samples)
-					sample = self.configspace.sample_configuration().get_dictionary()
+					sample = self.configspace.sample_configuration()
 					info_dict['model_based_pick']  = False
 				else:
 					self.logger.debug('best_vector: {}, {}'.format(best_vector, best))
-					sample = ConfigSpace.Configuration(self.configspace, vector=best_vector).get_dictionary()
+					sample = ConfigSpace.Configuration(self.configspace, vector=best_vector)
 					info_dict['model_based_pick'] = True
 
 			except:
 				self.logger.warning("Sampling based optimization with %i samples failed\n %s \nUsing random configuration"%(self.num_samples, traceback.format_exc()))
-				sample = self.configspace.sample_configuration().get_dictionary()
+				sample = self.configspace.sample_configuration()
 				info_dict['model_based_pick']  = False
 
+		sample = ConfigSpace.util.deactivate_inactive_hyperparameters(
+			configuration_space=self.configspace,
+			configuration=sample.get_dictionary()
+		).get_dictionary()
 
 		return sample, info_dict
 
