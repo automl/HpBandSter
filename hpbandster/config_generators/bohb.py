@@ -142,7 +142,7 @@ class BOHB(base_config_generator):
 					val = minimize_me(vector)
 
 					if not np.isfinite(val):
-						self.logger.warning('sampled vector: %s has EI value %s'%(vector, val)))
+						self.logger.warning('sampled vector: %s has EI value %s'%(vector, val))
 
 					if val < best:
 						best = val
