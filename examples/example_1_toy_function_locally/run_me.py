@@ -48,10 +48,10 @@ for i in range(num_workers):
 
 #Try BOHB here instead of Hyperband:
 #simply add
-#from hpbandster.api.optimizers.bohb import BOHB
+from hpbandster.api.optimizers.bohb import BOHB
 # and change Hyperband to BOHB below
 
-HB = HyperBand(	configspace = config_space,
+HB = BOHB(	configspace = config_space,
 				run_id = run_id,
                 eta=3,min_budget=27, max_budget=243,	# HB parameters
 				nameserver=ns_host,

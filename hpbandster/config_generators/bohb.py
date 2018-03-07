@@ -267,6 +267,9 @@ class BOHB(base_config_generator):
 		bad_kde = sm.nonparametric.KDEMultivariate(data=train_data_bad,  var_type=self.kde_vartypes, bw=bw_estimation)
 		good_kde = sm.nonparametric.KDEMultivariate(data=train_data_good, var_type=self.kde_vartypes, bw=bw_estimation)
 
+		bad_kde.bw = np.clip(bad_kde.bw, self.min_bandwidth,None)
+		good_kde.bw = np.clip(good_kde.bw, self.min_bandwidth,None)
+
 		self.kde_models[budget] = {
 				'good': good_kde,
 				'bad' : bad_kde
