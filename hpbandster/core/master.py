@@ -133,7 +133,6 @@ class Master(object):
 		with self.thread_cond:
 			while (self.dispatcher.number_of_workers() < min_n_workers):
 				self.logger.debug('HBMASTER: only %i worker(s) available, waiting for at least %i.'%(self.dispatcher.number_of_workers(), min_n_workers))
-				self.logger.debug('wating \n\n')
 				self.thread_cond.wait(1)
 				self.dispatcher.trigger_discover_worker()
 				
@@ -255,7 +254,6 @@ class Master(object):
 		if self.num_running_jobs >= self.job_queue_sizes[1]:
 			while(self.num_running_jobs > self.job_queue_sizes[0]):
 				self.logger.debug('HBMASTER: running jobs: %i, queue sizes: %s -> wait'%(self.num_running_jobs, str(self.job_queue_sizes)))
-				self.logger.debug('wating \n\n')
 				self.thread_cond.wait()
 
 	def _submit_job(self, config_id, config, budget):

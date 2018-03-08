@@ -55,7 +55,7 @@ class BOHB(base_config_generator):
 		if min_points_in_model is None:
 			self.min_points_in_model = len(self.configspace.get_hyperparameters())+1
 		
-		if min_points_in_model < len(self.configspace.get_hyperparameters())+1
+		if self.min_points_in_model < len(self.configspace.get_hyperparameters())+1:
 			self.logger.warning('Invalid min_points_in_model value. Setting it to %i'%(len(self.configspace.get_hyperparameters())+1))
 			self.min_points_in_model =len(self.configspace.get_hyperparameters())+1
 		
@@ -140,7 +140,7 @@ class BOHB(base_config_generator):
 						else:
 							
 							if np.random.rand() < (1-bw):
-								vector.append(m)
+								vector.append(int(m))
 							else:
 								vector.append(np.random.randint(t))
 					
@@ -160,19 +160,27 @@ class BOHB(base_config_generator):
 				else:
 					self.logger.debug('best_vector: {}, {}'.format(best_vector, best))
 					sample = ConfigSpace.Configuration(self.configspace, vector=best_vector)
-					info_dict['model_based_pick'] = True
+					
+					try:
+						sample = ConfigSpace.util.deactivate_inactive_hyperparameters(
+									configuration_space=self.configspace,
+									configuration=sample.get_dictionary()
+									)
+						info_dict['model_based_pick'] = True
+
+					except Exception as e:
+						self.logger.warning(("="*50 + "\n")*3 +\
+								"Error converting configuration:\n%s"%sample+\
+								"\n here is a traceback:" +\
+								traceback.format_exc())
+						raise(e)
 
 			except:
 				self.logger.warning("Sampling based optimization with %i samples failed\n %s \nUsing random configuration"%(self.num_samples, traceback.format_exc()))
 				sample = self.configspace.sample_configuration()
 				info_dict['model_based_pick']  = False
 
-		sample = ConfigSpace.util.deactivate_inactive_hyperparameters(
-			configuration_space=self.configspace,
-			configuration=sample.get_dictionary()
-		).get_dictionary()
-
-		return sample, info_dict
+		return sample.get_dictionary(), info_dict
 
 
 	def impute_conditional_data(self, array):
