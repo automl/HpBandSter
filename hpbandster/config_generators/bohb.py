@@ -140,6 +140,7 @@ class BOHB(base_config_generator):
 								vector.append(sps.truncnorm.rvs(-m/bw,(1-m)/bw, loc=m, scale=self.bw_factor*bw))
 							except:
 								self.logger.warning("Truncated Normal failed for:\ndatum=%s\nbandwidth=%s\nfor entry with value %s"%(datum, kde_good.bw, m))
+								self.logger.warning("data in the KDE:\n%s"%kde_good.data)
 						else:
 							
 							if np.random.rand() < (1-bw):
