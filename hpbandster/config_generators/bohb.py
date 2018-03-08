@@ -55,7 +55,7 @@ class BOHB(base_config_generator):
 		if min_points_in_model is None:
 			self.min_points_in_model = len(self.configspace.get_hyperparameters())+1
 		
-		if min_points_in_model < len(self.configspace.get_hyperparameters())+1
+		if min_points_in_model < len(self.configspace.get_hyperparameters())+1:
 			self.logger.warning('Invalid min_points_in_model value. Setting it to %i'%(len(self.configspace.get_hyperparameters())+1))
 			self.min_points_in_model =len(self.configspace.get_hyperparameters())+1
 		
