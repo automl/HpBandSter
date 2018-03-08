@@ -126,6 +126,7 @@ class BOHB(base_config_generator):
 				minimize_me = lambda x: max(1e-8, g(x))/max(l(x), 1e-8)
 				
 				kde_good = self.kde_models[budget]['good']
+				kde_bad = self.kde_models[budget]['bad']
 
 				for i in range(self.num_samples):
 					idx = np.random.randint(0, len(kde_good.data))
@@ -136,8 +137,9 @@ class BOHB(base_config_generator):
 						
 						bw = max(bw, self.min_bandwidth)
 						if t == 0:
+							bw = self.bw_factor*bw
 							try:
-								vector.append(sps.truncnorm.rvs(-m/bw,(1-m)/bw, loc=m, scale=self.bw_factor*bw))
+								vector.append(sps.truncnorm.rvs(-m/bw,(1-m)/bw, loc=m, scale=bw))
 							except:
 								self.logger.warning("Truncated Normal failed for:\ndatum=%s\nbandwidth=%s\nfor entry with value %s"%(datum, kde_good.bw, m))
 								self.logger.warning("data in the KDE:\n%s"%kde_good.data)
@@ -152,6 +154,17 @@ class BOHB(base_config_generator):
 
 					if not np.isfinite(val):
 						self.logger.warning('sampled vector: %s has EI value %s'%(vector, val))
+						self.logger.warning("data in the KDEs:\n%s\n%s"%(kde_good.data, kde_bad.data))
+						self.logger.warning("bandwidth of the KDEs:\n%s\n%s"%(kde_good.bw, kde_bad.bw))
+						self.logger.warning("l(x) = %s"%(l(vector)))
+						self.logger.warning("g(x) = %s"%(g(vector)))
+
+						# right now, this happens because a KDE does not contain all values for a categorical parameter
+						# this cannot be fixed with the statsmodels KDE, so for now, we are just going to evaluate this one
+						# if the good_kde has a finite value, i.e. there is no config with that value in the bad kde, so it shouldn't be terrible.
+						if np.isfinite(l(vector)):
+							best_vector = vector
+							break
 
 					if val < best:
 						best = val
