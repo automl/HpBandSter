@@ -4,6 +4,7 @@ import traceback
 
 
 import ConfigSpace
+import ConfigSpace.hyperparameters
 import ConfigSpace.util
 import numpy as np
 import scipy.stats as sps
@@ -159,6 +160,14 @@ class BOHB(base_config_generator):
 					info_dict['model_based_pick']  = False
 				else:
 					self.logger.debug('best_vector: {}, {}'.format(best_vector, best))
+					for i, hp_value in enumerate(best_vector):
+						if isinstance(
+							self.configspace.get_hyperparameter(
+								self.configspace.get_hyperparameter_by_idx(i)
+							),
+							ConfigSpace.hyperparameters.CategoricalHyperparameter
+						):
+							best_vector[i] = int(np.rint(best_vector[i]))
 					sample = ConfigSpace.Configuration(self.configspace, vector=best_vector)
 					info_dict['model_based_pick'] = True
 
@@ -167,10 +176,17 @@ class BOHB(base_config_generator):
 				sample = self.configspace.sample_configuration()
 				info_dict['model_based_pick']  = False
 
-		sample = ConfigSpace.util.deactivate_inactive_hyperparameters(
-			configuration_space=self.configspace,
-			configuration=sample.get_dictionary()
-		).get_dictionary()
+		try:
+			sample = ConfigSpace.util.deactivate_inactive_hyperparameters(
+				configuration_space=self.configspace,
+				configuration=sample.get_dictionary()
+			).get_dictionary()
+		except Exception as e:
+			self.logger.warning("Error (%s) converting configuration: %s -> "
+								"using random configuration!",
+								e,
+								sample)
+			sample = self.configspace.sample_configuration().get_dictionary()
 
 		return sample, info_dict
 
@@ -235,7 +251,6 @@ class BOHB(base_config_generator):
 			self.configs[budget] = []
 			self.losses[budget] = []
 
-
 		# skip model building if we already have a bigger model
 		if max(list(self.kde_models.keys()) + [-np.inf]) > budget:
 			return
@@ -247,7 +262,6 @@ class BOHB(base_config_generator):
 		self.losses[budget].append(loss)
 
 		if len(self.configs[budget]) <= self.min_points_in_model+1:
-			self.logger.debug("Only %i run(s) for budget %f available, need more than %s -> can't build model!"%(len(self.configs[budget]), budget, self.min_points_in_model+1))
 			return
 
 
@@ -262,7 +276,6 @@ class BOHB(base_config_generator):
 
 		train_data_good = self.impute_conditional_data(train_configs[idx[:n_good]])
 		train_data_bad  = self.impute_conditional_data(train_configs[idx[-n_bad:]])
-
 		if train_data_good.shape[0] <= train_data_good.shape[1]:
 			return
 		if train_data_bad.shape[0] <= train_data_bad.shape[1]:
@@ -287,3 +300,4 @@ class BOHB(base_config_generator):
 
 		# update probs for the categorical parameters for later sampling
 		self.logger.debug('done building a new model for budget %f based on %i/%i split\nBest loss for this budget:%f\n\n\n\n\n'%(budget, n_good, n_bad, np.min(train_losses)))
+
