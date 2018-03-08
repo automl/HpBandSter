@@ -136,7 +136,10 @@ class BOHB(base_config_generator):
 						
 						bw = max(bw, self.min_bandwidth)
 						if t == 0:
-							vector.append(sps.truncnorm.rvs(-m/bw,(1-m)/bw, loc=m, scale=self.bw_factor*bw))
+							try:
+								vector.append(sps.truncnorm.rvs(-m/bw,(1-m)/bw, loc=m, scale=self.bw_factor*bw))
+							except:
+								self.logger.warning("Truncated Normal failed for:\ndatum=%s\nbandwidth=%s\nfor entry with value %s"%(datum, kde_good.bw, m))
 						else:
 							
 							if np.random.rand() < (1-bw):
