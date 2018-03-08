@@ -54,7 +54,11 @@ class BOHB(base_config_generator):
 		self.min_points_in_model = min_points_in_model
 		if min_points_in_model is None:
 			self.min_points_in_model = len(self.configspace.get_hyperparameters())+1
-
+		
+		if min_points_in_model < len(self.configspace.get_hyperparameters())+1
+			self.logger.warning('Invalid min_points_in_model value. Setting it to %i'%(len(self.configspace.get_hyperparameters())+1))
+			self.min_points_in_model =len(self.configspace.get_hyperparameters())+1
+		
 		self.num_samples = num_samples
 		self.random_fraction = random_fraction
 
@@ -243,6 +247,7 @@ class BOHB(base_config_generator):
 		self.losses[budget].append(loss)
 
 		if len(self.configs[budget]) <= self.min_points_in_model+1:
+			self.logger.debug("Only %i run(s) for budget %f available, need more than %s -> can't build model!"%(len(self.configs[budget]), budget, self.min_points_in_model+1))
 			return
 
 
