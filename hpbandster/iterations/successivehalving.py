@@ -8,6 +8,5 @@ class SuccessiveHalving(BaseIteration):
 		"""
 			SuccessiveHalving simply continues the best based on the current loss.
 		"""
-		
 		ranks = np.argsort(np.argsort(losses))
 		return(ranks < self.num_configs[self.stage])

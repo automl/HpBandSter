@@ -200,29 +200,26 @@ class BaseIteration(object):
 			self.finish_up()
 			return
 
+		budgets = [self.data[cid].budget for cid in config_ids]
+		if len(set(budgets)) > 1:
+			raise RuntimeError('Not all configurations have the same budget!')
+		budget = self.budgets[self.stage-1]
 
-		if len(config_ids) > 0:
+		losses = np.array([self.data[cid].results[budget]['loss'] for cid in config_ids])
 
-			budgets = [self.data[cid].budget for cid in config_ids]
-			if len(set(budgets)) > 1:
-				raise RuntimeError('Not all configurations have the same budget!')
-			budget = budgets[0]
+		advance = self._advance_to_next_stage(config_ids, losses)
 
-			losses = np.array([self.data[cid].results[budget]['loss'] for cid in config_ids])
+		for i, a in enumerate(advance):
+			if a:
+				self.logger.debug('ITERATION: Advancing config %s to next budget %f'%(config_ids[i], self.budgets[self.stage]))
 
-			advance = self._advance_to_next_stage(config_ids, losses)
-
-			for i, a in enumerate(advance):
-				if a:
-					self.logger.debug('ITERATION: Advancing config %s to next budget %f'%(config_ids[i], self.budgets[self.stage]))
-
-			for i, cid in enumerate(config_ids):
-				if advance[i]:
-					self.data[cid].status = 'QUEUED'
-					self.data[cid].budget = self.budgets[self.stage]
-					self.actual_num_configs[self.stage] += 1
-				else:
-					self.data[cid].status = 'TERMINATED'
+		for i, cid in enumerate(config_ids):
+			if advance[i]:
+				self.data[cid].status = 'QUEUED'
+				self.data[cid].budget = self.budgets[self.stage]
+				self.actual_num_configs[self.stage] += 1
+			else:
+				self.data[cid].status = 'TERMINATED'
 
 	def finish_up(self):
 		self.is_finished = True
