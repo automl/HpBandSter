@@ -274,3 +274,43 @@ class Result(object):
 	def num_iterations(self):
 		return(max([k[0] for k in self.data.keys()]) + 1)
 		
+
+	def get_fANOVA_data(self, config_space, budgets=None):
+
+		import numpy as np
+		import ConfigSpace as CS
+
+		id2conf = self.get_id2config_mapping()
+
+		if budgets is None:
+			budgets = self.HB_config['budgets']
+
+		if len(budgets)>1:
+			config_space.add_hyperparameter(CS.UniformFloatHyperparameter('budget', min(budgets), max(budgets), log=True))
+		
+		hp_names = list(map( lambda hp: hp.name, config_space.get_hyperparameters()))
+
+		all_runs = self.get_all_runs(only_largest_budget=False)
+
+
+		all_runs=list(filter( lambda r: r.budget in budgets, all_runs))
+
+		X = []
+		y = []
+
+		for r in all_runs:
+			if r.loss is None: continue
+			config = id2conf[r.config_id]['config']
+			if len(budgets)>1:
+				config['budget'] = r.budget
+
+			config = CS.Configuration(config_space, config)
+
+			X.append([config[n] for n in hp_names])
+			y.append(r.loss)
+
+		return(np.array(X), np.array(y), config_space)
+
+
+
+
