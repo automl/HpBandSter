@@ -72,7 +72,7 @@ HB = HyperBand(	configspace = config_space,
 
 HB.run(4, min_n_workers=num_workers)
 HB.shutdown(shutdown_workers=True)
-
+NS.shutdown()
 
 # Just to demonstrate, let's read in the logged runs rather than the returned Resu[t from HB.run
 res = hpbandster.api.results.util.logged_results_to_HB_result('.')
