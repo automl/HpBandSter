@@ -226,7 +226,7 @@ class BOHB(base_config_generator):
 						datum[nan_idx] = np.random.randint(t)
 
 				nan_indices = np.argwhere(np.isnan(datum)).flatten()
-				return_array[i,:] = datum
+			return_array[i,:] = datum
 		return(return_array)
 
 	def new_result(self, job):
