@@ -158,11 +158,19 @@ class json_result_logger(object):
 
 		self.config_ids = set()
 
+	def new_config(self, config_id, config, config_info):
+		if not config_id in self.config_ids:
+			self.config_ids.add(config_id)
+			with open(self.config_fn, 'a') as fh:
+				fh.write(json.dumps([config_id, config, config_info]))
+				fh.write('\n')
+
 	def __call__(self, job):
 		if not job.id in self.config_ids:
+			#should never happen! TODO: log warning here!
 			self.config_ids.add(job.id)
 			with open(self.config_fn, 'a') as fh:
-				fh.write(json.dumps([job.id, job.kwargs['config']]))
+				fh.write(json.dumps([job.id, job.kwargs['config'], {}]))
 				fh.write('\n')
 		with open(self.results_fn, 'a') as fh:
 			fh.write(json.dumps([job.id, job.kwargs['budget'], job.timestamps, job.result, job.exception]))

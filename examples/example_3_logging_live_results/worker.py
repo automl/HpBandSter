@@ -37,5 +37,5 @@ class MyWorker(Worker):
 		
 		return({
 					'loss': np.mean(res),   # this is the a mandatory field to run hyperband
-					'info': {res}             # can be used for any user-defined information - also mandatory
+					'info': res             # can be used for any user-defined information - also mandatory
 				})

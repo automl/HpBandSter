@@ -22,7 +22,7 @@ class BaseIteration(object):
 	"""
 		Base class for the various iteration classes
 	"""
-	def __init__(self, HPB_iter, num_configs, budgets, config_sampler, logger=None):
+	def __init__(self, HPB_iter, num_configs, budgets, config_sampler, logger=None, result_logger=None):
 		"""
 			Parameters:
 			-----------
@@ -40,6 +40,8 @@ class BaseIteration(object):
 				that perform best after this particular budget is exhausted
 				to build a better autoML system.
 			logger: a logger
+			result_logger: hpbandster.api.results.util.json_result_logger object
+				a result logger that writes live results to disk
 		"""
 
 		self.data = {}					# this holds all the configs and results of this iteration
@@ -51,7 +53,8 @@ class BaseIteration(object):
 		self.actual_num_configs = [0]*len(num_configs)
 		self.config_sampler = config_sampler
 		self.num_running = 0
-		self.logger=logger if not logger is None else logging.getLogger('hpbandster') 
+		self.logger=logger if not logger is None else logging.getLogger('hpbandster')
+		self.result_logger = result_logger
 
 	def add_configuration(self, config = None, config_info={}):
 		"""
@@ -80,6 +83,10 @@ class BaseIteration(object):
 		self.data[config_id] = Datum(config=config, config_info=config_info, budget = self.budgets[self.stage])
 
 		self.actual_num_configs[self.stage] += 1
+		
+		if not self.result_logger is None:
+		    self.result_logger.new_config(config_id, config, config_info)
+		
 		return(config_id)
 
 	def register_result(self, job):

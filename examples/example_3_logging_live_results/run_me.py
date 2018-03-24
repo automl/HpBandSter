@@ -1,7 +1,7 @@
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
-from hpbandster.api.optimizers.hyperband import HyperBand
+from hpbandster.api.optimizers.bohb import BOHB
 
 import hpbandster.api.util as hputil
 import hpbandster.api.results.util
@@ -60,15 +60,13 @@ for i in range(num_workers):
 
 
 
-
-
-HB = HyperBand(	configspace = config_space,
+HB = BOHB(		configspace = config_space,
 				run_id = run_id,
                 eta=3,min_budget=27, max_budget=243,	# HB parameters
 				nameserver=ns_host,
 				nameserver_port = ns_port,
 				result_logger=result_logger
-				)
+		)
 
 HB.run(4, min_n_workers=num_workers)
 HB.shutdown(shutdown_workers=True)
@@ -82,6 +80,9 @@ id2config = res.get_id2config_mapping()
 
 print('A total of %i unique configurations where sampled.'%len(id2config.keys()))
 print('A total of %i runs where executed.'%len(res.get_all_runs()))
+
+
+import pdb; pdb.set_trace()
 
 incumbent_trajectory = res.get_incumbent_trajectory()
 

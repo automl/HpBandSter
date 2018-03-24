@@ -19,9 +19,9 @@ def logged_results_to_HB_result(directory):
 	
 	with open(os.path.join(directory, 'configs.json')) as fh:
 		for line in fh:
-			config_id, config = json.loads(line)
+			config_id, config, config_info = json.loads(line)
 
-			data[tuple(config_id)] = Datum(config=config, config_info='NA')
+			data[tuple(config_id)] = Datum(config=config, config_info=config_info)
 
 	with open(os.path.join(directory, 'results.json')) as fh:
 		for line in fh:

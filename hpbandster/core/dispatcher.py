@@ -7,9 +7,9 @@ import Pyro4
 
 
 class Job(object):
-	def __init__(self, id, *args, **kwargs):
+	def __init__(self, id, **kwargs):
 		self.id = id
-		self.args = args
+		
 		self.kwargs = kwargs
 		
 		self.timestamps = {}
@@ -25,7 +25,6 @@ class Job(object):
 	def __repr__(self):
 		return(\
 			"job_id: " +str(self.id) + "\n" + \
-			"args: " + str(self.args) + "\n" + \
 			"kwargs: " + str(self.kwargs) + "\n" + \
 			"result: " + str(self.result)+ "\n" +\
 			"exception: "+ str(self.exception) + "\n"
@@ -259,7 +258,7 @@ class Dispatcher(object):
 			job.time_it('started')
 			worker.runs_job = job.id
 		
-			worker.proxy.start_computation(self, job.id, *job.args, **job.kwargs)
+			worker.proxy.start_computation(self, job.id, **job.kwargs)
 
 			job.worker_name = wn
 			self.running_jobs[job.id] = job
@@ -267,10 +266,10 @@ class Dispatcher(object):
 			self.logger.debug('DISPATCHER: job %s dispatched on %s'%(str(job.id),worker.name))
 
 
-	def submit_job(self, id, *args, **kwargs):
+	def submit_job(self, id, **kwargs):
 		self.logger.debug('DISPATCHER: trying to submit job %s'%str(id))
 		with self.runner_cond:
-			job = Job(id, *args, **kwargs)
+			job = Job(id, **kwargs)
 			job.time_it('submitted')
 			self.waiting_jobs.put(job)
 			self.logger.debug('DISPATCHER: trying to notify the job_runner thread.')

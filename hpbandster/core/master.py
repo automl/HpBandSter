@@ -13,20 +13,20 @@ from hpbandster.core.dispatcher import Dispatcher
 from hpbandster.api.results.result import Result
 
 class Master(object):
-	def __init__(self,
-					run_id,
-					config_generator,
-					working_directory='.',
-					ping_interval=60,
-					nameserver='127.0.0.1',
-					nameserver_port=None,
-					host=None,
-					shutdown_workers=True,
-					job_queue_sizes=(-1,0),
-					dynamic_queue_size=True,
-					logger=None,
-					result_logger=None,
-					):
+	def __init__(	self,
+			run_id,
+			config_generator,
+			working_directory='.',
+			ping_interval=60,
+			nameserver='127.0.0.1',
+			nameserver_port=None,
+			host=None,
+			shutdown_workers=True,
+			job_queue_sizes=(-1,0),
+			dynamic_queue_size=True,
+			logger=None,
+			result_logger=None,
+			):
 		"""
 
 		Parameters
@@ -173,6 +173,8 @@ class Master(object):
 		"""
 
 		self.wait_for_workers(min_n_workers)
+		
+		iteration_kwargs.update({'result_logger': self.result_logger})
 
 		if self.time_ref is None:
 			self.time_ref = time.time()
