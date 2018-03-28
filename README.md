@@ -5,7 +5,8 @@ a distributed Hyperband implementation on Steroids
 
 A simple
 ```
-python setup.py install --user
+pip install -r requirements.txt
+python3 setup.py install --user
 ```
 should do. It should install the dependencies automatically.
 
@@ -13,7 +14,8 @@ should do. It should install the dependencies automatically.
 If you want to develop on the code you could install it via
 
 ```
-python setup.py develop --user
+pip install -r requirements.txt
+python3 setup.py develop --user
 ```
 
 
