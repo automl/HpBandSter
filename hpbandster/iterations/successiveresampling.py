@@ -7,7 +7,7 @@ import numpy as np
 
 class SuccessiveResampling(BaseIteration):
 	
-	def __init__(self, *args, resampling_rate = 0.5, min_samples_advance = 1, **kwargs)
+	def __init__(self, *args, resampling_rate = 0.5, min_samples_advance = 1, **kwargs):
 		"""
 			Iteration class to resample new configurations along side keeping the good ones
 			in SuccessiveHalving.
