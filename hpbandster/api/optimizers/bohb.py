@@ -1,5 +1,4 @@
 import os
-import threading
 import time
 import math
 import copy
@@ -87,10 +86,6 @@ class BOHB(Master):
 		# precompute some HB stuff
 		self.max_SH_iter = -int(np.log(min_budget/max_budget)/np.log(eta)) + 1
 		self.budgets = max_budget * np.power(eta, -np.linspace(self.max_SH_iter-1, 0, self.max_SH_iter))
-
-
-		# condition to synchronize the job_callback and the queue
-		self.thread_cond = threading.Condition()
 
 		self.config.update({
 						'eta'        : eta,
