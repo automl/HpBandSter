@@ -14,7 +14,6 @@ from hpbandster.config_generators.base import base_config_generator
 
 
 class BOHB(base_config_generator):
-	
 	def __init__(self, configspace, min_points_in_model = None,
 				 top_n_percent=15, num_samples = 64, random_fraction=1/3,
 				 bandwidth_factor=3, min_bandwidth=1e-3,
@@ -86,7 +85,13 @@ class BOHB(base_config_generator):
 		self.losses = dict()
 		self.good_config_rankings = dict()
 		self.kde_models = dict()
-		
+
+
+	def largest_budget_with_model(self):
+		if len(self.kde_models) == 0:
+			return(-float('inf'))
+		return(max(self.kde_models.keys()))
+
 	def get_config(self, budget):
 		"""
 			Function to sample a new configuration
