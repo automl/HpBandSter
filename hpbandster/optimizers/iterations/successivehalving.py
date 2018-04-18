@@ -1,4 +1,4 @@
-from hpbandster.iterations.base import BaseIteration
+from hpbandster.core.base_iteration import BaseIteration
 import numpy as np
 
 

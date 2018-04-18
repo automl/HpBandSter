@@ -1,5 +1,4 @@
 import copy
-import pdb
 
 class Run(object):
 	"""
@@ -27,7 +26,6 @@ class Run(object):
 			 in case somebody wants to use it like a dictionary
 		"""
 		return(getattr(self, k))
-
 
 
 def extract_HB_learning_curves(runs):
@@ -58,7 +56,82 @@ def extract_HB_learning_curves(runs):
 	return([[(r.budget, r.loss) for r in sr],])
 		
 
+class json_result_logger(object):
+	"""
+		convenience logger for 'semi-live-results'
 
+		Logger that writes job results into two files (configs.json and results.json).
+		Both files contain propper json objects in each line.
+
+		This version (v1) opens and closes the files for each result.
+		This might be very slow if individual runs are fast and the
+		filesystem is rather slow (e.g. a NFS).
+
+	"""
+	def __init__(self, directory, overwrite=False):
+		"""
+			Parameters:
+			-----------
+
+			directory: string
+				the directory where the two files 'configs.json' and
+				'results.json' are stored
+			overwrite: bool
+				In case the files already exist, this flag controls the
+				behavior:
+					> True:   The existing files will be overwritten.
+					          Potential risk of deleting previous results
+					> False:  A FileEvistsError is raised and the files are
+							  not modified.
+		"""
+
+		os.makedirs(directory, exist_ok=True)
+
+		
+		self.config_fn  = os.path.join(directory, 'configs.json')
+		self.results_fn = os.path.join(directory, 'results.json')
+
+
+		try:
+			with open(self.config_fn, 'x') as fh: pass
+		except FileExistsError:
+			if overwrite:
+				with open(self.config_fn, 'w') as fh: pass
+			else:
+				raise FileExistsError('The file %s already exists.'%self.config_fn)
+		except:
+			raise
+
+		try:
+			with open(self.results_fn, 'x') as fh: pass
+		except FileExistsError:
+			if overwrite:
+				with open(self.results_fn, 'w') as fh: pass
+			else:
+				raise FileExistsError('The file %s already exists.'%self.config_fn)
+
+		except:
+			raise
+
+		self.config_ids = set()
+
+	def new_config(self, config_id, config, config_info):
+		if not config_id in self.config_ids:
+			self.config_ids.add(config_id)
+			with open(self.config_fn, 'a') as fh:
+				fh.write(json.dumps([config_id, config, config_info]))
+				fh.write('\n')
+
+	def __call__(self, job):
+		if not job.id in self.config_ids:
+			#should never happen! TODO: log warning here!
+			self.config_ids.add(job.id)
+			with open(self.config_fn, 'a') as fh:
+				fh.write(json.dumps([job.id, job.kwargs['config'], {}]))
+				fh.write('\n')
+		with open(self.results_fn, 'a') as fh:
+			fh.write(json.dumps([job.id, job.kwargs['budget'], job.timestamps, job.result, job.exception]))
+			fh.write("\n")
 
 
 class Result(object):

@@ -1,9 +1,9 @@
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
-from hpbandster.api.optimizers.hyperband import HyperBand
+from hpbandster.optimizers import HyperBand
 
-import hpbandster.api.util as hputil
+import hpbandster.core.nameserver as hpns
 
 import ConfigSpace as CS
 
@@ -27,7 +27,7 @@ run_id = '0'
 # with a random port
 
 
-NS = hputil.NameServer(run_id=run_id, host='localhost', port=0)
+NS = hpns.NameServer(run_id=run_id, host='localhost', port=0)
 ns_host, ns_port = NS.start()
 
 
@@ -46,12 +46,11 @@ for i in range(num_workers):
 	w.run(background=True)
 	workers.append(w)
 
-#Try BOHB here instead of Hyperband:
-#simply add
-from hpbandster.api.optimizers.bohb import BOHB
-# and change Hyperband to BOHB below
 
-HB = BOHB(	configspace = config_space,
+from hpbandster.optimizers import H2BO as opt
+
+
+HB = opt(	configspace = config_space,
 				run_id = run_id,
                 eta=3,min_budget=27, max_budget=243,	# HB parameters
 				nameserver=ns_host,

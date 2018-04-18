@@ -10,7 +10,7 @@ import numpy as np
 
 
 from hpbandster.core.dispatcher import Dispatcher
-from hpbandster.api.results.result import Result
+from hpbandster.core.result import Result
 
 class Master(object):
 	def __init__(	self,

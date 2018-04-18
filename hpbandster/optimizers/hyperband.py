@@ -11,8 +11,8 @@ import numpy as np
 import ConfigSpace as CS
 
 from hpbandster.core.master import Master
-from hpbandster.iterations import SuccessiveHalving
-from hpbandster.config_generators import RandomSampling
+from hpbandster.optimizers.iterations import SuccessiveHalving
+from hpbandster.optimizers.config_generators import RandomSampling
 
 class HyperBand(Master):
 	def __init__(self, *args,

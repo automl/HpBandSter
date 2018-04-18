@@ -1,4 +1,4 @@
-from hpbandster.config_generators.base import base_config_generator
+from hpbandster.core.base_config_generator import base_config_generator
 
 
 
