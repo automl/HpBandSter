@@ -14,11 +14,11 @@ from hpbandster.optimizers.iterations import SuccessiveHalving
 from hpbandster.optimizers.config_generators.bohb import BOHB as CG_BOHB
 
 class H2BO(Master):
-	def __init__(self, *args,
+	def __init__(self,
 					configspace = None,
 					eta=3, min_budget=0.01, max_budget=1,
 					min_points_in_model = None,	top_n_percent=15,
-					num_samples = 64, random_fraction=1/3, bandwidth_factor=3,
+					num_samples = 32, random_fraction=1/3, bandwidth_factor=1,
 					min_bandwidth=1e-3,
 					**kwargs
 					):
@@ -76,7 +76,7 @@ class H2BO(Master):
 					min_bandwidth = min_bandwidth
 					)
 
-		super().__init__(*args, config_generator=cg, **kwargs)
+		super().__init__(config_generator=cg, **kwargs)
 
 		# Hyperband related stuff
 		self.eta = eta
@@ -133,7 +133,7 @@ class H2BO(Master):
 
 		
 		# number of 'SH rungs'
-		s = max_SH_iter - 1 - (iteration%max_SH_iter)
+		s = max_SH_iter - 1
 		# number of configurations in that bracket
 		n0 = int(np.floor((self.max_SH_iter)/(s+1)) * eta**s)
 		ns = np.array([max(int(n0*(eta**(-i))), 1) for i in range(s+1)])

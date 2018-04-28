@@ -15,11 +15,9 @@ from hpbandster.optimizers.iterations import SuccessiveHalving
 from hpbandster.optimizers.config_generators import RandomSampling
 
 class HyperBand(Master):
-	def __init__(self, *args,
-					configspace = None,
+	def __init__(self, configspace = None,
 					eta=3, min_budget=0.01, max_budget=1,
-					**kwargs
-					):
+					**kwargs ):
 		"""
 
 		Parameters
@@ -44,7 +42,7 @@ class HyperBand(Master):
 		if configspace is None:
 			raise ValueError("You have to provide a valid CofigSpace object")
 
-		super().__init__(*args, config_generator=RandomSampling(configspace), **kwargs)
+		super().__init__(config_generator=RandomSampling(configspace), **kwargs)
 
 		# Hyperband related stuff
 		self.eta = eta

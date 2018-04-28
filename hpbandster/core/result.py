@@ -1,4 +1,7 @@
 import copy
+import os
+import json
+
 
 class Run(object):
 	"""
@@ -134,6 +137,58 @@ class json_result_logger(object):
 			fh.write("\n")
 
 
+def logged_results_to_HB_result(directory):
+	"""
+		function to import logged 'live-results' and return a HB_result object
+
+		You can load live run results with this function and the returned
+		HB_result object gives you access to the results the same way
+		a finished run would.
+	"""
+	data = {}
+	time_ref = float('inf')
+	budget_set = set()
+	
+	with open(os.path.join(directory, 'configs.json')) as fh:
+		for line in fh:
+			
+			line = json.loads(line)
+			
+			if len(line) == 3:
+				config_id, config, config_info = line
+			if len(line) == 2:
+				config_id, config, = line
+				config_info = 'N/A'
+
+			data[tuple(config_id)] = Datum(config=config, config_info=config_info)
+
+	with open(os.path.join(directory, 'results.json')) as fh:
+		for line in fh:
+			config_id, budget,time_stamps, result, exception = json.loads(line)
+
+			id = tuple(config_id)
+			data[id].time_stamps[budget] = time_stamps
+			data[id].results[budget] = result
+			data[id].exceptions[budget] = exception
+
+			budget_set.add(budget)
+			time_ref = min(time_ref, time_stamps['submitted'])
+
+
+	# infer the hyperband configuration from the data
+	budget_list = sorted(list(budget_set))
+	
+	HB_config = {
+						'eta'        : None if len(budget_list) < 2 else budget_list[1]/budget_list[0],
+						'min_budget' : min(budget_set),
+						'max_budget' : max(budget_set),
+						'budgets'    : budget_list,
+						'max_SH_iter': len(budget_set),
+						'time_ref'   : time_ref
+				}
+	return(Result([data], HB_config))
+
+
 class Result(object):
 	"""
 		Object returned by the HB_master.run function
@@ -196,7 +251,7 @@ class Result(object):
 		all_runs = self.get_all_runs(only_largest_budget = not all_budgets)
 		
 		if not all_budgets:
-			all_runs = list(filter(lambda r: r.budget==self.HB_config['max_budget'], all_runs))
+			all_runs = list(filter(lambda r: r.budget==res.HB_config['max_budget'], all_runs))
 		
 		all_runs.sort(key=lambda r: r.time_stamps['finished'])
 		

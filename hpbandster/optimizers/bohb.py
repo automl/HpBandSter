@@ -14,14 +14,12 @@ from hpbandster.optimizers.iterations import SuccessiveHalving
 from hpbandster.optimizers.config_generators.bohb import BOHB as CG_BOHB
 
 class BOHB(Master):
-	def __init__(self, *args,
-					configspace = None,
+	def __init__(self, configspace = None,
 					eta=3, min_budget=0.01, max_budget=1,
 					min_points_in_model = None,	top_n_percent=15,
 					num_samples = 64, random_fraction=1/3, bandwidth_factor=3,
 					min_bandwidth=1e-3,
-					**kwargs
-					):
+					**kwargs ):
 		"""
 
 		Parameters
@@ -76,7 +74,7 @@ class BOHB(Master):
 					min_bandwidth = min_bandwidth
 					)
 
-		super().__init__(*args, config_generator=cg, **kwargs)
+		super().__init__(config_generator=cg, **kwargs)
 
 		# Hyperband related stuff
 		self.eta = eta
