@@ -10,23 +10,28 @@ import numpy as np
 
 
 from hpbandster.core.dispatcher import Dispatcher
-from hpbandster.api.results.result import Result
+from hpbandster.core.result import Result
+from hpbandster.core.base_iteration import WarmStartIteration
+
+
+
 
 class Master(object):
-	def __init__(self,
-					run_id,
-					config_generator,
-					working_directory='.',
-					ping_interval=60,
-					nameserver='127.0.0.1',
-					nameserver_port=None,
-					host=None,
-					shutdown_workers=True,
-					job_queue_sizes=(-1,0),
-					dynamic_queue_size=True,
-					logger=None,
-					result_logger=None,
-					):
+	def __init__(	self,
+			run_id,
+			config_generator,
+			working_directory='.',
+			ping_interval=60,
+			nameserver='127.0.0.1',
+			nameserver_port=None,
+			host=None,
+			shutdown_workers=True,
+			job_queue_sizes=(-1,0),
+			dynamic_queue_size=True,
+			logger=None,
+			result_logger=None,
+			previous_result = None,
+			):
 		"""
 
 		Parameters
@@ -69,6 +74,8 @@ class Master(object):
 			the logger to output some (more or less meaningful) information
 		result_logger: hpbandster.api.results.util.json_result_logger object
 			a result logger that writes live results to disk
+		previous_result: hpbandster.core.result.Result object
+			previous run to warmstart the run
 		"""
 
 		self.working_directory = working_directory
@@ -98,6 +105,11 @@ class Master(object):
 		if job_queue_sizes[0] >= job_queue_sizes[1]:
 			raise ValueError("The queue size range needs to be (min, max) with min<max!")
 
+		if previous_result is None:
+			self.warmstart_iteration = []
+
+		else:
+			self.warmstart_iteration = [WarmStartIteration(previous_result, self.config_generator)]
 
 		# condition to synchronize the job_callback and the queue
 		self.thread_cond = threading.Condition()
@@ -133,7 +145,6 @@ class Master(object):
 		with self.thread_cond:
 			while (self.dispatcher.number_of_workers() < min_n_workers):
 				self.logger.debug('HBMASTER: only %i worker(s) available, waiting for at least %i.'%(self.dispatcher.number_of_workers(), min_n_workers))
-				self.logger.debug('wating \n\n')
 				self.thread_cond.wait(1)
 				self.dispatcher.trigger_discover_worker()
 				
@@ -174,6 +185,8 @@ class Master(object):
 		"""
 
 		self.wait_for_workers(min_n_workers)
+		
+		iteration_kwargs.update({'result_logger': self.result_logger})
 
 		if self.time_ref is None:
 			self.time_ref = time.time()
@@ -210,7 +223,13 @@ class Master(object):
 				break
 
 		self.thread_cond.release()
-		return Result([copy.deepcopy(i.data) for i in self.iterations], self.config)
+		
+		for i in self.warmstart_iteration:
+			i.fix_timestamps(self.time_ref)
+			
+		ws_data = [i.data for i in self.warmstart_iteration]
+		
+		return Result([copy.deepcopy(i.data) for i in self.iterations] + ws_data, self.config)
 
 
 	def adjust_queue_size(self, number_of_workers=None):
@@ -255,7 +274,6 @@ class Master(object):
 		if self.num_running_jobs >= self.job_queue_sizes[1]:
 			while(self.num_running_jobs > self.job_queue_sizes[0]):
 				self.logger.debug('HBMASTER: running jobs: %i, queue sizes: %s -> wait'%(self.num_running_jobs, str(self.job_queue_sizes)))
-				self.logger.debug('wating \n\n')
 				self.thread_cond.wait()
 
 	def _submit_job(self, config_id, config, budget):
