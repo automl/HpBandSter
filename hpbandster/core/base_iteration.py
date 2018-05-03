@@ -5,6 +5,8 @@ import logging
 import numpy as np
 import pdb
 
+from hpbandster.core.dispatcher import Job
+
 
 class Datum(object):
 	def __init__(self, config, config_info, results=None, time_stamps=None, exceptions=None, status='QUEUED', budget=0):
@@ -15,6 +17,15 @@ class Datum(object):
 		self.exceptions	= exceptions	if not exceptions is None else {}
 		self.status		= status
 		self.budget		= budget
+
+	def __repr__(self):
+		return(\
+			"\nconfig:{}\n".format(self.config) + \
+			"config_info:\n{}\n"%self.config_info + \
+			"losses:\n"
+			'\t'.join(["{}: {}\t".format(k, v['loss']) for k,v in self.results.items()]) + \
+			"time stamps: {}".format(self.time_stamps)
+		)
 
 
 
@@ -89,9 +100,9 @@ class BaseIteration(object):
 		
 		return(config_id)
 
-	def register_result(self, job):
+	def register_result(self, job, skip_sanity_checks=False):
 		"""
-			function to register the result of a dispy job
+			function to register the result of a job
 
 			This function is called from HB_master, don't call this from
 			your script.
@@ -109,9 +120,10 @@ class BaseIteration(object):
 		
 		d = self.data[config_id]
 		
-		assert d.config == config, 'Configurations differ!'
-		assert d.status == 'RUNNING', "Configuration wasn't scheduled for a run."
-		assert d.budget == budget, 'Budgets differ (%f != %f)!'%(self.data[config_id]['budget'], budget)
+		if not skip_sanity_checks:
+			assert d.config == config, 'Configurations differ!'
+			assert d.status == 'RUNNING', "Configuration wasn't scheduled for a run."
+			assert d.budget == budget, 'Budgets differ (%f != %f)!'%(self.data[config_id]['budget'], budget)
 
 		d.time_stamps[budget] = timestamps
 		d.results[budget] = result
@@ -120,8 +132,8 @@ class BaseIteration(object):
 			d.status = 'REVIEW'
 		else:
 			d.status = 'CRASHED'
-			d.exceptions[budget] = exception
 
+		d.exceptions[budget] = exception
 		self.num_running -= 1
 		
 	def get_next_run(self):
@@ -160,7 +172,6 @@ class BaseIteration(object):
 			return(self.get_next_run())
 
 		return(None)
-
 
 	def _advance_to_next_stage(self, config_ids, losses):
 		"""
@@ -234,3 +245,53 @@ class BaseIteration(object):
 		for k,v in self.data.items():
 			assert v.status in ['TERMINATED', 'REVIEW', 'CRASHED'], 'Configuration has not finshed yet!'
 			v.status = 'COMPLETED'
+
+
+class WarmStartIteration(BaseIteration):
+	"""
+		iteration that imports a privious Result for warm starting
+	"""
+
+	def __init__(self, Result, config_generator):
+		
+		self.is_finished=False
+		self.stage = 0
+
+		
+		id2conf = Result.get_id2config_mapping()
+		delta_t = - max(map(lambda r: r.time_stamps['finished'], Result.get_all_runs()))
+
+		super().__init__(-1, [len(id2conf)]	, [None], None)
+		
+		
+		for i, id in enumerate(id2conf):
+			new_id = self.add_configuration(config=id2conf[id]['config'], config_info=id2conf[id]['config_info'])
+			
+			for r in Result.get_runs_by_id(id):
+			
+				
+				j = Job(new_id, config=id2conf[id]['config'], budget=r.budget)
+				
+				j.result = {'loss': r.loss, 'info': r.info}
+				j.error_logs = r.error_logs
+				
+				for k,v in r.time_stamps.items():
+					j.timestamps[k] = v + delta_t
+				
+				self.register_result(j , skip_sanity_checks=True)
+				
+				config_generator.new_result(j, update_model=(i==len(id2conf)-1))
+				
+		# mark as finished, as no more runs should be executed from these runs
+		self.is_finished = True
+		
+	def fix_timestamps(self, time_ref):
+		"""
+			manipulates internal time stamps such that the last run ends at time 0
+		"""
+		
+		for k,v in self.data.items():
+			for kk, vv in v.time_stamps.items():
+				for kkk,vvv in vv.items():
+					self.data[k].time_stamps[kk][kkk] += time_ref
+		

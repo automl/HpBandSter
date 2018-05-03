@@ -5,6 +5,44 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import CheckButtons,Button
 
 
+
+def default_tool_tips(result_object, learning_curves, include_run_info=False):
+
+	tool_tips = {}
+	id2conf = result_object.get_id2config_mapping()
+	
+	for id in learning_curves.keys():
+		
+		config = id2conf[id]['config']
+		config_info = id2conf[id]['config_info']
+
+		all_runs =  result_object.get_runs_by_id(id)
+		longest_run = all_runs[-1]
+	
+		while longest_run.loss is None:
+			all_runs.pop()
+			if len(all_runs) == 0: break
+			longest_run = all_runs[-1]
+			
+		if len(all_runs) == 0: continue
+		
+		s = ['id: %s'%str(id), 'duration (sec): %f'%((longest_run['time_stamps']['finished'] - longest_run['time_stamps']['started']))]
+
+		if not longest_run.loss is None:
+			s += [str(k) + "=" +str(v) for k,v in sorted(id2conf[id]['config'].items()) ]
+			try:
+				s += [str(k) + "=" +str(v) for k,v in sorted(id2conf[id]['config_info'].items()) ]
+			except:
+				pass
+			
+			s += ['losses: {}'.format([r.loss for r in all_runs])]
+			if include_run_info:
+				s += ['longest run info: {}'.format(longest_run.info)]
+			
+		tool_tips[id] = "\n".join(s)
+	return(tool_tips)
+
+
 def interactive_HB_plot(learning_curves, tool_tip_strings=None,log_y=False, log_x=False, reset_times=False, color_map='Set3', colors_floats=None, title='', show=True):
 
 	times, losses, config_ids, = [], [], []
@@ -18,7 +56,8 @@ def interactive_HB_plot(learning_curves, tool_tip_strings=None,log_y=False, log_
 
 	num_curves = len(times)
 	HB_iterations = [id[0] for id in config_ids]
-	num_iterations = max(HB_iterations) + 1
+	
+	num_iterations = len(set(HB_iterations))
 	
 	cmap = plt.get_cmap(color_map)
 	
@@ -31,13 +70,19 @@ def interactive_HB_plot(learning_curves, tool_tip_strings=None,log_y=False, log_
 	if colors_floats is None:
 		color_floats = []
 		for i in range(num_curves):
-			seed = 100*config_ids[i][0] + 10*config_ids[i][1] + config_ids[i][2]
+			seed = 100*np.abs(config_ids[i][0]) + 10*config_ids[i][1] + config_ids[i][2]
 			np.random.seed(seed)
 			color_floats.append(np.random.rand())
 
 	fig, ax = plt.subplots()
 	
 	lines = [[] for i in range(num_iterations)]
+
+	iteration_labels  = list(range(num_iterations))
+	if HB_iterations[-1] == -1:
+		iteration_labels[-1] = 'warmstart data'
+	
+	
 
 	all_lines = []
 	
@@ -67,16 +112,21 @@ def interactive_HB_plot(learning_curves, tool_tip_strings=None,log_y=False, log_
 	axnone = plt.axes([0.05, 0, 0.05, 0.1])
 	axall = plt.axes([0.1, 0, 0.05  , 0.1])
 		
-	check = CheckButtons(rax, range(num_iterations), [True for i in range(num_iterations)])
+	check = CheckButtons(rax, iteration_labels, [True for i in range(num_iterations)])
 	
 	none_button = Button(axnone, 'None')
 	all_button = Button(axall, 'All')
 	
 
 	def change_visibility(label, value=None):
+		if label == 'warmstart data':
+			index = -1
+		else:
+			index = int(label)
+		
 		if value is None:
-			value = not lines[int(label)][0].get_visible()
-		[l.set_visible(value) for l in lines[int(label)]]
+			value = not lines[index][0].get_visible()
+		[l.set_visible(value) for l in lines[index]]
 		plt.draw()
 
 		

@@ -2,7 +2,7 @@ import copy
 import os
 import json
 
-
+from hpbandster.core.base_iteration import  Datum
 class Run(object):
 	"""
 		Not a proper class, more a 'struct' to bundle important
@@ -324,6 +324,8 @@ class Result(object):
 				lc_extractor: callable
 					a function to return a list of learning_curves.
 					defaults to hpbanster.HB_result.extract_HP_learning_curves
+				config_ids: list of valid config ids
+					if only a subset of the config ids is wanted
 
 			Returns:
 			--------
@@ -366,6 +368,7 @@ class Result(object):
 					all_runs.append(runs[-1])
 				else:
 					all_runs.extend(runs)
+
 		return(all_runs)
 
 	def get_id2config_mapping(self):
@@ -393,7 +396,7 @@ class Result(object):
 			new_dict.update(it)
 
 		for k,v in new_dict.items():
-			for kk, vv, in v.time_stamps.items():
+			for kk, vv in v.time_stamps.items():
 				for kkk,vvv in vv.items():
 					new_dict[k].time_stamps[kk][kkk] = vvv - self.HB_config['time_ref']
 

@@ -9,13 +9,12 @@ import pickle
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
-from hpbandster.api.optimizers.bohb import BOHB
-import hpbandster.api.util as hputil
+from hpbandster.optimizers import BOHB
+import hpbandster.core.nameserver as hpns
 
 import ConfigSpace as CS
 
-from worker import MyWorker
-
+from hpbandster.examples.commons import MyWorker
 config_space = CS.ConfigurationSpace()
 config_space.add_hyperparameter(CS.UniformFloatHyperparameter('x', lower=0, upper=1))
 
@@ -26,6 +25,8 @@ parser = argparse.ArgumentParser(description='HpBandSter example 2.')
 parser.add_argument('--run_id',      help='unique id to identify the HPB run.', default='HPB_example_2', type=str)
 parser.add_argument('--array_id',    help='SGE array id to tread one job array as a HPB run.', default=1, type=int)
 parser.add_argument('--working_dir', help='working directory to store live data.', default='.', type=str)
+parser.add_argument('--nic_name', help='name of the Network Interface Card.', default='lo', type=str)
+
 
 
 args=parser.parse_args()
@@ -33,7 +34,7 @@ args=parser.parse_args()
 
 if args.array_id == 1:
 	# start nameserver
-	NS = hputil.NameServer(run_id=args.run_id, nic_name='eth0',
+	NS = hpns.NameServer(run_id=args.run_id, nic_name=args.nic_name,
 							working_directory=args.working_dir)
 
 
@@ -44,7 +45,7 @@ if args.array_id == 1:
 	worker.run(background=True)
 
 
-	HPB = BOHB(	configspace = config_space,
+	HB = BOHB(	configspace = config_space,
 				run_id = args.run_id,
                 eta=3,min_budget=27, max_budget=243,
                 host=ns_host,
@@ -53,7 +54,7 @@ if args.array_id == 1:
 				ping_interval=3600,	
 		)
 	
-	res = HPB.run(	n_iterations = 4,
+	res = HB.run(	n_iterations = 4,
 					min_n_workers = 4		# BOHB can wait until a minimum number of workers is online before starting
 		)
 	
@@ -62,14 +63,14 @@ if args.array_id == 1:
 		pickle.dump(res, fh)
 	
 	# shutdown all workers
-	HPB.shutdown(shutdown_workers=True)
+	HB.shutdown(shutdown_workers=True)
 	
 	# and the nameserver
 	NS.shutdown()
 
 else:
 
-	host = hputil.nic_name_to_host('eth0')
+	host = hpns.nic_name_to_host(args.nic_name)
 
 	# workers only instantiate the MyWorker, find the nameserver and start serving
 	w = MyWorker(run_id=args.run_id, host=host)

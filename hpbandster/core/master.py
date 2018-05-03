@@ -11,6 +11,10 @@ import numpy as np
 
 from hpbandster.core.dispatcher import Dispatcher
 from hpbandster.core.result import Result
+from hpbandster.core.base_iteration import WarmStartIteration
+
+
+
 
 class Master(object):
 	def __init__(	self,
@@ -26,6 +30,7 @@ class Master(object):
 			dynamic_queue_size=True,
 			logger=None,
 			result_logger=None,
+			previous_result = None,
 			):
 		"""
 
@@ -69,6 +74,8 @@ class Master(object):
 			the logger to output some (more or less meaningful) information
 		result_logger: hpbandster.api.results.util.json_result_logger object
 			a result logger that writes live results to disk
+		previous_result: hpbandster.core.result.Result object
+			previous run to warmstart the run
 		"""
 
 		self.working_directory = working_directory
@@ -98,6 +105,11 @@ class Master(object):
 		if job_queue_sizes[0] >= job_queue_sizes[1]:
 			raise ValueError("The queue size range needs to be (min, max) with min<max!")
 
+		if previous_result is None:
+			self.warmstart_iteration = []
+
+		else:
+			self.warmstart_iteration = [WarmStartIteration(previous_result, self.config_generator)]
 
 		# condition to synchronize the job_callback and the queue
 		self.thread_cond = threading.Condition()
@@ -211,7 +223,13 @@ class Master(object):
 				break
 
 		self.thread_cond.release()
-		return Result([copy.deepcopy(i.data) for i in self.iterations], self.config)
+		
+		for i in self.warmstart_iteration:
+			i.fix_timestamps(self.time_ref)
+			
+		ws_data = [i.data for i in self.warmstart_iteration]
+		
+		return Result([copy.deepcopy(i.data) for i in self.iterations] + ws_data, self.config)
 
 
 	def adjust_queue_size(self, number_of_workers=None):

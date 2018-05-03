@@ -42,7 +42,7 @@ class base_config_generator(object):
 		"""
 		raise NotImplementedError('This function needs to be overwritten in %s.'%(self.__class__.__name__))
 
-	def new_result(self, job):
+	def new_result(self, job, update_model=True):
 		"""
 			function to register finished runs
 
@@ -56,6 +56,8 @@ class base_config_generator(object):
 			-----------
 			job: instance of hpbandster.distributed.dispatcher.Job
 				contains all necessary information about the job
+			update_model: boolean
+				determines whether a model inside the config_generator should be updated
 		"""
 		if not job.exception is None:
 			self.logger.warning("job {} failed with exception\n{}".format(job.id, job.exception))

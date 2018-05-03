@@ -1,18 +1,19 @@
-import logging
-logging.basicConfig(level=logging.DEBUG)
 
-from hpbandster.api.optimizers.bohb import BOHB
+from hpbandster.optimizers import BOHB
 
-import hpbandster.api.util as hputil
-import hpbandster.api.results.util
+
+import hpbandster.core.nameserver as hpns
+import hpbandster.core.result as hpres
 
 import ConfigSpace as CS
 
-from worker import MyWorker
+from hpbandster.examples.commons import MyWorker
 
 config_space = CS.ConfigurationSpace()
 config_space.add_hyperparameter(CS.UniformFloatHyperparameter('x', lower=0, upper=1))
 
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 
 
@@ -22,7 +23,7 @@ config_space.add_hyperparameter(CS.UniformFloatHyperparameter('x', lower=0, uppe
 # read the two generated files (results.json and configs.json) and
 # create a Result object. See below!
 # Specify the directory and whether or not existing files are overwritten
-result_logger = hputil.json_result_logger(directory='.', overwrite=True)
+result_logger = hpres.json_result_logger(directory='.', overwrite=True)
 
 
 
@@ -38,7 +39,7 @@ run_id = '0'
 # with a random port
 
 
-NS = hputil.NameServer(run_id=run_id, host='localhost', port=0)
+NS = hpns.NameServer(run_id=run_id, host='localhost', port=0)
 ns_host, ns_port = NS.start()
 
 
@@ -65,7 +66,8 @@ HB = BOHB(		configspace = config_space,
                 eta=3,min_budget=27, max_budget=243,	# HB parameters
 				nameserver=ns_host,
 				nameserver_port = ns_port,
-				result_logger=result_logger
+				result_logger=result_logger,			# here is where you specify the results logger
+				min_bandwidth=0.1
 		)
 
 HB.run(4, min_n_workers=num_workers)
@@ -73,7 +75,7 @@ HB.shutdown(shutdown_workers=True)
 NS.shutdown()
 
 # Just to demonstrate, let's read in the logged runs rather than the returned Resu[t from HB.run
-res = hpbandster.api.results.util.logged_results_to_HB_result('.')
+res = hpres.logged_results_to_HB_result('.')
 
 
 id2config = res.get_id2config_mapping()
@@ -81,8 +83,6 @@ id2config = res.get_id2config_mapping()
 print('A total of %i unique configurations where sampled.'%len(id2config.keys()))
 print('A total of %i runs where executed.'%len(res.get_all_runs()))
 
-
-import pdb; pdb.set_trace()
 
 incumbent_trajectory = res.get_incumbent_trajectory()
 

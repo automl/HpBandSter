@@ -8,9 +8,6 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 
-import argparse
-
-
 class MyWorker(Worker):
 
 
@@ -26,8 +23,7 @@ class MyWorker(Worker):
 			the speed ups achievable with parallel workers.
 		"""
 
-		# just some delay for good measure
-		time.sleep(0.5)
+		#time.sleep(1)
 
 		# simulate some random failure
 		if random.random() < 0.:
@@ -36,12 +32,10 @@ class MyWorker(Worker):
 		
 		res = []
 		for i in range(int(budget)):
-			tmp = config['x'] + np.clip(np.random.randn()/budget, config['x']/2, 1.5*config['x'])
+			tmp = np.clip(config['x'] + np.random.randn()/budget, config['x']/2, 1.5*config['x'])
 			res.append(tmp)
 		
 		return({
-					'loss': np.mean(res),   # this is the a mandatory field to run hyperband
+					'loss': np.abs(np.mean(res)),   # this is the a mandatory field to run hyperband
 					'info': res             # can be used for any user-defined information - also mandatory
 				})
-
-

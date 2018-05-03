@@ -1,13 +1,15 @@
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
-from hpbandster.optimizers import HyperBand
+from hpbandster.optimizers import HyperBand as opt
+#from hpbandster.optimizers import BOHB as opt
+
 
 import hpbandster.core.nameserver as hpns
 
 import ConfigSpace as CS
 
-from worker import MyWorker
+from hpbandster.examples.commons import MyWorker
 
 config_space = CS.ConfigurationSpace()
 config_space.add_hyperparameter(CS.UniformFloatHyperparameter('x', lower=0, upper=1))
@@ -18,8 +20,6 @@ config_space.add_hyperparameter(CS.UniformFloatHyperparameter('x', lower=0, uppe
 # instances run at the same time, they have to have different ids
 # Here we pick '0'
 run_id = '0'
-
-
 
 
 # Every run needs a nameserver. It could be a 'static' server with a
@@ -45,9 +45,6 @@ for i in range(num_workers):
 					)
 	w.run(background=True)
 	workers.append(w)
-
-
-from hpbandster.optimizers import H2BO as opt
 
 
 HB = opt(	configspace = config_space,

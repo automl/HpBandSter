@@ -29,6 +29,16 @@ class Job(object):
 			"result: " + str(self.result)+ "\n" +\
 			"exception: "+ str(self.exception) + "\n"
 		)
+	def recreate_from_run(self, run):
+		
+		run.config_id
+		run.budget
+		run.error_logs  
+		run.loss        
+		run.info        
+		run.time_stamps 
+
+
 
 
 class Worker(object):
