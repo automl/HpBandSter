@@ -195,7 +195,7 @@ class BOHB(base_config_generator):
 					try:
 						sample = ConfigSpace.util.deactivate_inactive_hyperparameters(
 									configuration_space=self.configspace,
-									configuration=sample.get_dictionary()
+									configuration=sample
 									)
 						info_dict['model_based_pick'] = True
 

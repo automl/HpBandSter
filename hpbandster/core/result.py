@@ -167,6 +167,7 @@ def logged_results_to_HB_result(directory):
 			config_id, budget,time_stamps, result, exception = json.loads(line)
 
 			id = tuple(config_id)
+			
 			data[id].time_stamps[budget] = time_stamps
 			data[id].results[budget] = result
 			data[id].exceptions[budget] = exception
