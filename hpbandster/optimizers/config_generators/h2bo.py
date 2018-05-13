@@ -15,7 +15,7 @@ from hpbandster.optimizers.kde.mvkde import MultivariateKDE
 class H2BO(base_config_generator):
 	def __init__(self, configspace, min_points_in_model = None,
 				 top_n_percent=15, num_samples = 64, random_fraction=1/3,
-				 bandwidth_factor=3, min_bandwidth=1e-3,
+				 min_bandwidth=1e-3, bw_estimator='scott',
 				**kwargs):
 		"""
 			Fits for each given budget a kernel density estimator on the best N percent of the
@@ -36,8 +36,8 @@ class H2BO(base_config_generator):
 				number of samples drawn to optimize EI via sampling
 			random_fraction: float
 				fraction of random configurations returned
-			bandwidth_factor: float
-				widens the bandwidth for contiuous parameters for proposed points to optimize EI
+			bw_estimator: string
+				how the bandwidths is estimated. Possible values are 'scott' and 'mlcv' for maximum likelihood estimation
 			min_bandwidth: float
 				to keep diversity, even when all (good) samples have the same value for one of the parameters,
 				a minimum bandwidth (Default: 1e-3) is used instead of zero. 
@@ -46,7 +46,7 @@ class H2BO(base_config_generator):
 		super().__init__(**kwargs)
 		self.top_n_percent=top_n_percent
 		self.configspace = configspace
-		self.bw_factor = bandwidth_factor
+		self.bw_estimator = bw_estimator
 		self.min_bandwidth = min_bandwidth
 
 		self.min_points_in_model = min_points_in_model
@@ -99,6 +99,7 @@ class H2BO(base_config_generator):
 
 
 		if sample is None:
+			#import pdb; pdb.set_trace()
 			samples = self.kde_models[budget]['good'].sample(self.num_samples)
 			ei = self.kde_models[budget]['good'].pdf(samples)/self.kde_models[budget]['bad'].pdf(samples)
 			
@@ -188,6 +189,11 @@ class H2BO(base_config_generator):
 			self.losses[budget] = []
 	
 			
+		if len(self.configs.keys()) == 1:
+			min_num_points = 6
+		else:
+			min_num_points = self.min_points_in_model
+
 
 		# skip model building if we already have a bigger model
 		if max(list(self.kde_models.keys()) + [-np.inf]) > budget:
@@ -195,15 +201,26 @@ class H2BO(base_config_generator):
 
 		# We want to get a numerical representation of the configuration in the original space
 
-		conf = ConfigSpace.Configuration(self.configspace, job.kwargs["config"])
-		self.configs[budget].append(conf.get_array())
-		self.losses[budget].append(loss)
+		conf = ConfigSpace.Configuration(self.configspace, job.kwargs["config"]).get_array().tolist()
+		
+			
+		#import pdb; pdb.set_trace()
+		
+		
+		if conf in self.configs[budget]:
+			i = self.configs[budget].index(conf)
+			self.losses[budget][i].append(loss)
+			print('-'*50)
+			print('ran config %s with loss %f again'%(conf, loss))
+		else:
+			self.configs[budget].append(conf)
+			self.losses[budget].append([loss])
 
 		
 		# skip model building:
 		#		a) if not enough points are available
-		if len(self.configs[budget]) < self.min_points_in_model:
-			self.logger.debug("Only %i run(s) for budget %f available, need more than %s -> can't build model!"%(len(self.configs[budget]), budget, self.min_points_in_model))
+		if len(self.configs[budget]) < min_num_points:
+			self.logger.debug("Only %i run(s) for budget %f available, need more than %s -> can't build model!"%(len(self.configs[budget]), budget, min_num_points))
 			return
 
 		#		b) during warnm starting when we feed previous results in and only update once
@@ -218,35 +235,41 @@ class H2BO(base_config_generator):
 				'bad' : MultivariateKDE(self.configspace, min_bandwidth=self.min_bandwidth)
 			}	
 
-		train_configs = np.array(self.configs[budget])
-		train_losses =  np.array(self.losses[budget])
 
-		n_good= min(32, max(1+0*self.min_points_in_model, (self.top_n_percent * train_configs.shape[0])//100 ))
-		n_bad = max(self.min_points_in_model, ((100-self.top_n_percent)*train_configs.shape[0])//100)
+		#import pdb; pdb.set_trace()
+		num_configs = len(self.losses[budget])
+		
+		train_configs = np.array(self.configs[budget][-num_configs:])
+		train_losses =  np.array(list(map(np.mean, self.losses[budget][-num_configs:])))
+
+		n_good= max(3,(num_configs * self.top_n_percent) // 100)
+		n_bad = num_configs-n_good
 
 		# Refit KDE for the current budget
 		idx = np.argsort(train_losses)
 
 		train_data_good = self.impute_conditional_data(train_configs[idx[:n_good]])
-		train_data_bad  = self.impute_conditional_data(train_configs[idx[n_good:n_good+n_bad]])
+		train_data_bad  = self.impute_conditional_data(train_configs[idx[n_good:n_good+n_bad+1]])
 
 
-		self.kde_models[budget]['bad'].fit(train_data_bad, bw_estimator='scott')
-		self.kde_models[budget]['good'].fit(train_data_good, bw_estimator='scott')
+		self.kde_models[budget]['bad'].fit(train_data_bad, bw_estimator=self.bw_estimator)
+		self.kde_models[budget]['good'].fit(train_data_good, bw_estimator=self.bw_estimator)
 		
-		#if n_good < self.min_points_in_model:
-		#	self.kde_models[budget]['good'].bandwidths[:] = self.kde_models[budget]['bad'].bandwidths
 		
+		if self.bw_estimator in ['mlcv'] and n_good < 3:
+			self.kde_models[budget]['good'].bandwidths[:] = self.kde_models[budget]['bad'].bandwidths
 		
 		"""
 		print('='*50)
 		print(self.kde_models[budget]['good'].bandwidths)
-		print('best:\n',self.kde_models[budget]['good'].data[0])
+		#print('best:\n',self.kde_models[budget]['good'].data[0])
 		print(self.kde_models[budget]['good'].data.mean(axis=0))
+		print(self.kde_models[budget]['good'].data.std(axis=0))
+		print((train_losses[idx])[:n_good])
 		
 		print(self.kde_models[budget]['bad'].bandwidths)
-		print(self.kde_models[budget]['bad'].data.shape)
 		"""
+
 		# update probs for the categorical parameters for later sampling
 		self.logger.debug('done building a new model for budget %f based on %i/%i split\nBest loss for this budget:%f\n\n\n\n\n'%(budget, n_good, n_bad, np.min(train_losses)))
 

@@ -19,7 +19,7 @@ class H2BO(Master):
 					eta=3, min_budget=0.01, max_budget=1,
 					min_points_in_model = None,	top_n_percent=15,
 					num_samples = 32, random_fraction=1/3, bandwidth_factor=1,
-					min_bandwidth=1e-3,
+					min_bandwidth=1e-3,bw_estimator='scott',
 					**kwargs
 					):
 		"""
@@ -49,9 +49,10 @@ class H2BO(Master):
 		random_fraction: float
 			fraction of purely random configurations that are sampled from the
 			prior without the model.
-		bandwidth_factor: float
-			to encourage diversity, the points proposed to optimize EI, are sampled
-			from a 'widened' KDE where the bandwidth is multiplied by this factor (default: 3)
+		bw_estimator: str
+			controls the way the bandwidths are estimator. For 'scott' a quick rule of thumb based
+			on the empirical variance is used, for 'mlvc' the likelihood based on 
+			leave on out cross validation is maximized.
 		min_bandwidth: float
 			to keep diversity, even when all (good) samples have the same value for one of the parameters,
 			a minimum bandwidth (Default: 1e-3) is used instead of zero. 
@@ -72,7 +73,7 @@ class H2BO(Master):
 					top_n_percent=top_n_percent,
 					num_samples = num_samples,
 					random_fraction=random_fraction,
-					bandwidth_factor=bandwidth_factor,
+					bw_estimator=bw_estimator,
 					min_bandwidth = min_bandwidth
 					)
 
@@ -103,8 +104,8 @@ class H2BO(Master):
 						'top_n_percent' : top_n_percent,
 						'num_samples' : num_samples,
 						'random_fraction' : random_fraction,
-						'bandwidth_factor' : bandwidth_factor,
-						'min_bandwidth': min_bandwidth
+						'min_bandwidth': min_bandwidth,
+						'bw_estimator': bw_estimator
 					})
 
 	def get_next_iteration(self, iteration, iteration_kwargs={}):

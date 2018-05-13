@@ -67,7 +67,7 @@ class MultivariateKDE(object):
 			self.bandwidths = np.clip(self.bandwidths , self.min_bandwidth, self.bw_clip)
 		
 		
-		if bw_estimator == 'MLCV':
+		if bw_estimator == 'mlcv':
 			# optimize bandwidths here
 			res = spo.minimize(self.loo_negloglikelihood, self.bandwidths, jac=False, bounds=self.bw_bounds, options={'ftol':1e-3}, method='SLSQP')
 			self.bandwidths = res.x
