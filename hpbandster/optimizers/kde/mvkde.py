@@ -105,6 +105,12 @@ class MultivariateKDE(object):
 				pdfs[idx, i] = 1 - bandwidths[i]
 				pdfs[~idx, i] = bandwidths[i]/(n-1)
 
+			elif t == 'O':
+				# Wang-Ryzin kernel for ordinal parameters
+				idx = np.abs(distances[:,:,i]) < .1 # distances smaller than that are considered zero
+				pdfs[idx, i] = (1-bandwidths[i])
+				pdfs[~idx, i] = 0.5*(1-bandwidths[i]) * np.power(bandwidths[i], np.abs(distances[~idx, i]))
+
 			elif t == 'I':
 				# Wang-Ryzin kernel for integer parameters (note scaling by n b/c the config space rescales integer parameters to be in (0, 1) )
 				idx = np.abs(distances[:,:,i]) < 1/(3*n) # distances smaller than that are considered zero
@@ -131,7 +137,7 @@ class MultivariateKDE(object):
 		else:
 			pdfs[indices] = 0 # we sum first so 0 is the appropriate value
 			lhs = np.prod(np.sum(pdfs, axis=-2), axis=-1)
-		return(-np.sum(np.log(lhs + 1e-16)))
+		return(-np.sum(np.log(lhs + 1e-6)))
 
 
 	def pdf(self, x_test, bandwidths=None):
@@ -201,6 +207,24 @@ class MultivariateKDE(object):
 					samples[oob_idx,i] += delta[oob_idx]
 					oob_idx = oob_idx[np.argwhere(np.logical_or(samples[oob_idx,i] > 1-1/(3*n), samples[oob_idx,i] < 1/(3*n))).flatten()]
 				
+			elif t == 'O':
+				
+				possible_steps = np.arange(-n+1,n)
+				idx = (np.abs(possible_steps) < 1e-2)
+				ps = 0.5*(1-self.bandwidths[i]) * np.power(self.bandwidths[i], np.abs(possible_steps))
+				ps[idx] = (1-self.bandwidths[i])
+				ps /= ps.sum()
+				
+				delta = np.zeros_like(samples[:,i])
+				oob_idx = np.arange(samples.shape[0])
+
+				while len(oob_idx) > 0:
+					samples[oob_idx,i] -= delta[oob_idx]		# revert move
+					delta[oob_idx] = np.random.choice(possible_steps, size=len(oob_idx), p=ps)
+					samples[oob_idx,i] += delta[oob_idx]
+					#import pdb; pdb.set_trace()
+					oob_idx = oob_idx[np.argwhere(np.logical_or(samples[oob_idx,i] > n-0.9, samples[oob_idx,i] < -0.1)).flatten()]
+			
 			else:
 				raise ValueError('Unknown type %s'%t)
 					
@@ -229,7 +253,9 @@ class MultivariateKDE(object):
 			elif isinstance(hp, CS.UniformFloatHyperparameter):
 				types.append('C')
 				num_values.append(np.inf)
-			#TODO: Ordinals!
+			elif isinstance(hp, CS.OrdinalHyperparameter):
+				types.append('O')
+				num_values.append(len(hp.sequence))
 			else:
 				raise ValueError('Unsupported Parametertype %s'%type(hp))
 		return(types, num_values)

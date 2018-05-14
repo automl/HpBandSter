@@ -12,6 +12,8 @@ from hpbandster.optimizers.kde.mvkde import MultivariateKDE
 from pdb import set_trace
 
 
+rapid_development=True
+
 class Test1dContinuous(unittest.TestCase):
 	n_train = 256
 	n_test = 1024
@@ -42,10 +44,12 @@ class Test1dContinuous(unittest.TestCase):
 		self.sm_kde = None
 		self.hp_kde = None
 
+	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
 	def test_bandwidths_estimation(self):
 		# This test sometimes fails, as statsmodels uses a different optimizer with a larger tolerance
 		self.assertAlmostEqual(self.sm_kde.bw[0], self.hp_kde.bandwidths[0], 2)
-
+	
+	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
 	def test_pdf(self):
 		self.assertTrue(np.allclose(self.sm_kde.pdf(self.x_test), self.hp_kde.pdf(self.x_test, bandwidths=self.sm_kde.bw)))
 		
@@ -53,6 +57,7 @@ class Test1dContinuous(unittest.TestCase):
 			self.sm_kde.bw = np.array([bw])
 			self.assertTrue(np.allclose(self.sm_kde.pdf(self.x_test), self.hp_kde.pdf(self.x_test, bandwidths=np.array([bw]))))
 
+	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
 	def test_loo_likelihood(self):
 		self.assertTrue(np.allclose(self.sm_kde.pdf(self.x_test), self.hp_kde.pdf(self.x_test, bandwidths=self.sm_kde.bw)))
 
@@ -91,10 +96,12 @@ class Test1dCategorical(unittest.TestCase):
 		self.sm_kde = None
 		self.hp_kde = None
 
+	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
 	def test_bandwidths_estimation(self):
 		# This test sometimes fails, as statsmodels uses a different optimizer with a larger tolerance
 		self.assertAlmostEqual(self.sm_kde.bw[0], self.hp_kde.bandwidths[0], 2)
 
+	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
 	def test_pdf(self):
 
 		self.assertTrue(np.allclose(self.sm_kde.pdf(self.x_test), self.hp_kde.pdf(self.x_test, bandwidths=self.sm_kde.bw)))
@@ -102,7 +109,8 @@ class Test1dCategorical(unittest.TestCase):
 		for bw in np.logspace(-2.5,0,20):
 			self.sm_kde.bw = np.array([bw])
 			self.assertTrue(np.allclose(self.sm_kde.pdf(self.x_test), self.hp_kde.pdf(self.x_test, bandwidths=np.array([bw]))))
-
+	
+	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
 	def test_loo_likelihood(self):
 
 		self.assertTrue(np.allclose(self.sm_kde.pdf(self.x_test), self.hp_kde.pdf(self.x_test, bandwidths=self.sm_kde.bw)))
@@ -141,10 +149,12 @@ class Test1dInteger(unittest.TestCase):
 		self.sm_kde = None
 		self.hp_kde = None
 
+	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
 	def test_bandwidths_estimation(self):
 		# This test sometimes fails, as statsmodels uses a different optimizer with a larger tolerance
 		self.assertAlmostEqual(self.sm_kde.bw[0], self.hp_kde.bandwidths[0], delta=1e-3)
 
+	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
 	def test_pdf(self):
 		self.assertTrue(np.allclose(self.sm_kde.pdf(np.rint(self.x_test*5-0.5)), self.hp_kde.pdf(self.x_test, bandwidths=self.sm_kde.bw)))
 		
@@ -152,14 +162,14 @@ class Test1dInteger(unittest.TestCase):
 			self.sm_kde.bw = np.array([bw])
 			self.assertTrue(np.allclose(self.sm_kde.pdf(np.rint(self.x_test*5-0.5)), self.hp_kde.pdf(self.x_test, bandwidths=np.array([bw])),5))
 
-
+	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
 	def test_loo_likelihood(self):
 		for bw in np.logspace(-2.5,-0.1,20):
 			self.sm_kde.bw = np.array([bw])
 			self.assertAlmostEqual(self.sm_kde.loo_likelihood(bw=np.array([bw]), func=np.log), self.hp_kde.loo_negloglikelihood(bandwidths=np.array([bw])), delta=1e-3)
 	
 	
-	
+	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")	
 	def test_sampling_1(self):
 		"""
 			Fit KDE on 100 symmetrically distributed points and then draw samples.
@@ -189,7 +199,7 @@ class Test1dInteger(unittest.TestCase):
 		for v, n in zip(vals, ns):
 			self.assertAlmostEqual((samples == v).sum()/num_samples, n/ns.sum(), delta=5e-3)
 	
-
+	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
 	def test_sampling_2(self):
 		"""
 			Fit KDE on just one point and compares the empirical distribution
@@ -220,7 +230,93 @@ class Test1dInteger(unittest.TestCase):
 				self.assertAlmostEqual(p, p_hat, delta=5e-3)
 
 
+
+
+class Test1dOrdinal(unittest.TestCase):
+	n_train = 128
+	n_test = 102
+	def setUp(self):
+		self.configspace = CS.ConfigurationSpace(43)
 		
+		HPs=[]
+		HPs.append( CS.OrdinalHyperparameter('ord1', ['cold', 'mild', 'warm', 'hot']))
+		self.configspace.add_hyperparameters(HPs)
+		
+		x_train_confs = [ self.configspace.sample_configuration() for i in range(self.n_train)]
+		
+		self.x_train = np.array([c.get_array() for c in x_train_confs])	
+
+		x_test_confs = [ self.configspace.sample_configuration() for i in range(self.n_test)]
+		self.x_test= np.array(	[c.get_array() for c in x_test_confs])	
+		
+		self.sm_kde = sm.nonparametric.KDEMultivariate(data=self.x_train,  var_type='o', bw='cv_ml')
+		self.hp_kde = MultivariateKDE(self.configspace, fully_dimensional=False)
+		self.hp_kde.fit(self.x_train, bw_estimator='mlcv')
+		
+		
+	def tearDown(self):
+		self.configspace = None
+		self.x_train = None
+		self.x_test = None
+		self.sm_kde = None
+		self.hp_kde = None
+	
+	#@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
+	def test_bandwidths_estimation(self):
+		# This test sometimes fails, as statsmodels uses a different optimizer with a larger tolerance
+		self.assertAlmostEqual(self.sm_kde.bw[0], self.hp_kde.bandwidths[0], delta=1e-3)
+
+	#@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
+	def test_pdf(self):
+		self.assertTrue(np.allclose(self.sm_kde.pdf(self.x_test), self.hp_kde.pdf(self.x_test, bandwidths=self.sm_kde.bw)))
+		
+		for bw in np.logspace(-2.5,-0.1,20):
+			self.sm_kde.bw = np.array([bw])
+			self.assertTrue(np.allclose(self.sm_kde.pdf(self.x_test), self.hp_kde.pdf(self.x_test, bandwidths=np.array([bw])),5))
+
+	#@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
+	def test_loo_likelihood(self):
+		for bw in np.logspace(-2.5,-0.1,20):
+			#print(bw, self.sm_kde.loo_likelihood(bw=np.array([bw]), func=np.log), self.hp_kde.loo_negloglikelihood(bandwidths=np.array([bw])),)
+			self.sm_kde.bw = np.array([bw])
+			self.assertAlmostEqual(self.sm_kde.loo_likelihood(bw=np.array([bw]), func=np.log), self.hp_kde.loo_negloglikelihood(bandwidths=np.array([bw])), delta=1e-3)
+	
+
+	#@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
+	def test_sampling_1(self):
+		"""
+			Fit KDE on just one point and compares the empirical distribution
+			of the samples to the PDF. Within the standard MC error, these match
+			exactly.
+		"""
+		
+		ns = np.array([15, 20, 40, 25])
+		vals = np.array(['cold','mild','warm','hot'])
+		
+		x_train = []
+		for n,v in zip(ns, vals):
+			for i in range(n):
+				x_train.append(CS.Configuration(self.configspace, {'ord1' : v}).get_array())
+		
+		x_train=np.array(x_train)
+		self.hp_kde.fit(x_train)
+		
+		#self.hp_kde.bandwidths=np.array([0.99999])
+		
+		num_samples = 2**20
+		samples = self.hp_kde.sample(num_samples)
+
+		import pdb; pdb.set_trace()		
+		p_hats = [(np.abs(samples-v) < 0.1).sum()/num_samples for (v,n) in enumerate(ns)]
+
+		
+		ps = self.hp_kde.pdf(np.arange(0,4).reshape([-1,1]))
+		ps /= ps.sum()
+		
+		
+		for p, p_hat in zip(ps, p_hats):
+			#self.assertAlmostEqual(p, p_hat, delta=5e-3)
+			print(p, p_hat)
 		
 		
 		
