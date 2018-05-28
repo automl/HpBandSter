@@ -13,312 +13,246 @@ from pdb import set_trace
 
 
 rapid_development=True
+rapid_development=False
 
-class Test1dContinuous(unittest.TestCase):
-	n_train = 256
+
+class Base1dTest(object):
+	n_train = 64
 	n_test = 1024
 	def setUp(self):
 		self.configspace = CS.ConfigurationSpace(42)
 		
+		self.add_hyperparameters()
+
+		x_train_confs = [ self.configspace.sample_configuration() for i in range(self.n_train)]
+		self.x_train = np.array(	[c.get_array() for c in x_train_confs])	
+
+		x_test_confs = [ self.configspace.sample_configuration() for i in range(self.n_test)]
+		self.x_test= np.array(	[c.get_array() for c in x_test_confs])	
+		
+		self.sm_x_train = self.sm_transform_data(self.x_train)
+		self.sm_x_test = self.sm_transform_data(self.x_test)
+	
+		self.sm_kde = sm.nonparametric.KDEMultivariate(data=self.sm_x_train,  var_type=self.var_types, bw='cv_ml')
+		self.hp_kde_full = MultivariateKDE(self.configspace, fully_dimensional=True, fix_boundary=False)
+		self.hp_kde_factor = MultivariateKDE(self.configspace, fully_dimensional=False, fix_boundary=False)
+		self.hp_kde_full.fit(self.x_train,  bw_estimator='mlcv')
+		self.hp_kde_factor.fit(self.x_train,  bw_estimator='mlcv')
+
+	def sm_transform_data(self, data):
+		return(data)
+	
+	def tearDown(self):
+		self.configspace = None
+		self.x_train = None
+		self.x_test = None
+		self.sm_kde = None
+		self.hp_kde_full = None
+		self.hp_kde_factor = None
+
+	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
+	def test_bandwidths_estimation(self):
+		# This test sometimes fails, as statsmodels uses a different optimizer with a larger tolerance
+		self.assertAlmostEqual(self.sm_kde.bw[0], self.hp_kde_full.bandwidths[0], delta=2e-3)
+		self.assertAlmostEqual(self.sm_kde.bw[0], self.hp_kde_factor.bandwidths[0], delta=2e-3)
+
+	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
+	def test_pdfs(self):
+		for bw in np.logspace(-0.5,-0.1,5):
+			self.sm_kde.bw = np.array([bw])
+			self.hp_kde_full.set_bandwidths(np.array([bw]))
+			self.hp_kde_factor.set_bandwidths(np.array([bw]))
+
+			p1 = self.sm_kde.pdf(self.sm_x_test)
+			p2 = self.hp_kde_full.pdf(self.x_test)
+			p3 = self.hp_kde_factor.pdf(self.x_test)
+
+			self.assertTrue(np.allclose(p1, p2))
+			self.assertTrue(np.allclose(p1, p3))
+
+	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
+	def test_loo_likelihood(self):
+		for bw in np.logspace(-1,-0.1,5):
+			self.sm_kde.bw = np.array([bw])
+			self.hp_kde_full.set_bandwidths(np.array([bw]))
+			self.hp_kde_factor.set_bandwidths(np.array([bw]))
+			
+			sm_ll = self.sm_kde.loo_likelihood(bw=np.array([bw]), func=np.log)
+			hp_full_ll =  self.hp_kde_full.loo_negloglikelihood()
+			hp_factor_ll =  self.hp_kde_factor.loo_negloglikelihood()
+			
+			n = self.x_train.shape[0]
+			delta = 1e-3 * np.abs((sm_ll + hp_full_ll)/2)
+			# note: statsmodels' ll is not normalized, so we have to transform our result to get the same number!
+			self.assertAlmostEqual(sm_ll, n*(hp_full_ll - np.log(n-1)), delta=delta)
+			self.assertAlmostEqual(sm_ll, n*(hp_factor_ll - np.log(n-1)), delta=delta)
+
+
+
+
+class BaseNdTest(object):
+	n_train = 64
+	n_test = 512
+	def setUp(self):
+		self.configspace = CS.ConfigurationSpace(42)
+		
+		self.add_hyperparameters()
+
+		x_train_confs = [ self.configspace.sample_configuration() for i in range(self.n_train)]
+		self.x_train = np.array(	[c.get_array() for c in x_train_confs])	
+
+		x_test_confs = [ self.configspace.sample_configuration() for i in range(self.n_test)]
+		self.x_test= np.array(	[c.get_array() for c in x_test_confs])	
+		
+		self.sm_x_train = self.sm_transform_data(self.x_train)
+		self.sm_x_test = self.sm_transform_data(self.x_test)
+	
+		self.sm_kde = sm.nonparametric.KDEMultivariate(data=self.sm_x_train,  var_type=self.var_types, bw='cv_ml')
+		
+		
+		self.sm_1d_kdes = [sm.nonparametric.KDEMultivariate(data=self.sm_x_train[:,i],  var_type=self.var_types[i], bw='cv_ml') for i in range(len(self.var_types))]
+		
+		
+		self.hp_kde_full = MultivariateKDE(self.configspace, fully_dimensional=True, fix_boundary=False)
+		self.hp_kde_factor = MultivariateKDE(self.configspace, fully_dimensional=False, fix_boundary=False)
+		self.hp_kde_full.fit(self.x_train,  bw_estimator='mlcv')
+		self.hp_kde_factor.fit(self.x_train,  bw_estimator='mlcv')
+
+	def sm_transform_data(self, data):
+		return(data)
+	
+	def tearDown(self):
+		self.configspace = None
+		self.x_train = None
+		self.x_test = None
+		self.sm_kde = None
+		self.sm_1d_kdes = None
+		self.hp_kde_full = None
+		self.hp_kde_factor = None
+
+	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
+	def test_bandwidths_estimation(self):
+		# This test sometimes fails, as statsmodels uses a different optimizer with a larger tolerance
+		
+		for d in range(len(self.var_types)):
+			self.assertAlmostEqual(self.sm_kde.bw[d], self.hp_kde_full.bandwidths[d], delta=2e-3)
+			self.assertAlmostEqual(self.sm_1d_kdes[d].bw[0], self.hp_kde_factor.bandwidths[d], delta=2e-3)
+
+
+	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
+	def test_pdfs(self):
+		for bw in np.logspace(-0.5,-0.1,5):
+			self.sm_kde.bw = np.array([bw]*len(self.var_types))
+			self.hp_kde_full.set_bandwidths(np.array([bw]*len(self.var_types)))
+			self.hp_kde_factor.set_bandwidths(np.array([bw]*len(self.var_types)))
+
+			p1 = self.sm_kde.pdf(self.sm_x_test)
+			p2 = self.hp_kde_full.pdf(self.x_test)
+			p3 = self.hp_kde_factor.pdf(self.x_test)
+			
+			p4_tmp = []
+			for i, kde in enumerate(self.sm_1d_kdes):
+				kde.bw = np.array([bw])
+				p4_tmp.append(kde.pdf(self.sm_x_test[:,i]))
+
+			
+			p4_tmp = np.array(p4_tmp)
+			p4 = np.array(p4_tmp).prod(axis=0)
+			
+			self.assertTrue(np.allclose(p1, p2))
+			self.assertTrue(np.allclose(p3, p4))
+
+	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
+	def test_loo_likelihood(self):
+		for bw in np.logspace(-1,-0.1,5):
+			self.sm_kde.bw = np.array([bw]*len(self.var_types))
+			self.hp_kde_full.set_bandwidths(np.array([bw]*len(self.var_types)))
+			self.hp_kde_factor.set_bandwidths(np.array([bw]*len(self.var_types)))
+			
+			sm_full_ll = self.sm_kde.loo_likelihood(bw=np.array([bw]*len(self.var_types)), func=np.log)
+			hp_full_ll =  self.hp_kde_full.loo_negloglikelihood()
+			hp_factor_ll =  self.hp_kde_factor.loo_negloglikelihood()
+
+			sm_factor_ll = []
+			for i, kde in enumerate(self.sm_1d_kdes):
+				kde.bw = np.array([bw])
+				sm_factor_ll.append(kde.loo_likelihood(bw=np.array([bw]), func=np.log))
+
+			
+			sm_factor_ll = np.array(sm_factor_ll)
+			n = self.x_train.shape[0]
+			delta = 1e-2 * np.abs((sm_full_ll + hp_full_ll)/2)
+			# note: statsmodels' ll is not normalized, so we have to transform our result to get the same number!
+			self.assertAlmostEqual(sm_full_ll, n*(hp_full_ll - np.log(n-1)), delta=delta)
+			# same here, but it is easier to apply the normalization to the SM KDE's likelihoods
+			delta = 1e-2 * np.abs(hp_factor_ll)
+			self.assertAlmostEqual(np.sum((sm_factor_ll/n) + np.log(n-1)), hp_factor_ll , delta=delta)
+
+class Test3dConntinuous(BaseNdTest, unittest.TestCase):
+	var_types='ccc'
+	def add_hyperparameters(self):
+		HPs=[]
+		HPs.append( CS.UniformFloatHyperparameter('cont1', lower=0, upper=1))
+		HPs.append( CS.UniformFloatHyperparameter('cont2', lower=0, upper=1))
+		HPs.append( CS.UniformFloatHyperparameter('cont3', lower=0, upper=1))
+		self.configspace.add_hyperparameters(HPs)
+
+
+class Test3dMixed1(BaseNdTest, unittest.TestCase):
+	var_types='uco'
+	def add_hyperparameters(self):
+		HPs=[]
+		HPs.append( CS.CategoricalHyperparameter('cat1', choices=['foo', 'bar', 'baz']))
+		HPs.append( CS.UniformFloatHyperparameter('cont1', lower=0, upper=1))
+		HPs.append( CS.OrdinalHyperparameter('ord1', ['cold', 'mild', 'warm', 'hot']))
+		self.configspace.add_hyperparameters(HPs)
+
+class Test3dMixed2(BaseNdTest, unittest.TestCase):
+	var_types='ucoo'
+	def add_hyperparameters(self):
+		HPs=[]
+		HPs.append( CS.CategoricalHyperparameter('cat1', choices=['foo', 'bar', 'baz']))
+		HPs.append( CS.UniformFloatHyperparameter('cont1', lower=0, upper=1))
+		HPs.append( CS.UniformIntegerHyperparameter('int1', lower=-2, upper=2))
+		HPs.append( CS.OrdinalHyperparameter('ord1', ['cold', 'mild', 'warm', 'hot']))
+		self.configspace.add_hyperparameters(HPs)
+
+	def sm_transform_data(self, data):
+		tmp = np.copy(data)
+		tmp[:,2] = 5*tmp[:,2] - 0.5
+		return(tmp)
+
+
+class Test1dConntinuous(Base1dTest, unittest.TestCase):
+	var_types='c'
+	def add_hyperparameters(self):
 		HPs=[]
 		HPs.append( CS.UniformFloatHyperparameter('cont1', lower=0, upper=1))
 		self.configspace.add_hyperparameters(HPs)
-		
-		x_train_confs = [ self.configspace.sample_configuration() for i in range(self.n_train)]
-		self.x_train = np.array(	[c.get_array() for c in x_train_confs])	
 
-
-		x_test_confs = [ self.configspace.sample_configuration() for i in range(self.n_test)]
-		self.x_test= np.array(	[c.get_array() for c in x_train_confs])	
-		
-		
-		self.sm_kde = sm.nonparametric.KDEMultivariate(data=self.x_train,  var_type='c', bw='cv_ml')
-		self.hp_kde = MultivariateKDE(self.configspace, fully_dimensional=True)
-		self.hp_kde.fit(self.x_train)
-		
-		
-	def tearDown(self):
-		self.configspace = None
-		self.x_train = None
-		self.x_test = None
-		self.sm_kde = None
-		self.hp_kde = None
-
-	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
-	def test_bandwidths_estimation(self):
-		# This test sometimes fails, as statsmodels uses a different optimizer with a larger tolerance
-		self.assertAlmostEqual(self.sm_kde.bw[0], self.hp_kde.bandwidths[0], 2)
-	
-	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
-	def test_pdf(self):
-		self.assertTrue(np.allclose(self.sm_kde.pdf(self.x_test), self.hp_kde.pdf(self.x_test, bandwidths=self.sm_kde.bw)))
-		
-		for bw in np.logspace(-2.5,0,20):
-			self.sm_kde.bw = np.array([bw])
-			self.assertTrue(np.allclose(self.sm_kde.pdf(self.x_test), self.hp_kde.pdf(self.x_test, bandwidths=np.array([bw]))))
-
-	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
-	def test_loo_likelihood(self):
-		self.assertTrue(np.allclose(self.sm_kde.pdf(self.x_test), self.hp_kde.pdf(self.x_test, bandwidths=self.sm_kde.bw)))
-
-		for bw in np.logspace(-2.5,0,20):
-			self.sm_kde.bw = np.array([bw])
-			self.assertAlmostEqual(self.sm_kde.loo_likelihood(bw=np.array([bw]), func=lambda x:np.log(x)), self.hp_kde.loo_negloglikelihood(bandwidths=np.array([bw])))
-	
-
-class Test1dCategorical(unittest.TestCase):
-	n_train = 256
-	n_test = 1024
-	def setUp(self):
-		self.configspace = CS.ConfigurationSpace(43)
-		
+class Test1dCategorical(Base1dTest, unittest.TestCase):
+	var_types='u'
+	def add_hyperparameters(self):
 		HPs=[]
 		HPs.append( CS.CategoricalHyperparameter('cat1', choices=['foo', 'bar', 'baz']))
 		self.configspace.add_hyperparameters(HPs)
-		
-		x_train_confs = [ self.configspace.sample_configuration() for i in range(self.n_train)]
-		self.x_train = np.array(	[c.get_array() for c in x_train_confs])	
 
-
-		x_test_confs = [ self.configspace.sample_configuration() for i in range(self.n_test)]
-		self.x_test= np.array(	[c.get_array() for c in x_train_confs])	
-		
-		
-		self.sm_kde = sm.nonparametric.KDEMultivariate(data=self.x_train,  var_type='u', bw='cv_ml')
-		self.hp_kde = MultivariateKDE(self.configspace, fully_dimensional=True)
-		self.hp_kde.fit(self.x_train)
-		
-		
-	def tearDown(self):
-		self.configspace = None
-		self.x_train = None
-		self.x_test = None
-		self.sm_kde = None
-		self.hp_kde = None
-
-	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
-	def test_bandwidths_estimation(self):
-		# This test sometimes fails, as statsmodels uses a different optimizer with a larger tolerance
-		self.assertAlmostEqual(self.sm_kde.bw[0], self.hp_kde.bandwidths[0], 2)
-
-	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
-	def test_pdf(self):
-
-		self.assertTrue(np.allclose(self.sm_kde.pdf(self.x_test), self.hp_kde.pdf(self.x_test, bandwidths=self.sm_kde.bw)))
-		
-		for bw in np.logspace(-2.5,0,20):
-			self.sm_kde.bw = np.array([bw])
-			self.assertTrue(np.allclose(self.sm_kde.pdf(self.x_test), self.hp_kde.pdf(self.x_test, bandwidths=np.array([bw]))))
-	
-	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
-	def test_loo_likelihood(self):
-
-		self.assertTrue(np.allclose(self.sm_kde.pdf(self.x_test), self.hp_kde.pdf(self.x_test, bandwidths=self.sm_kde.bw)))
-
-		for bw in np.logspace(-2.5,0,20):
-			self.sm_kde.bw = np.array([bw])
-			self.assertAlmostEqual(self.sm_kde.loo_likelihood(bw=np.array([bw]), func=lambda x:np.log(x)), self.hp_kde.loo_negloglikelihood(bandwidths=np.array([bw])))
-
-
-class Test1dInteger(unittest.TestCase):
-	n_train = 25
-	n_test = 102
-	def setUp(self):
-		self.configspace = CS.ConfigurationSpace(43)
-		
-		HPs=[]
-		HPs.append( CS.UniformIntegerHyperparameter('int1', lower=-2, upper=2))
-		self.configspace.add_hyperparameters(HPs)
-		
-		x_train_confs = [ self.configspace.sample_configuration() for i in range(self.n_train)]
-		self.x_train = np.array([c.get_array() for c in x_train_confs])	
-
-
-		x_test_confs = [ self.configspace.sample_configuration() for i in range(self.n_test)]
-		self.x_test= np.array(	[c.get_array() for c in x_test_confs])	
-		
-		self.sm_kde = sm.nonparametric.KDEMultivariate(data=np.rint(5*self.x_train - 0.5),  var_type='o', bw='cv_ml')
-		self.hp_kde = MultivariateKDE(self.configspace, fully_dimensional=False)
-		self.hp_kde.fit(self.x_train)
-		
-		
-	def tearDown(self):
-		self.configspace = None
-		self.x_train = None
-		self.x_test = None
-		self.sm_kde = None
-		self.hp_kde = None
-
-	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
-	def test_bandwidths_estimation(self):
-		# This test sometimes fails, as statsmodels uses a different optimizer with a larger tolerance
-		self.assertAlmostEqual(self.sm_kde.bw[0], self.hp_kde.bandwidths[0], delta=1e-3)
-
-	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
-	def test_pdf(self):
-		self.assertTrue(np.allclose(self.sm_kde.pdf(np.rint(self.x_test*5-0.5)), self.hp_kde.pdf(self.x_test, bandwidths=self.sm_kde.bw)))
-		
-		for bw in np.logspace(-2.5,-0.1,20):
-			self.sm_kde.bw = np.array([bw])
-			self.assertTrue(np.allclose(self.sm_kde.pdf(np.rint(self.x_test*5-0.5)), self.hp_kde.pdf(self.x_test, bandwidths=np.array([bw])),5))
-
-	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
-	def test_loo_likelihood(self):
-		for bw in np.logspace(-2.5,-0.1,20):
-			self.sm_kde.bw = np.array([bw])
-			self.assertAlmostEqual(self.sm_kde.loo_likelihood(bw=np.array([bw]), func=np.log), self.hp_kde.loo_negloglikelihood(bandwidths=np.array([bw])), delta=1e-3)
-	
-	
-	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")	
-	def test_sampling_1(self):
-		"""
-			Fit KDE on 100 symmetrically distributed points and then draw samples.
-			B/c of the symmetry, the resulting frequencies have to match the data
-			in the KDE. If it was asymmetric, the boundary effects would be more
-			dominant and might skrew things up!
-		"""
-		
-		ns = np.array([10, 20, 40, 20, 10])
-		vals = np.array([-2, -1,0,1,2])
-		
-		x_train = []
-		for n,v in zip(ns, vals):
-			for i in range(n):
-				x_train.append(CS.Configuration(self.configspace, {'int1' : v}).get_array())
-		
-		x_train=np.array(x_train)
-		self.hp_kde.fit(x_train)
-
-
-
-		num_samples = 2**15
-		samples = self.hp_kde.sample(num_samples)
-		samples = np.array([CS.Configuration(self.configspace, vector=s)['int1'] for s in samples], dtype=np.int)
-
-
-		for v, n in zip(vals, ns):
-			self.assertAlmostEqual((samples == v).sum()/num_samples, n/ns.sum(), delta=5e-3)
-	
-	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
-	def test_sampling_2(self):
-		"""
-			Fit KDE on just one point and compares the empirical distribution
-			of the samples to the PDF. Within the standard MC error, these match
-			exactly.
-		"""
-		vals = np.array([-2, -1,0,1,2])		
-		bandwidth = 0.5
-
-		for loc in vals[:3]:
-			x_train = np.array([CS.Configuration(self.configspace, {'int1' : loc}).get_array()])
-			
-			x_train=np.array(x_train)
-			self.hp_kde.fit(x_train)
-			self.hp_kde.bandwidths = np.array([bandwidth])
-
-			num_samples = 2**16
-			samples = self.hp_kde.sample(num_samples)
-			samples = np.array([CS.Configuration(self.configspace, vector=s)['int1'] for s in samples], dtype=np.int)
-
-			# compute expected frequencies via the pdf function
-			ps = self.hp_kde.pdf((np.linspace(1/(2*len(vals)),1-1/(2*len(vals)), len(vals))).reshape([-1,1]))
-			ps /= ps.sum()
-
-			p_hats = np.array([(samples == v).sum()/num_samples for v in vals])
-
-			for p, p_hat in zip(ps, p_hats):
-				self.assertAlmostEqual(p, p_hat, delta=5e-3)
-
-
-
-
-class Test1dOrdinal(unittest.TestCase):
-	n_train = 128
-	n_test = 102
-	def setUp(self):
-		self.configspace = CS.ConfigurationSpace(43)
-		
+class Test1dOrdinal(Base1dTest, unittest.TestCase):
+	var_types='o'
+	def add_hyperparameters(self):
 		HPs=[]
 		HPs.append( CS.OrdinalHyperparameter('ord1', ['cold', 'mild', 'warm', 'hot']))
 		self.configspace.add_hyperparameters(HPs)
-		
-		x_train_confs = [ self.configspace.sample_configuration() for i in range(self.n_train)]
-		
-		self.x_train = np.array([c.get_array() for c in x_train_confs])	
 
-		x_test_confs = [ self.configspace.sample_configuration() for i in range(self.n_test)]
-		self.x_test= np.array(	[c.get_array() for c in x_test_confs])	
-		
-		self.sm_kde = sm.nonparametric.KDEMultivariate(data=self.x_train,  var_type='o', bw='cv_ml')
-		self.hp_kde = MultivariateKDE(self.configspace, fully_dimensional=False)
-		self.hp_kde.fit(self.x_train, bw_estimator='mlcv')
-		
-		
-	def tearDown(self):
-		self.configspace = None
-		self.x_train = None
-		self.x_test = None
-		self.sm_kde = None
-		self.hp_kde = None
-	
-	#@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
-	def test_bandwidths_estimation(self):
-		# This test sometimes fails, as statsmodels uses a different optimizer with a larger tolerance
-		self.assertAlmostEqual(self.sm_kde.bw[0], self.hp_kde.bandwidths[0], delta=1e-3)
+class Test1dInteger(Base1dTest, unittest.TestCase):
+	var_types='o'
+	def add_hyperparameters(self):
+		HP = CS.UniformIntegerHyperparameter('int1', lower=-2, upper=2)
+		self.configspace.add_hyperparameter(HP)
+	def sm_transform_data(self, data):
+		return(5*data - 0.5)
 
-	#@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
-	def test_pdf(self):
-		self.assertTrue(np.allclose(self.sm_kde.pdf(self.x_test), self.hp_kde.pdf(self.x_test, bandwidths=self.sm_kde.bw)))
-		
-		for bw in np.logspace(-2.5,-0.1,20):
-			self.sm_kde.bw = np.array([bw])
-			self.assertTrue(np.allclose(self.sm_kde.pdf(self.x_test), self.hp_kde.pdf(self.x_test, bandwidths=np.array([bw])),5))
 
-	#@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
-	def test_loo_likelihood(self):
-		for bw in np.logspace(-2.5,-0.1,20):
-			#print(bw, self.sm_kde.loo_likelihood(bw=np.array([bw]), func=np.log), self.hp_kde.loo_negloglikelihood(bandwidths=np.array([bw])),)
-			self.sm_kde.bw = np.array([bw])
-			self.assertAlmostEqual(self.sm_kde.loo_likelihood(bw=np.array([bw]), func=np.log), self.hp_kde.loo_negloglikelihood(bandwidths=np.array([bw])), delta=1e-3)
-	
 
-	#@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
-	def test_sampling_1(self):
-		"""
-			Fit KDE on just one point and compares the empirical distribution
-			of the samples to the PDF. Within the standard MC error, these match
-			exactly.
-		"""
-		
-		ns = np.array([15, 20, 40, 25])
-		vals = np.array(['cold','mild','warm','hot'])
-		
-		x_train = []
-		for n,v in zip(ns, vals):
-			for i in range(n):
-				x_train.append(CS.Configuration(self.configspace, {'ord1' : v}).get_array())
-		
-		x_train=np.array(x_train)
-		self.hp_kde.fit(x_train)
-		
-		#self.hp_kde.bandwidths=np.array([0.99999])
-		
-		num_samples = 2**20
-		samples = self.hp_kde.sample(num_samples)
-
-		import pdb; pdb.set_trace()		
-		p_hats = [(np.abs(samples-v) < 0.1).sum()/num_samples for (v,n) in enumerate(ns)]
-
-		
-		ps = self.hp_kde.pdf(np.arange(0,4).reshape([-1,1]))
-		ps /= ps.sum()
-		
-		
-		for p, p_hat in zip(ps, p_hats):
-			#self.assertAlmostEqual(p, p_hat, delta=5e-3)
-			print(p, p_hat)
-		
-		
-		
 if __name__ == '__main__':
 	unittest.main()

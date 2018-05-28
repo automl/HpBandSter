@@ -232,7 +232,7 @@ class Result(object):
 
 
 
-	def get_incumbent_trajectory(self, all_budgets=True):
+	def get_incumbent_trajectory(self, all_budgets=True, bigger_is_better=True):
 		"""
 			Returns the best configurations over time
 			
@@ -242,7 +242,9 @@ class Result(object):
 				all_budgets: bool
 					If set to true all runs (even those not with the largest budget) can be the incumbent.
 					Otherwise, only full budget runs are considered
-			
+				bigger_is_better:bool
+					flag whether an evaluation on a larger budget is always considered better.
+					If True, the incumbent might increase for the first evaluations on a bigger budget
 			Returns:
 			--------
 				dict:
@@ -263,13 +265,13 @@ class Result(object):
 		}
 	
 		current_incumbent = float('inf')
-		incumbent_budget = -float('inf')
+		incumbent_budget = self.HB_config['budgets'][0]
 		
 		for r in all_runs:
 			if r.loss is None: continue
 			
-			if ((r.budget == incumbent_budget and r.loss < current_incumbent) or \
-				(r.budget > incumbent_budget)):
+			if ((r.loss < current_incumbent) or \
+				(r.budget > incumbent_budget and bigger_is_better)):
 				current_incumbent = r.loss
 				incumbent_budget  = r.budget
 				
@@ -277,7 +279,6 @@ class Result(object):
 				return_dict['times_finished'].append(r.time_stamps['finished'])
 				return_dict['budgets'].append(r.budget)
 				return_dict['losses'].append(r.loss)
-
 
 		if current_incumbent != r.loss:
 			r = all_runs[-1]

@@ -19,7 +19,7 @@ class H2BO(Master):
 					eta=3, min_budget=0.01, max_budget=1,
 					min_points_in_model = None,	top_n_percent=15,
 					num_samples = 32, random_fraction=1/3, bandwidth_factor=1,
-					min_bandwidth=1e-3,bw_estimator='scott',
+					min_bandwidth=1e-3,bw_estimator='scott',fully_dimensional=True,
 					**kwargs
 					):
 		"""
@@ -58,6 +58,8 @@ class H2BO(Master):
 			a minimum bandwidth (Default: 1e-3) is used instead of zero. 
 		iteration_kwargs: dict
 			kwargs to be added to the instantiation of each iteration
+		fully_dimensional: bool
+			if true, the KDE is uses factored kernel across all dimensions, otherwise the PDF is a product of 1d PDFs
 		"""
 
 
@@ -74,7 +76,8 @@ class H2BO(Master):
 					num_samples = num_samples,
 					random_fraction=random_fraction,
 					bw_estimator=bw_estimator,
-					min_bandwidth = min_bandwidth
+					min_bandwidth = min_bandwidth,
+					fully_dimensional=fully_dimensional
 					)
 
 		super().__init__(config_generator=cg, **kwargs)
@@ -105,7 +108,8 @@ class H2BO(Master):
 						'num_samples' : num_samples,
 						'random_fraction' : random_fraction,
 						'min_bandwidth': min_bandwidth,
-						'bw_estimator': bw_estimator
+						'bw_estimator': bw_estimator,
+						'fully_dimensional': fully_dimensional,
 					})
 
 	def get_next_iteration(self, iteration, iteration_kwargs={}):

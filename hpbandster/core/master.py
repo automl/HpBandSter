@@ -172,7 +172,7 @@ class Master(object):
 		raise NotImplementedError('implement get_next_iteration for %s'%(type(self).__name__))
 
 
-	def run(self, n_iterations, min_n_workers=1, iteration_kwargs = {},):
+	def run(self, n_iterations=1, min_n_workers=1, iteration_kwargs = {},):
 		"""
 			run n_iterations of SuccessiveHalving
 

@@ -15,7 +15,7 @@ from hpbandster.optimizers.kde.mvkde import MultivariateKDE
 class H2BO(base_config_generator):
 	def __init__(self, configspace, min_points_in_model = None,
 				 top_n_percent=15, num_samples = 64, random_fraction=1/3,
-				 min_bandwidth=1e-3, bw_estimator='scott',
+				 min_bandwidth=1e-3, bw_estimator='scott', fully_dimensional=True,
 				**kwargs):
 		"""
 			Fits for each given budget a kernel density estimator on the best N percent of the
@@ -41,6 +41,8 @@ class H2BO(base_config_generator):
 			min_bandwidth: float
 				to keep diversity, even when all (good) samples have the same value for one of the parameters,
 				a minimum bandwidth (Default: 1e-3) is used instead of zero. 
+			fully_dimensional: bool
+				if true, the KDE is uses factored kernel across all dimensions, otherwise the PDF is a product of 1d PDFs
 
 		"""
 		super().__init__(**kwargs)
@@ -48,6 +50,7 @@ class H2BO(base_config_generator):
 		self.configspace = configspace
 		self.bw_estimator = bw_estimator
 		self.min_bandwidth = min_bandwidth
+		self.fully_dimensional = fully_dimensional
 
 		self.min_points_in_model = min_points_in_model
 		if min_points_in_model is None:
@@ -231,8 +234,8 @@ class H2BO(base_config_generator):
 
 		if budget not in self.kde_models.keys():
 			self.kde_models[budget] = {
-				'good': MultivariateKDE(self.configspace, min_bandwidth=self.min_bandwidth),
-				'bad' : MultivariateKDE(self.configspace, min_bandwidth=self.min_bandwidth)
+				'good': MultivariateKDE(self.configspace, min_bandwidth=self.min_bandwidth, fully_dimensional=self.fully_dimensional),
+				'bad' : MultivariateKDE(self.configspace, min_bandwidth=self.min_bandwidth, fully_dimensional=self.fully_dimensional)
 			}	
 
 
@@ -259,7 +262,6 @@ class H2BO(base_config_generator):
 		if self.bw_estimator in ['mlcv'] and n_good < 3:
 			self.kde_models[budget]['good'].bandwidths[:] = self.kde_models[budget]['bad'].bandwidths
 		
-		"""
 		print('='*50)
 		print(self.kde_models[budget]['good'].bandwidths)
 		#print('best:\n',self.kde_models[budget]['good'].data[0])
@@ -268,7 +270,6 @@ class H2BO(base_config_generator):
 		print((train_losses[idx])[:n_good])
 		
 		print(self.kde_models[budget]['bad'].bandwidths)
-		"""
 
 		# update probs for the categorical parameters for later sampling
 		self.logger.debug('done building a new model for budget %f based on %i/%i split\nBest loss for this budget:%f\n\n\n\n\n'%(budget, n_good, n_bad, np.min(train_losses)))

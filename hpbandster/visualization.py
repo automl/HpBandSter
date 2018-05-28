@@ -49,10 +49,16 @@ def interactive_HB_plot(learning_curves, tool_tip_strings=None,log_y=False, log_
 
 	for k,v in learning_curves.items():
 		for l in v:
+			if len(l) == 0: continue
 			tmp = list(zip(*l))
-			times.append(tmp[0])
-			losses.append(tmp[1])
-			config_ids.append(k)
+			try:
+				times.append(tmp[0])
+				losses.append(tmp[1])
+				config_ids.append(k)
+			except:
+				import pdb; pdb.set_trace()
+
+
 
 	num_curves = len(times)
 	HB_iterations = [id[0] for id in config_ids]
