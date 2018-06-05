@@ -109,6 +109,10 @@ class BOHB(base_config_generator):
 				should return a valid configuration
 
 		"""
+		
+		self.logger.debug('start sampling a new configuration.')
+		
+
 		sample = None
 		info_dict = {}
 		
@@ -123,13 +127,14 @@ class BOHB(base_config_generator):
 
 		if sample is None:
 			try:
+				
 				#sample from largest budget
 				budget = max(self.kde_models.keys())
 
 				l = self.kde_models[budget]['good'].pdf
 				g = self.kde_models[budget]['bad' ].pdf
 			
-				minimize_me = lambda x: max(1e-8, g(x))/max(l(x), 1e-8)
+				minimize_me = lambda x: max(1e-32, g(x))/max(l(x),1e-32)
 				
 				kde_good = self.kde_models[budget]['good']
 				kde_bad = self.kde_models[budget]['bad']
@@ -155,7 +160,6 @@ class BOHB(base_config_generator):
 								vector.append(int(m))
 							else:
 								vector.append(np.random.randint(t))
-					
 					val = minimize_me(vector)
 
 					if not np.isfinite(val):
@@ -181,7 +185,7 @@ class BOHB(base_config_generator):
 					sample = self.configspace.sample_configuration().get_dictionary()
 					info_dict['model_based_pick']  = False
 				else:
-					self.logger.debug('best_vector: {}, {}'.format(best_vector, best))
+					self.logger.debug('best_vector: {}, {}, {}, {}'.format(best_vector, best, l(best_vector), g(best_vector)))
 					for i, hp_value in enumerate(best_vector):
 						if isinstance(
 							self.configspace.get_hyperparameter(
@@ -223,7 +227,7 @@ class BOHB(base_config_generator):
 								e,
 								sample)
 			sample = self.configspace.sample_configuration().get_dictionary()
-
+		self.logger.debug('done sampling a new configuration.')
 		return sample, info_dict
 
 

@@ -232,7 +232,7 @@ class Result(object):
 
 
 
-	def get_incumbent_trajectory(self, all_budgets=True, bigger_is_better=True):
+	def get_incumbent_trajectory(self, all_budgets=True, bigger_is_better=True, non_decreasing_budget=True):
 		"""
 			Returns the best configurations over time
 			
@@ -245,6 +245,9 @@ class Result(object):
 				bigger_is_better:bool
 					flag whether an evaluation on a larger budget is always considered better.
 					If True, the incumbent might increase for the first evaluations on a bigger budget
+				non_decreasing_budget: bool
+					flag whether the budget of a new incumbent should be at least as big as the one for
+					the current incumbent.
 			Returns:
 			--------
 				dict:
@@ -265,13 +268,24 @@ class Result(object):
 		}
 	
 		current_incumbent = float('inf')
-		incumbent_budget = self.HB_config['budgets'][0]
+		incumbent_budget = self.HB_config['min_budget']
 		
 		for r in all_runs:
 			if r.loss is None: continue
 			
-			if ((r.loss < current_incumbent) or \
-				(r.budget > incumbent_budget and bigger_is_better)):
+			new_incumbent = False
+			
+			if bigger_is_better and r.budget > incumbent_budget:
+				new_incumbent = True
+			
+			
+			if r.loss < current_incumbent:
+				new_incumbent = True
+			
+			if non_decreasing_budget and r.budget < incumbent_budget:
+				new_incumbent = False
+			
+			if new_incumbent:
 				current_incumbent = r.loss
 				incumbent_budget  = r.budget
 				

@@ -15,7 +15,7 @@ from hpbandster.optimizers.config_generators.random_sampling import RandomSampli
 
 class RandomSearch(Master):
 	def __init__(self, configspace = None,
-					eta = 3, min_budget=0.01, max_budget=1,
+					eta = 3, min_budget=1, max_budget=1,
 					**kwargs
 					):
 		"""
@@ -29,12 +29,8 @@ class RandomSearch(Master):
 			after evaluating each configuration on the same subset size, only a fraction of
 			1/eta of them 'advances' to the next round.
 			Must be greater or equal to 2.
-		min_budget : float
-			The smallest budget to consider. Needs to be positive!
-		max_budget : float
-			the largest budget to consider. Needs to be larger than min_budget!
-			The budgets will be geometrically distributed $\sim \eta^k$ for
-			$k\in [0, 1, ... , num_subsets - 1]$.
+		budget : float
+			budget for the evaluation
 		"""
 
 		# TODO: Propper check for ConfigSpace object!
@@ -49,21 +45,20 @@ class RandomSearch(Master):
 
 		# Hyperband related stuff
 		self.eta = eta
-		self.min_budget = min_budget
+		self.min_budget = max_budget
 		self.max_budget = max_budget
 		
 		
 		# precompute some HB stuff
 		self.max_SH_iter = -int(np.log(min_budget/max_budget)/np.log(eta)) + 1
 		self.budgets = max_budget * np.power(eta, -np.linspace(self.max_SH_iter-1, 0, self.max_SH_iter))
-		
 
 		# max total budget for one iteration
 		self.budget_per_iteration = sum([b*self.eta**i for i, b in enumerate(self.budgets[::-1])])
 		
 		self.config.update({
 						'eta'        : eta,
-						'min_budget' : min_budget,
+						'min_budget' : max_budget,
 						'max_budget' : max_budget,
 					})
 
