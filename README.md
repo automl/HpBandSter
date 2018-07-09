@@ -5,7 +5,7 @@ a distributed Hyperband implementation on Steroids
 
 A simple
 ```
-python3 setup.py install --user
+pip install hpbandster
 ```
 should do. It should install the dependencies automatically.
 
@@ -19,7 +19,7 @@ python3 setup.py develop --user
 
 ## How to use
 
-Right now, there are only three example showing how to use. You can find them in the `examples` folder.
+Right now, there are only three example showing how to use. You can find them in the `hpbandster/examples` folder.
 The basic components of every run are
 1. a `NameServer` keeping track of the master's and workers' IPs and ports
 2. a `Master` (Usually `BOHB` or `HyperBand`) that coordinates the work
