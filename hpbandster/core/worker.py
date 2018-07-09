@@ -37,18 +37,16 @@ class Worker(object):
 
 	def load_nameserver_credentials(self, working_directory, num_tries=60, interval=1):
 		"""
-			loads the nameserver credentials in cases where master and workers share a filesystem
+		loads the nameserver credentials in cases where master and workers share a filesystem
 
-			Parameters:
-			-----------
-				working_directory: str
-					the working directory for the HPB run (see master)
-				num_tries: int
-					number of attempts to find the file (default 60)
-				interval: float
-					waiting period between the attempts
-				
-
+		Parameters
+		----------
+			working_directory: str
+				the working directory for the HPB run (see master)
+			num_tries: int
+				number of attempts to find the file (default 60)
+			interval: float
+				waiting period between the attempts
 		"""
 		fn = os.path.join(working_directory, 'HPB_run_%s_pyro.pkl'%self.run_id)
 		
@@ -67,15 +65,15 @@ class Worker(object):
 
 	def run(self, background=False):
 		"""
-			Method to start the worker.
-			
-			Parameters:
-			-----------
-				background: bool
-					If set to False (Default). the worker is executed in the current thread.
-					If True, a new daemon thread is created that runs the worker. This is
-					useful in a single worker scenario/when the compute function only simulates
-					work.
+		Method to start the worker.
+		
+		Parameters
+		----------
+			background: bool
+				If set to False (Default). the worker is executed in the current thread.
+				If True, a new daemon thread is created that runs the worker. This is
+				useful in a single worker scenario/when the compute function only simulates
+				work.
 		"""
 		if background:
 			self.worker_id += str(threading.get_ident())

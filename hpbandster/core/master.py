@@ -17,7 +17,7 @@ from hpbandster.core.base_iteration import WarmStartIteration
 
 
 class Master(object):
-	def __init__(	self,
+	def __init__(self,
 			run_id,
 			config_generator,
 			working_directory='.',
@@ -32,8 +32,8 @@ class Master(object):
 			result_logger=None,
 			previous_result = None,
 			):
-		"""
-
+		"""The Master class is responsible for the book keeping and to decide what to run next.
+		
 		Parameters
 		----------
 		run_id : string
@@ -132,13 +132,12 @@ class Master(object):
 
 	def wait_for_workers(self, min_n_workers=1):
 		"""
-			helper function to hold execution until some workers are active
+		helper function to hold execution until some workers are active
 
-			Parameters:
-			-----------
-			min_n_workers: int
-				minimum number of workers present before the run starts		
-
+		Parameters
+		----------
+		min_n_workers: int
+			minimum number of workers present before the run starts		
 		"""
 	
 		self.logger.debug('wait_for_workers trying to get the condition')
@@ -153,20 +152,20 @@ class Master(object):
 
 	def get_next_iteration(self, iteration, iteration_kwargs):
 		"""
-			instantiates the next iteration
+		instantiates the next iteration
 
-			Overwrite this to change the iterations for different optimizers
+		Overwrite this to change the iterations for different optimizers
 
-			Parameters:
-			-----------
-				iteration: int
-					the index of the iteration to be instantiated
-				iteration_kwargs: dict
-					additional kwargs for the iteration class
+		Parameters
+		----------
+			iteration: int
+				the index of the iteration to be instantiated
+			iteration_kwargs: dict
+				additional kwargs for the iteration class
 
-			Returns:
-			--------
-				HB_iteration: a valid HB iteration object
+		Returns
+		-------
+			HB_iteration: a valid HB iteration object
 		"""
 		
 		raise NotImplementedError('implement get_next_iteration for %s'%(type(self).__name__))
@@ -176,12 +175,12 @@ class Master(object):
 		"""
 			run n_iterations of SuccessiveHalving
 
-			Parameters:
-			-----------
-			n_iterations: int
-				number of iterations to be performed in this run
-			min_n_workers: int
-				minimum number of workers before starting the run
+		Parameters
+		----------
+		n_iterations: int
+			number of iterations to be performed in this run
+		min_n_workers: int
+			minimum number of workers before starting the run
 		"""
 
 		self.wait_for_workers(min_n_workers)
@@ -246,10 +245,10 @@ class Master(object):
 
 	def job_callback(self, job):
 		"""
-			method to be called when a job has finished
+		method to be called when a job has finished
 
-			this will do some book keeping and call the user defined
-			new_result_callback if one was specified
+		this will do some book keeping and call the user defined
+		new_result_callback if one was specified
 		"""
 		self.logger.debug('job_callback for %s started'%str(job.id))
 		with self.thread_cond:
@@ -268,7 +267,7 @@ class Master(object):
 
 	def _queue_wait(self):
 		"""
-			helper function to wait for the queue to not overflow/underload it
+		helper function to wait for the queue to not overflow/underload it
 		"""
 		
 		if self.num_running_jobs >= self.job_queue_sizes[1]:
@@ -278,10 +277,10 @@ class Master(object):
 
 	def _submit_job(self, config_id, config, budget):
 		"""
-			hidden function to submit a new job to the dispatcher
+		hidden function to submit a new job to the dispatcher
 
-			This function handles the actual submission in a
-			(hopefully) thread save way
+		This function handles the actual submission in a
+		(hopefully) thread save way
 		"""
 		self.logger.debug('HBMASTER: trying submitting job %s to dispatcher'%str(config_id))
 		with self.thread_cond:
@@ -293,11 +292,12 @@ class Master(object):
 		self.logger.debug("HBMASTER: job %s submitted to dispatcher"%str(config_id))
 
 	def active_iterations(self):
-		""" function to find active (not marked as finished) iterations 
+		"""
+		function to find active (not marked as finished) iterations 
 
-			Returns:
-			--------
-				list: all active iteration objects (empty if there are none)
+		Returns
+		-------
+			list: all active iteration objects (empty if there are none)
 		"""
 
 		l = list(filter(lambda idx: not self.iterations[idx].is_finished, range(len(self.iterations))))

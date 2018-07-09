@@ -64,17 +64,17 @@ class RandomSearch(Master):
 
 	def get_next_iteration(self, iteration, iteration_kwargs={}):
 		"""
-			Returns a SH iteration with only evaluations on the biggest budget
-			
-			Parameters:
-			-----------
-				iteration: int
-					the index of the iteration to be instantiated
+		Returns a SH iteration with only evaluations on the biggest budget
+		
+		Parameters
+		----------
+			iteration: int
+				the index of the iteration to be instantiated
 
-			Returns:
-			--------
-				SuccessiveHalving: the SuccessiveHalving iteration with the
-					corresponding number of configurations
+		Returns
+		-------
+			SuccessiveHalving: the SuccessiveHalving iteration with the
+				corresponding number of configurations
 		"""
 		
 		

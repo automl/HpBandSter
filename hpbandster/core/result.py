@@ -33,26 +33,26 @@ class Run(object):
 
 def extract_HB_learning_curves(runs):
 	"""
-		function to get the hyperband learning curves
+	function to get the hyperband learning curves
 
-		This is an example function showing the interface to use the
-		HB_result.get_learning_curves method.
+	This is an example function showing the interface to use the
+	HB_result.get_learning_curves method.
 
-		Parameters:
-		-----------
+	Parameters
+	----------
 
-		runs: list of HB_result.run objects
-			the performed runs for an unspecified config
+	runs: list of HB_result.run objects
+		the performed runs for an unspecified config
 
-		Returns:
-		--------
+	Returns
+	-------
 
-		list of learning curves: list of lists of tuples
-			An individual learning curve is a list of (t, x_t) tuples.
-			This function must return a list of these. One could think
-			of cases where one could extract multiple learning curves
-			from these runs, e.g. if each run is an independent training
-			run of a neural network on the data.
+	list of learning curves: list of lists of tuples
+		An individual learning curve is a list of (t, x_t) tuples.
+		This function must return a list of these. One could think
+		of cases where one could extract multiple learning curves
+		from these runs, e.g. if each run is an independent training
+		run of a neural network on the data.
 		
 	"""
 	sr = sorted(runs, key=lambda r: r.budget)
@@ -60,7 +60,8 @@ def extract_HB_learning_curves(runs):
 		
 
 class json_result_logger(object):
-	"""
+	def __init__(self, directory, overwrite=False):
+		"""
 		convenience logger for 'semi-live-results'
 
 		Logger that writes job results into two files (configs.json and results.json).
@@ -70,22 +71,18 @@ class json_result_logger(object):
 		This might be very slow if individual runs are fast and the
 		filesystem is rather slow (e.g. a NFS).
 
-	"""
-	def __init__(self, directory, overwrite=False):
-		"""
-			Parameters:
-			-----------
+		Parameters
+		----------
 
-			directory: string
-				the directory where the two files 'configs.json' and
-				'results.json' are stored
-			overwrite: bool
-				In case the files already exist, this flag controls the
-				behavior:
-					> True:   The existing files will be overwritten.
-					          Potential risk of deleting previous results
-					> False:  A FileEvistsError is raised and the files are
-							  not modified.
+		directory: string
+			the directory where the two files 'configs.json' and
+			'results.json' are stored
+		overwrite: bool
+			In case the files already exist, this flag controls the
+			behavior:
+			
+				* True:   The existing files will be overwritten. Potential risk of deleting previous results
+				* False:  A FileExistsError is raised and the files are not modified.
 		"""
 
 		os.makedirs(directory, exist_ok=True)
@@ -139,11 +136,22 @@ class json_result_logger(object):
 
 def logged_results_to_HB_result(directory):
 	"""
-		function to import logged 'live-results' and return a HB_result object
+	function to import logged 'live-results' and return a HB_result object
 
-		You can load live run results with this function and the returned
-		HB_result object gives you access to the results the same way
-		a finished run would.
+	You can load live run results with this function and the returned
+	HB_result object gives you access to the results the same way
+	a finished run would.
+	
+	Parameters
+	----------
+	directory: str
+		the directory containing the results.json and config.json files
+
+	Returns
+	-------
+	hpbandster.core.result.Result: :object:
+		TODO
+	
 	"""
 	data = {}
 	time_ref = float('inf')
@@ -192,10 +200,10 @@ def logged_results_to_HB_result(directory):
 
 class Result(object):
 	"""
-		Object returned by the HB_master.run function
+	Object returned by the HB_master.run function
 
-		This class offers a simple API to access the information from
-		a Hyperband run.
+	This class offers a simple API to access the information from
+	a Hyperband run.
 	"""
 	def __init__ (self, HB_iteration_data, HB_config):
 		self.data = HB_iteration_data
@@ -208,11 +216,11 @@ class Result(object):
 
 	def get_incumbent_id(self):
 		"""
-			Find the config_id of the incumbent.
+		Find the config_id of the incumbent.
 
-			The incumbent here is the configuration with the smallest loss
-			among all runs on the maximum budget! If no run finishes on the
-			maximum budget, None is returned!
+		The incumbent here is the configuration with the smallest loss
+		among all runs on the maximum budget! If no run finishes on the
+		maximum budget, None is returned!
 		"""
 		tmp_list = []
 		for k,v in self.data.items():
@@ -234,25 +242,25 @@ class Result(object):
 
 	def get_incumbent_trajectory(self, all_budgets=True, bigger_is_better=True, non_decreasing_budget=True):
 		"""
-			Returns the best configurations over time
-			
-			
-			Parameters:
-			-----------
-				all_budgets: bool
-					If set to true all runs (even those not with the largest budget) can be the incumbent.
-					Otherwise, only full budget runs are considered
-				bigger_is_better:bool
-					flag whether an evaluation on a larger budget is always considered better.
-					If True, the incumbent might increase for the first evaluations on a bigger budget
-				non_decreasing_budget: bool
-					flag whether the budget of a new incumbent should be at least as big as the one for
-					the current incumbent.
-			Returns:
-			--------
-				dict:
-					dictionary with all the config IDs, the times the runs
-					finished, their respective budgets, and corresponding losses
+		Returns the best configurations over time
+		
+		
+		Parameters
+		----------
+			all_budgets: bool
+				If set to true all runs (even those not with the largest budget) can be the incumbent.
+				Otherwise, only full budget runs are considered
+			bigger_is_better:bool
+				flag whether an evaluation on a larger budget is always considered better.
+				If True, the incumbent might increase for the first evaluations on a bigger budget
+			non_decreasing_budget: bool
+				flag whether the budget of a new incumbent should be at least as big as the one for
+				the current incumbent.
+		Returns
+		-------
+			dict:
+				dictionary with all the config IDs, the times the runs
+				finished, their respective budgets, and corresponding losses
 		"""
 		all_runs = self.get_all_runs(only_largest_budget = not all_budgets)
 		
@@ -308,10 +316,10 @@ class Result(object):
 
 	def get_runs_by_id(self, config_id):
 		"""
-			returns a list of runs for a given config id
+		returns a list of runs for a given config id
 
-			The runs are sorted by ascending budget, so '-1' will give
-			the longest run for this config.
+		The runs are sorted by ascending budget, so '-1' will give
+		the longest run for this config.
 		"""
 		d = self.data[config_id]
 
@@ -333,21 +341,21 @@ class Result(object):
 
 	def get_learning_curves(self, lc_extractor=extract_HB_learning_curves, config_ids=None):
 		"""
-			extracts all learning curves from all run configurations
+		extracts all learning curves from all run configurations
 
-			Parameters:
-			-----------
-				lc_extractor: callable
-					a function to return a list of learning_curves.
-					defaults to hpbanster.HB_result.extract_HP_learning_curves
-				config_ids: list of valid config ids
-					if only a subset of the config ids is wanted
+		Parameters
+		----------
+			lc_extractor: callable
+				a function to return a list of learning_curves.
+				defaults to hpbanster.HB_result.extract_HP_learning_curves
+			config_ids: list of valid config ids
+				if only a subset of the config ids is wanted
 
-			Returns:
-			--------
-				dict
-					a dictionary with the config_ids as keys and the
-					learning curves as values
+		Returns
+		-------
+			dict
+				a dictionary with the config_ids as keys and the
+				learning curves as values
 		"""
 
 		config_ids = self.data.keys() if config_ids is None else config_ids
@@ -363,16 +371,16 @@ class Result(object):
 
 	def get_all_runs(self, only_largest_budget=False):
 		"""
-			returns all runs performed
+		returns all runs performed
 
-			Parameters:
-			-----------
-				only_largest_budget: boolean
-					if True, only the largest budget for each configuration
-					is returned. This makes sense if the runs are continued
-					across budgets and the info field contains the information
-					you care about. If False, all runs of a configuration
-					are returned
+		Parameters
+		----------
+			only_largest_budget: boolean
+				if True, only the largest budget for each configuration
+				is returned. This makes sense if the runs are continued
+				across budgets and the info field contains the information
+				you care about. If False, all runs of a configuration
+				are returned
 		"""
 		all_runs = []
 
@@ -389,8 +397,8 @@ class Result(object):
 
 	def get_id2config_mapping(self):
 		"""
-			returns a dict where the keys are the config_ids and the values
-			are the actual configurations
+		returns a dict where the keys are the config_ids and the values
+		are the actual configurations
 		"""
 		new_dict = {}
 		for k, v in self.data.items():
@@ -404,8 +412,8 @@ class Result(object):
 
 	def _merge_results(self):
 		"""
-			hidden function to merge the list of results into one
-			dictionary and 'normalize' the time stamps
+		hidden function to merge the list of results into one
+		dictionary and 'normalize' the time stamps
 		"""
 		new_dict = {}
 		for it in self.data:

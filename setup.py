@@ -2,17 +2,18 @@ from setuptools import setup, find_packages
 
 setup(
 	name='hpbandster',
-	version='0.5.4',
-	description='HyPerBAND on STERoids, a parallel Hyperband implementation with lots of room for improvement',
+	version='0.5.6',
+	description='HyPerBAND on STERoids, a distributed Hyperband implementation with lots of room for improvement',
 	author='Stefan Falkner',
 	author_email='sfalkner@cs.uni-freiburg.de',
-	license='Use as you wish. No guarantees whatsoever.',
-	classifiers=['Development Status :: 3 - Alpha'],
-        packages=find_packages(),
+	url="https://github.com/automl/HpBandSter",
+	license='BSD 3-Clause License',
+	classifiers=['Development Status :: 4 - Beta'],
+	packages=find_packages(),
 	python_requires='>=3',
-	install_requires=['Pyro4', 'serpent', 'ConfigSpace', 'numpy'],
+	install_requires=['Pyro4', 'serpent', 'ConfigSpace', 'numpy','statsmodels', 'scipy'],
 	extras_require = {
-	    'Kernel Density Estimator support': ['statsmodels', 'scipy'],
-	    'Automatic hostname inference': ['netifaces'],
+		'Automatic hostname inference': ['netifaces'],
 	},
+	keywords=['distributed', 'optimization', 'multifidelity'],
 )
