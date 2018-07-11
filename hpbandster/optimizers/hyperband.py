@@ -65,18 +65,18 @@ class HyperBand(Master):
 
 	def get_next_iteration(self, iteration, iteration_kwargs={}):
 		"""
-			Hyperband uses SuccessiveHalving for each iteration.
-			See Li et al. (2016) for reference.
-			
-			Parameters:
-			-----------
-				iteration: int
-					the index of the iteration to be instantiated
+		Hyperband uses SuccessiveHalving for each iteration.
+		See Li et al. (2016) for reference.
+		
+		Parameters
+		----------
+			iteration: int
+				the index of the iteration to be instantiated
 
-			Returns:
-			--------
-				SuccessiveHalving: the SuccessiveHalving iteration with the
-					corresponding number of configurations
+		Returns
+		-------
+			SuccessiveHalving: the SuccessiveHalving iteration with the
+				corresponding number of configurations
 		"""
 		
 		# number of 'SH rungs'

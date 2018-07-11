@@ -101,18 +101,18 @@ class BOHB(Master):
 
 	def get_next_iteration(self, iteration, iteration_kwargs={}):
 		"""
-			BO-HB uses (just like Hyperband) SuccessiveHalving for each iteration.
-			See Li et al. (2016) for reference.
-			
-			Parameters:
-			-----------
-				iteration: int
-					the index of the iteration to be instantiated
+		BO-HB uses (just like Hyperband) SuccessiveHalving for each iteration.
+		See Li et al. (2016) for reference.
+		
+		Parameters
+		----------
+			iteration: int
+				the index of the iteration to be instantiated
 
-			Returns:
-			--------
-				SuccessiveHalving: the SuccessiveHalving iteration with the
-					corresponding number of configurations
+		Returns
+		-------
+			SuccessiveHalving: the SuccessiveHalving iteration with the
+				corresponding number of configurations
 		"""
 		
 		# number of 'SH rungs'

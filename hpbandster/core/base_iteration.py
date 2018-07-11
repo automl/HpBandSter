@@ -30,29 +30,28 @@ class Datum(object):
 
 
 class BaseIteration(object):
-	"""
-		Base class for the various iteration classes
-	"""
 	def __init__(self, HPB_iter, num_configs, budgets, config_sampler, logger=None, result_logger=None):
 		"""
-			Parameters:
-			-----------
+		Base class for the various iteration classes
 
-			HPB_iter: int
-				The current HPBandSter iteration index.
-			num_configs: list of ints
-				the number of configurations in each stage of SH
-			budgets: list of floats
-				the budget associated with each stage
-			config_sample: callable
-				a function that returns a valid configuration. Its only
-				argument should be the budget that this config is first
-				scheduled for. This might be used to pick configurations
-				that perform best after this particular budget is exhausted
-				to build a better autoML system.
-			logger: a logger
-			result_logger: hpbandster.api.results.util.json_result_logger object
-				a result logger that writes live results to disk
+		Parameters
+		----------
+
+		HPB_iter: int
+			The current HPBandSter iteration index.
+		num_configs: list of ints
+			the number of configurations in each stage of SH
+		budgets: list of floats
+			the budget associated with each stage
+		config_sample: callable
+			a function that returns a valid configuration. Its only
+			argument should be the budget that this config is first
+			scheduled for. This might be used to pick configurations
+			that perform best after this particular budget is exhausted
+			to build a better autoML system.
+		logger: a logger
+		result_logger: hpbandster.api.results.util.json_result_logger object
+			a result logger that writes live results to disk
 		"""
 
 		self.data = {}					# this holds all the configs and results of this iteration
@@ -69,15 +68,15 @@ class BaseIteration(object):
 
 	def add_configuration(self, config = None, config_info={}):
 		"""
-			function to add a new configuration to the current iteration
-			
-			Parameters:
-			-----------
-			
-			config : valid configuration
-				The configuration to add. If None, a configuration is sampled from the config_sampler
-			config_info: dict
-				Some information about the configuration that will be stored in the results
+		function to add a new configuration to the current iteration
+		
+		Parameters
+		----------
+		
+		config : valid configuration
+			The configuration to add. If None, a configuration is sampled from the config_sampler
+		config_info: dict
+			Some information about the configuration that will be stored in the results
 		"""
 		
 		if config is None:
@@ -102,10 +101,10 @@ class BaseIteration(object):
 
 	def register_result(self, job, skip_sanity_checks=False):
 		"""
-			function to register the result of a job
+		function to register the result of a job
 
-			This function is called from HB_master, don't call this from
-			your script.
+		This function is called from HB_master, don't call this from
+		your script.
 		"""
 
 		if self.is_finished:
@@ -138,17 +137,17 @@ class BaseIteration(object):
 		
 	def get_next_run(self):
 		"""
-			function to return the next configuration and budget to run.
+		function to return the next configuration and budget to run.
 
-			This function is called from HB_master, don't call this from
-			your script.
+		This function is called from HB_master, don't call this from
+		your script.
 
-			It returns None if this run of SH is finished or there are
-			pending jobs that need to finish to progress to the next stage.
+		It returns None if this run of SH is finished or there are
+		pending jobs that need to finish to progress to the next stage.
 
-			If there are empty slots to be filled in the current SH stage
-			(which never happens in the original SH version), a new
-			configuration will be sampled and scheduled to run next.
+		If there are empty slots to be filled in the current SH stage
+		(which never happens in the original SH version), a new
+		configuration will be sampled and scheduled to run next.
 		"""
 
 		if self.is_finished:
@@ -175,39 +174,39 @@ class BaseIteration(object):
 
 	def _advance_to_next_stage(self, config_ids, losses):
 		"""
-			Function that implements the strategy to advance configs within this iteration
-			
-			Overload this to implement different strategies, like
-			SuccessiveHalving, SuccessiveResampling.
-			
-			Parameters:
-			-----------
-				config_ids: list
-					all config ids to be considered
-				losses: list
-					losses of the run on the current budget
-					
-			Returns:
-			--------
-				list of bool
-					A boolean for each entry in config_ids indicating whether to advance it or not
-			
-			
+		Function that implements the strategy to advance configs within this iteration
+		
+		Overload this to implement different strategies, like
+		SuccessiveHalving, SuccessiveResampling.
+		
+		Parameters
+		----------
+			config_ids: list
+				all config ids to be considered
+			losses: list
+				losses of the run on the current budget
+				
+		Returns
+		-------
+			list of bool
+				A boolean for each entry in config_ids indicating whether to advance it or not
+		
+		
 		"""
 		raise NotImplementedError('_advance_to_next_stage not implemented for %s'%type(self).__name__)
 
 	def process_results(self):
 		"""
-			function that is called when a stage is completed and
-			needs to be analyzed befor further computations.
+		function that is called when a stage is completed and
+		needs to be analyzed befor further computations.
 
-			The code here implements the original SH algorithms by
-			advancing the k-best (lowest loss) configurations at the current
-			budget. k is defined by the num_configs list (see __init__)
-			and the current stage value.
+		The code here implements the original SH algorithms by
+		advancing the k-best (lowest loss) configurations at the current
+		budget. k is defined by the num_configs list (see __init__)
+		and the current stage value.
 
-			For more advanced methods like resampling after each stage,
-			overload this function only.
+		For more advanced methods like resampling after each stage,
+		overload this function only.
 		"""
 		self.stage += 1
 		
@@ -249,7 +248,7 @@ class BaseIteration(object):
 
 class WarmStartIteration(BaseIteration):
 	"""
-		iteration that imports a privious Result for warm starting
+	iteration that imports a privious Result for warm starting
 	"""
 
 	def __init__(self, Result, config_generator):

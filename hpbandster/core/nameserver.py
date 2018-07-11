@@ -19,8 +19,8 @@ class NameServer(object):
 		"""
 		Convenience wrapper for a PYRO4 nameserver
 
-		Parameters:
-		-----------
+		Parameters
+		----------
 			run_id: str
 				unique run_id associated with the HPB run
 			working_directory: str
@@ -49,8 +49,8 @@ class NameServer(object):
 		"""	
 		starts a Pyro4 nameserver in a separate thread
 		
-		Returns:
-		--------
+		Returns
+		-------
 			tuple (str, int):
 				the host name and the used port
 		"""
