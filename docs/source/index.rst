@@ -11,8 +11,9 @@ Quick start guide
 =================
 .. toctree::
    :maxdepth: 2
-
+   
    quickstart.rst
+   examples/example_config_space/configspace.rst
 
 
 Available Optimizers
