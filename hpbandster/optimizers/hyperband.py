@@ -19,6 +19,13 @@ class HyperBand(Master):
 					eta=3, min_budget=0.01, max_budget=1,
 					**kwargs ):
 		"""
+                Hyperband implements hyperparameter optimization by sampling
+                candidates at random and "trying" them first, running them for
+                a specific budget. The approach is iterative, promising
+                candidates are run for a longer time, increasing the fidelity
+                for their performance. While this is a very efficient racing
+                approach, random sampling makes no use of the knowledge gained
+                about the candidates during optimization.
 
 		Parameters
 		----------

@@ -21,6 +21,23 @@ class BOHB(Master):
 					min_bandwidth=1e-3,
 					**kwargs ):
 		"""
+                BOHB performs robust and efficient hyperparameter optimization
+                at scale by combining the speed of Hyperband searches with the
+                guidance and guarantees of convergence of Bayesian
+                Optimization. Instead of sampling new configurations at random,
+                BOHB uses random forests to select promising candidates.
+
+                .. highlight:: none
+
+                For reference: ::
+
+                   @misc{
+                     1807.01774,
+                     Author = {Stefan Falkner and Aaron Klein and Frank Hutter},
+                     Title = {BOHB: Robust and Efficient Hyperparameter Optimization at Scale},
+                     Year = {2018},
+                     Eprint = {arXiv:1807.01774},
+                   }
 
 		Parameters
 		----------
@@ -34,9 +51,9 @@ class BOHB(Master):
 		min_budget : float
 			The smallest budget to consider. Needs to be positive!
 		max_budget : float
-			the largest budget to consider. Needs to be larger than min_budget!
-			The budgets will be geometrically distributed $\sim \eta^k$ for
-			$k\in [0, 1, ... , num_subsets - 1]$.
+			The largest budget to consider. Needs to be larger than min_budget!
+			The budgets will be geometrically distributed
+                        :math:`a^2 + b^2 = c^2 \sim \eta^k` for :math:`k\in [0, 1, ... , num\_subsets - 1]`.
 		min_points_in_model: int
 			number of observations to start building a KDE. Default 'None' means
 			dim+1, the bare minimum.
@@ -52,7 +69,7 @@ class BOHB(Master):
 			from a 'widened' KDE where the bandwidth is multiplied by this factor (default: 3)
 		min_bandwidth: float
 			to keep diversity, even when all (good) samples have the same value for one of the parameters,
-			a minimum bandwidth (Default: 1e-3) is used instead of zero. 
+			a minimum bandwidth (Default: 1e-3) is used instead of zero.
 		iteration_kwargs: dict
 			kwargs to be added to the instantiation of each iteration
 		"""

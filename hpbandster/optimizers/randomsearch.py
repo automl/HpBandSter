@@ -19,6 +19,8 @@ class RandomSearch(Master):
 					**kwargs
 					):
 		"""
+                Implements a random search across the search space for comparison.
+                Candidates are sampled at random and run on the maximum budget.
 
 		Parameters
 		----------
@@ -35,7 +37,7 @@ class RandomSearch(Master):
 
 		# TODO: Propper check for ConfigSpace object!
 		if configspace is None:
-			raise ValueError("You have to provide a valid CofigSpace object")
+			raise ValueError("You have to provide a valid ConfigSpace object")
 
 
 
