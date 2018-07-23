@@ -11,7 +11,7 @@ setup(
 	classifiers=['Development Status :: 4 - Beta'],
 	packages=find_packages(),
 	python_requires='>=3',
-	install_requires=['Pyro4', 'serpent', 'ConfigSpace', 'numpy','statsmodels', 'scipy'],
+	install_requires=['Pyro4', 'serpent', 'ConfigSpace', 'numpy', 'statsmodels', 'scipy', 'sphinx', 'sphinx_rtd_theme'],
 	extras_require = {
 		'Automatic hostname inference': ['netifaces'],
 	},
