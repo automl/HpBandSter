@@ -6,8 +6,7 @@
 # The purpose of this example is to show how a more complicated worker
 # could look like.
 
-
-#NOTE: obviously, the implementation is very inefficient as every document
+# NOTE: obviously, the implementation is very inefficient as every document
 # gets converted into a tensor on the fly. For better performance, this
 # should probably be done once and then reused
 
@@ -39,6 +38,9 @@ import ConfigSpace.hyperparameters as CSH
 
 
 class GRU_classifier(nn.Module):
+    """
+    This is a pytorch implementation of a RNN for the 20 news dataset.
+    """
     def __init__(self, input_size, gru_num_layers, gru_size, mlp_size1, mlp_size2, num_classes):
         super(GRU_classifier, self).__init__()
 
@@ -65,10 +67,11 @@ class GRU_classifier(nn.Module):
         return self.output(hidden_out2)
 
 
-
-
 class RNN20NGWorker(Worker):
-
+    """
+    Inherited class of hpbandster.core.worker.
+    This class implements the connection between pytorch-net and the optimizer.
+    """
     def __init__(self, cutoff = 128,                # documents will be cut to that length
                  categories=[                            # only use a subset of categories
                  #'alt.atheism',
@@ -87,7 +90,6 @@ class RNN20NGWorker(Worker):
         self.test_data = fetch_20newsgroups(subset='test', remove=('headers', 'footers', 'quotes'), categories=self.categories)
         self.train_data= fetch_20newsgroups(subset='train', remove=('headers', 'footers', 'quotes'), categories=self.categories)
 
-
         self.n_classes = len(self.test_data.target_names)
 
         all_letters = string.printable
@@ -96,6 +98,21 @@ class RNN20NGWorker(Worker):
         self.n_letters = len(all_letters)
 
     def compute(self, config, budget, working_directory, *args, **kwargs):
+        """
+        The compute-method will be called repeatedly by the BOHB optimizer. So this is the place where the
+        network will be trained.
+        The configuration input parameter contains the sampled hyperparameters from the configurations space
+
+        Args:
+            config: dictionary containing the sampled configurations by the optimizer
+            budget: (float) amount of time/epochs/etc. the model can use to train
+
+        Returns:
+            dictionary with mandatory fields:
+                'loss' (scalar)
+                'info' (dict)
+        """
+
         current_loss = 0
         all_losses = []
 
@@ -105,10 +122,8 @@ class RNN20NGWorker(Worker):
                                   config['gru_layers'], config['gru_size'],
                                   config['hddn1'], config['hddn2'], self.n_classes)
 
-
         criterion = nn.CrossEntropyLoss()
         optimizer = torch.optim.SGD(self.rnn.parameters(), lr=config['lr'], momentum=config['momentum'])
-
 
         for epoch in range(int(budget)*average_interval):
             line = ''
@@ -125,7 +140,6 @@ class RNN20NGWorker(Worker):
             optimizer.step()
 
             current_loss += loss.data.item()
-
 
             if epoch % average_interval == 0:
                 all_losses.append(current_loss / average_interval)
@@ -145,10 +159,14 @@ class RNN20NGWorker(Worker):
                         }
                })
 
-
-
     @staticmethod
     def get_config_space():
+        """
+        Here we define the configuration space for the hyperparameters for the model.
+        For a more complex example please see the configuration space - example in the documentation
+        Returns:
+            ConfigSpace-object
+        """
         cs = CS.ConfigurationSpace()
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter('gru_layers', lower=1, upper=3, log=True))
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter('gru_size', lower=16, upper=128, log=True))
@@ -156,11 +174,10 @@ class RNN20NGWorker(Worker):
         cs.add_hyperparameter(CSH.UniformIntegerHyperparameter('hddn2', lower=32, upper=512, log=True))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter('lr', lower=1e-8, upper=1e-6, log=True))
         cs.add_hyperparameter(CSH.UniformFloatHyperparameter('momentum', lower=1e-5, upper=0.99,))
-        return(cs)
+        return cs
 
-
-        ####################################################################
-        # helper function for pytorch RNN below this line
+    ####################################################################
+    # helper function for pytorch RNN below this line
     def _line_to_tensor(self, line):
         tensor = torch.zeros(len(line), 1, self.n_letters)
         for li, letter in enumerate(line):
@@ -223,7 +240,9 @@ class RNN20NGWorker(Worker):
             truths.append(self.test_data.target[index])
         truths = np.array(truths)
         predictions = np.array(predictions)
-        return(accuracy_score(predictions, truths))
+
+        return accuracy_score(predictions, truths)
+
 
 if __name__ == "__main__":
     worker = RNN20NGWorker(run_id='0')
