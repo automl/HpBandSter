@@ -64,5 +64,5 @@ In the end,  we'll introduce a interactive visualization tool.
 With this tool, we can illustrate the progress the optimizer made.
 
 .. literalinclude:: /examples/example_4_warmstarting_visualization/run_me.py
-    :lines: 20-129
+    :lines: 20-128
 

@@ -5,6 +5,8 @@
 # This file does only contain a selection of the most common options. For a
 # full list see the documentation:
 # http://www.sphinx-doc.org/en/master/config
+import shlex
+import sphinx_rtd_theme
 
 # -- Path setup --------------------------------------------------------------
 
@@ -38,11 +40,13 @@ release = ''
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.napoleon',
     'sphinx.ext.autodoc',
+    'sphinx.ext.doctest',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.napoleon',
     'sphinx.ext.githubpages',
 ]
 # add __init__ docstring to docs
@@ -82,13 +86,19 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinxdoc'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
+html_theme_options = {
+# Insert options
+  'collapse_navigation': False
+}
+
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+using_rtd_theme = True
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -103,8 +113,7 @@ html_static_path = ['_static']
 # default: ``['localtoc.html', 'relations.html', 'sourcelink.html',
 # 'searchbox.html']``.
 #
-# html_sidebars = {}
-
+html_sidebars = {'**': ['localtoc.html']}
 
 # -- Options for HTMLHelp output ---------------------------------------------
 
@@ -164,3 +173,5 @@ texinfo_documents = [
 
 
 # -- Extension configuration -------------------------------------------------
+# Show init as well as moduledoc
+autoclass_content = 'both'
