@@ -1,23 +1,26 @@
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
+import hpbandster.core.result as hpres
+import hpbandster.core.nameserver as hpns
+from hpbandster.optimizers.bohb import BOHB
+
 import ConfigSpace as CS
 import ConfigSpace.read_and_write.json as json_writer
 
-import hpbandster.core.nameserver as hpns
-from hpbandster.optimizers import BOHB as BOHB
-from hpbandster.examples.commons import MyWorker
+from worker import RNN20NGWorker as MyWorker
 
+config_space = MyWorker.get_config_space()
 
-# First, create a ConfigSpace-Object.
-# It contains the hyperparameters to be optimized
-# For more details, please have a look in the ConfigSpace-Example in the Documentation
-config_space = CS.ConfigurationSpace()
-config_space.add_hyperparameter(CS.UniformFloatHyperparameter('x', lower=0, upper=1))
-
-# Write the configSpace for later use to file
-with open('configspace.json', 'w') as file:
-    file.write(json_writer.write(config_space))
+# This example shows how to log live results. This is most useful
+# for really long runs, where intermediate results could already be
+# interesting. The results submodule contains the functionality to
+# read the two generated files (results.json and configs.json) and
+# create a Result object. See below!
+# Specify the directory and whether or not existing files are overwritten
+result_logger = hpres.json_result_logger(directory='results_example_rnn', overwrite=True)
+with open('results_example_rnn/configspace.json', 'w') as fh:
+    fh.write(json_writer.write(config_space))
 
 
 # Every run has to have a unique (at runtime) id.
@@ -40,11 +43,15 @@ ns_host, ns_port = NS.start()
 # Its 'compute'-method will be called later by the BOHB-optimizer repeatedly
 # with the sampled configurations and return for example the computed loss.
 # Further usages of the worker will be covered in a later example.
-w = MyWorker(   nameserver=ns_host,
-                nameserver_port=ns_port,
-                run_id=run_id,  # unique Hyperband run id
-            )
-w.run(background=True)
+num_workers = 1
+workers=[]
+for i in range(num_workers):
+    w = MyWorker(   nameserver=ns_host, nameserver_port=ns_port,
+                    run_id=run_id,   # unique Hyperband run id
+                    id=i             # unique ID as all workers belong to the same process
+                )
+    w.run(background=True)
+    workers.append(w)
 
 
 # Step 3:
@@ -58,19 +65,24 @@ w.run(background=True)
 # This process runs until the maximum budget is reached.
 HB = BOHB(  configspace = config_space,
             run_id = run_id,
-            eta=3,min_budget=27, max_budget=243,  # Hyperband parameters
+            eta=3, min_budget=9, max_budget=243,     # HB parameters
             nameserver=ns_host,
             nameserver_port = ns_port,
-            ping_interval=3600,  # here, master pings for workers every hour
-         )
+            result_logger=result_logger,
+            ping_interval=10**6
+          )
 
 # Then start the optimizer. The n_iterations parameter specifies
 # the number of iterations to be performed in this run
-res = HB.run(n_iterations=2)
+# It will wait till minimum n workers are ready
+HB.run(n_iterations=4, min_n_workers=num_workers)
 
 # After the optimizer run, we shutdown the master.
 HB.shutdown(shutdown_workers=True)
+NS.shutdown()
 
+# Just to demonstrate, let's read in the logged runs rather than the returned result from HB.run
+res = hpres.logged_results_to_HB_result('.')
 
 # BOHB will return a result object.
 # It holds informations about the optimization run like the incumbent (=best) configuration.

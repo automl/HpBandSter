@@ -27,11 +27,11 @@ To use BOHB, basically you need to follow the next three steps:
 2) Implement a worker and start it
 3) Initialize the BOHB-Optimizer-object and run it.  
 
-.. literalinclude:: /examples/example_1_simple_locally/example1.py
+.. literalinclude:: ../../hpbandster/examples/example_1_simple_locally/run_me.py
 
 The Implementation of the worker with a simple compute function, which was used above
 
-.. literalinclude:: /examples/commons.py
+.. literalinclude:: ../../hpbandster/examples/commons.py
 	:language: python
 	:lines: 7-8, 10-43
 
@@ -50,13 +50,13 @@ all the the simple features ('header', 'footer' and 'quotes') removed,
 this is actually a hard problem, especially if no word embeddings are
 used.
 
-.. literalinclude:: /examples/example_5_rnn_20_newsgroups/run_me.py
+.. literalinclude:: ../../hpbandster/examples/example_2_rnn_20_newsgroups/run_me.py
 
 Following a extract from the worker code:
 
-The can find the complete example in hpbandster/examples/example_5_rnn_20_newsgroups
+The can find the complete example in hpbandster/examples/example_2_rnn_20_newsgroups
 
-.. literalinclude:: /examples/example_5_rnn_20_newsgroups/worker.py
+.. literalinclude:: ../../hpbandster/examples/example_2_rnn_20_newsgroups/worker.py
     :lines: 9-11, 18-22, 39-178
 
 3rd example - Warmstarting
@@ -70,7 +70,7 @@ And finally, restarting the optimization run with a new master and a larger budg
 In the end,  we'll introduce a interactive visualization tool.
 With this tool, we can illustrate the progress the optimizer made.
 
-.. literalinclude:: /examples/example_4_warmstarting_visualization/run_me.py
+.. literalinclude:: ../../hpbandster/examples/example_3_warmstarting_visualization/run_me.py
     :lines: 20-129
 
 BOHB with CAVE
@@ -82,6 +82,13 @@ it. CAVE will output an individual report for each budget. Simply run
     .. code-block:: bash
 
         cave --folder bohb_results_folder --ta_exec_dir folder_from_which_bohb_was_run --file_format BOHB
+
+e.g. to analyze the RNN-example, just run
+
+    .. code-block:: bash
+
+        python hpbandster/examples/example_2_rnn_20_newsgroups/run_me.py
+        cave --folder results_example_rnn --ta_exec_dir . --file_format BOHB
 
 .. note::
 
