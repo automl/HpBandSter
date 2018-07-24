@@ -6,7 +6,7 @@ import hpbandster.core.nameserver as hpns
 from hpbandster.optimizers.bohb import BOHB
 
 import ConfigSpace as CS
-import ConfigSpace.read_and_write.json as json_writer
+from ConfigSpace.read_and_write import json, pcs_new
 
 from worker import RNN20NGWorker as MyWorker
 
@@ -19,8 +19,8 @@ config_space = MyWorker.get_config_space()
 # create a Result object. See below!
 # Specify the directory and whether or not existing files are overwritten
 result_logger = hpres.json_result_logger(directory='results_example_rnn', overwrite=True)
-with open('results_example_rnn/configspace.json', 'w') as fh:
-    fh.write(json_writer.write(config_space))
+with open('results_example_rnn/configspace.pcs', 'w') as fh:
+    fh.write(pcs_new.write(config_space))
 
 
 # Every run has to have a unique (at runtime) id.

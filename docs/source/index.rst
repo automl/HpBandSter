@@ -12,7 +12,7 @@ Welcome to HpBandSter's documentation!
    :titlesonly:
    
    quickstart.rst
-   examples/example_config_space/configspace.rst
+   configspace.rst
    optimizers.rst
    core_components.rst
    faq.rst

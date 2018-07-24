@@ -33,7 +33,13 @@ The Implementation of the worker with a simple compute function, which was used 
 
 .. literalinclude:: ../../hpbandster/examples/commons.py
 	:language: python
-	:lines: 7-8, 10-43
+	:lines: 9-10, 12-45
+
+For this toy-example, we create a very simple configspace.
+
+.. literalinclude:: ../../hpbandster/examples/commons.py
+	:language: python
+	:lines: 7-8, 48-54
 
 2nd example - local, parallel evaluations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -71,7 +77,7 @@ In the end,  we'll introduce a interactive visualization tool.
 With this tool, we can illustrate the progress the optimizer made.
 
 .. literalinclude:: ../../hpbandster/examples/example_3_warmstarting_visualization/run_me.py
-    :lines: 20-129
+    :lines: 20-128
 
 BOHB with CAVE
 ~~~~~~~~~~~~~~
