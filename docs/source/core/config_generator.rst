@@ -1,5 +1,5 @@
-The Master -- the brains of HpBandster
-============================================
+The ConfigGenerator -- the strategy of HpBandster
+=================================================
 
 
 .. automodule:: hpbandster.core.base_config_generator

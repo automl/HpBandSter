@@ -30,10 +30,13 @@ class Datum(object):
 
 
 class BaseIteration(object):
+	"""
+	Base class for various iteration possibilities. This decides what configuration should be run on what budget
+	next. Typical choices are e.g. successive halving. Results from runs are processed and (depending on the
+	implementations) determine the further development.
+	"""
 	def __init__(self, HPB_iter, num_configs, budgets, config_sampler, logger=None, result_logger=None):
 		"""
-		Base class for the various iteration classes
-
 		Parameters
 		----------
 

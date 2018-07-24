@@ -32,7 +32,9 @@ class Master(object):
 			result_logger=None,
 			previous_result = None,
 			):
-		"""The Master class is responsible for the book keeping and to decide what to run next.
+		"""The Master class is responsible for the book keeping and to decide what to run next. Optimizers are
+                instantiations of Master, that handle the important steps of deciding what configurations to run on what
+                budget when.
 		
 		Parameters
 		----------
@@ -52,8 +54,8 @@ class Master(object):
 			The smallest budget to consider. Needs to be positive!
 		max_budget : float
 			the largest budget to consider. Needs to be larger than min_budget!
-			The budgets will be geometrically distributed $\sim \eta^k$ for
-			$k\in [0, 1, ... , num_subsets - 1]$.
+			The budgets will be geometrically distributed :math:`\sim \eta^k` for
+			:math:`k\in [0, 1, ... , num\_subsets - 1]`.
 		ping_interval: int
 			number of seconds between pings to discover new nodes. Default is 60 seconds.
 		nameserver: str

@@ -1,5 +1,5 @@
-The Master -- the brains of HpBandster
-============================================
+Iterations -- the job center of HpBandster
+==========================================
 
 
 .. automodule:: hpbandster.core.base_iteration

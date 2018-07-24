@@ -67,10 +67,35 @@ class Worker(object):
 
 
 class Dispatcher(object):
+	"""
+	The dispatcher is responsible for assigning tasks to free workers, report results back to the master and
+	communicate to the nameserver.
+	"""
 	def __init__(self, new_result_callback, run_id='0',
 					ping_interval=10, nameserver='localhost',
 					nameserver_port=None, 
 					host=None, logger=None, queue_callback=None):
+		"""
+		Parameters
+		----------
+		new_result_callback: function
+		    function that will be called with a `Job instance <hpbandster.core.dispatcher.Job>`_ as argument.
+		    From the `Job` the result can be read and e.g. logged.
+		run_id: str
+		    unique run_id associated with the HPB run
+		ping_interval: int
+		    how often to ping for workers (in seconds)
+		nameserver: str
+		    address of the Pyro4 nameserver
+		nameserver_port: int
+		    port of Pyro4 nameserver
+		host: str
+		    ip (or name that resolves to that) of the network interface to use
+		logger: logging.Logger
+		    logger-instance for info and debug
+		queue_callback: function
+		    gets called with the number of workers in the pool on every update-cycle
+		"""
 
 		self.new_result_callback = new_result_callback
 		self.queue_callback = queue_callback

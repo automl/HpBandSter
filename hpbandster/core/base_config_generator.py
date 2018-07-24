@@ -2,6 +2,11 @@ import logging
 import traceback
 
 class base_config_generator(object):
+	"""
+	The config generator determines how new configurations are sampled. This can take very different levels of
+	complexity, from random sampling to the construction of complex empirical prediction models for promising
+	configurations.
+	"""
 	def __init__(self, logger=None):
 		"""
 		Parameters

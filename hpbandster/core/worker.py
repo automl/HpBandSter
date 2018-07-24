@@ -11,6 +11,12 @@ import Pyro4
 
 
 class Worker(object):
+	"""
+	The worker is responsible for evaluating a single configuration on a single budget at a time.
+	Communication to the individual workers goes via the nameserver, management of the worker-pool and job
+	scheduling is done by the Dispatcher and jobs are determined by the Master. In distributed systems, each
+	cluster-node runs a Worker-instance. To implement your own worker, overwrite the `compute`-method.
+	"""
 	def __init__(self, run_id, nameserver=None, nameserver_port=None, logger=None, host=None, id=None):
 		self.run_id = run_id
 		self.host = host
@@ -120,6 +126,11 @@ class Worker(object):
 		
 
 	def compute(self, *args, **kwargs):
+		""" Overwrite this method with your problem-to-be-optimized. Typically, this is called with the
+		configuration, the budget and any information needed for calculation (e.g. the working directory). Check
+		the individual optimizers to see how the compute-method is called and check the examples for exemplary
+		Workers.
+		"""
 		raise NotImplementedError("Subclass hpbandster.distributed.worker and overwrite the compute method in your worker script")
 
 	@Pyro4.expose

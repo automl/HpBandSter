@@ -7,18 +7,20 @@ import Pyro4.naming
 
 
 def nic_name_to_host(nic_name):
-	""" translates the name of a network card into a valid host name"""
+	""" helper function to translate the name of a network card into a valid host name"""
 	from netifaces import ifaddresses, AF_INET
 	host = ifaddresses(nic_name).setdefault(AF_INET, [{'addr': 'No IP addr'}] )[0]['addr']
 	return(host)
 
 
 class NameServer(object):
-
+	"""
+	The nameserver serves as a phonebook-like lookup table for your workers. Unique names are created so the workers
+	can work in parallel and register their results without creating racing conditions. The implementation uses
+	`PYRO4 <https://pythonhosted.org/Pyro4/nameserver.html>`_ as a backend and this class is basically a wrapper.
+	"""
 	def __init__(self, run_id, working_directory=None, host=None, port=0, nic_name=None):
 		"""
-		Convenience wrapper for a PYRO4 nameserver
-
 		Parameters
 		----------
 			run_id: str
@@ -32,8 +34,6 @@ class NameServer(object):
 				the port to be used. Default (=0) means a random port
 			nic_name: str
 				name of the network interface to use (only used if host is not given)
-			
-
 		"""
 		self.run_id = run_id
 		self.host = host

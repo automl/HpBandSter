@@ -1,5 +1,5 @@
-The nameserver -- establishing conections
-=========================================
+The nameserver -- establishing connections
+==========================================
 
 
 .. automodule:: hpbandster.core.nameserver
