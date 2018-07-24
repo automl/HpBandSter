@@ -1,5 +1,11 @@
+Quickstart Guide
+================
+
+.. contents::
+   :local:
+
 How to use HpBandster
-=====================
+~~~~~~~~~~~~~~~~~~~~~
 
 To get started, we will guide you through a some basic examples.
 
@@ -10,7 +16,7 @@ To get started, we will guide you through a some basic examples.
 
 
 1st example - local, sequential evaluations
-===========================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In the first example, you'll see the basic usage of BOHB. 
 It'll run locally with a simple setup. 
@@ -29,7 +35,7 @@ The Implementation of the worker with a simple compute function, which was used 
 	:lines: 7-8, 10-43
 
 2nd example - local, parallel evaluations
-=========================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The purpose of this example is to show
 
@@ -53,7 +59,7 @@ The can find the complete example in hpbandster/examples/example_5_rnn_20_newsgr
     :lines: 9-11, 18-22, 39-178
 
 3rd example - Warmstarting
-==========================
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This examples covers the warmstart functionality.
 We will start a optimizer run with a small budget.

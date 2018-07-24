@@ -7,46 +7,14 @@ Welcome to HpBandSter's documentation!
 ======================================
 
 
-Quick start guide
-=================
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
+   :titlesonly:
    
    quickstart.rst
    examples/example_config_space/configspace.rst
-
-
-Available Optimizers
-====================
-.. toctree::
-   :maxdepth: 2
-
-   optimizers/randomsearch.rst
-   optimizers/hyperband.rst
-   optimizers/bohb.rst
-   optimizers/how_to_extend.rst
-
-
-
-The core components in more detail
-==================================
-.. toctree::
-   :maxdepth: 2
-
-   core/nameserver.rst
-   core/master.rst
-   core/worker.rst
-   core/dispatcher.rst
-   core/result.rst
-   core/iteration.rst
-   core/config_generator.rst
-
-
-FAQ/Trouble shooting
-====================
-.. toctree::
-   :maxdepth: 2
-
+   optimizers.rst
+   core_components.rst
    faq.rst
 
 
