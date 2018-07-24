@@ -12,6 +12,7 @@ To get started, we will guide you through a some basic examples.
 - First, we will explain the basic usage of BOHB by optimizing a toy function with
 - Second, we will expand the optimizer to parallel evaluations with a more realistic example
 - Third, we will show you how to do warmstarting with BOHB and how to use the visualization tool
+- Also, you can use BOHB with `CAVE <https://github.com/automl/CAVE>`_ to analyze the results
 
 
 
@@ -72,3 +73,17 @@ With this tool, we can illustrate the progress the optimizer made.
 .. literalinclude:: /examples/example_4_warmstarting_visualization/run_me.py
     :lines: 20-129
 
+BOHB with CAVE
+~~~~~~~~~~~~~~
+
+To run CAVE on BOHB-results, you need a folder with the files *results.json*, *configs.json* and *configspace.pcs* in
+it. CAVE will output an individual report for each budget. Simply run
+
+    .. code-block:: bash
+
+        cave --folder bohb_results_folder --ta_exec_dir folder_from_which_bohb_was_run --file_format BOHB
+
+.. note::
+
+        To use CAVE with BOHB, currently you will have to install CAVE from the development-branch
+        (e.g. `pip install git+https://github.com/automl/CAVE@development`).
