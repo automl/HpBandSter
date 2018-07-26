@@ -9,10 +9,10 @@ How to use HpBandster
 
 To get started, we will guide you through a some basic examples.
 
-- First, we will explain the basic usage of BOHB by optimizing a toy function with
-- Second, we will expand the optimizer to parallel evaluations with a more realistic example
-- Third, we will show you how to do warmstarting with BOHB and how to use the visualization tool
-- Also, you can use BOHB with `CAVE <https://github.com/automl/CAVE>`_ to analyze the results
+1) we will explain the basic usage of BOHB by optimizing a toy function
+2) we will expand the optimizer to parallel evaluations with a more realistic example
+3) we will show you how to do warmstarting with BOHB and how to use the visualization tool
+4) You can use BOHB with `CAVE <https://github.com/automl/CAVE>`_ to analyze the results
 
 
 
@@ -29,7 +29,7 @@ To use BOHB, basically you need to follow the next three steps:
 
 .. literalinclude:: ../../hpbandster/examples/example_1_simple_locally/run_me.py
 
-The Implementation of the worker with a simple compute function, which was used above
+The implementation of the worker with a simple compute function, which will be used above.
 
 .. literalinclude:: ../../hpbandster/examples/commons.py
 	:language: python
@@ -73,7 +73,7 @@ We will start a optimizer run with a small budget.
 Then we'll shutdown the master, but keep the nameserver alive.
 And finally, restarting the optimization run with a new master and a larger budget.
 
-In the end,  we'll introduce a interactive visualization tool.
+In the end,  we'll introduce an interactive visualization tool.
 With this tool, we can illustrate the progress the optimizer made.
 
 .. literalinclude:: ../../hpbandster/examples/example_3_warmstarting_visualization/run_me.py
@@ -98,5 +98,5 @@ e.g. to analyze the RNN-example, just run
 
 .. note::
 
-        To use CAVE with BOHB, currently you will have to install CAVE from the development-branch
+        To use CAVE with BOHB, currently you have to install CAVE from the development-branch
         (e.g. `pip install git+https://github.com/automl/CAVE@development`).

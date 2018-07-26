@@ -48,7 +48,7 @@ w.run(background=True)
 
 # Step 3:
 # In the last of the 3 Steps, we create an optimizer object.
-# It samples configurations from the ConfigurationSpace, using succesive halfing.
+# It samples configurations from the ConfigurationSpace, using successive halving.
 # The number of sampled configurations is determined by the
 # parameters eta, min_budget and max_budget.
 # After evaluating each configuration, starting with the minimum budget
