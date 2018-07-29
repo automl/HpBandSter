@@ -33,12 +33,12 @@ For demonstration purpose we'll train a one to three hidden layer neural network
 	- dimension hidden layer 2 (int)          [100, 1000]        # only if number of hidden layers > 1
 	- dimension hidden layer 3 (int)          [100, 1000]        # only if number of hidden layers > 2
 
-.. literalinclude:: ../../hpbandster/examples/example_config_space/worker_mnist.py
+.. literalinclude:: ../../hpbandster/examples/example_4_config_space_worker.py
 	:lines: 126-179
 
-.. literalinclude:: ../../hpbandster/examples/example_config_space/worker_mnist.py
+.. literalinclude:: ../../hpbandster/examples/example_4_config_space_worker.py
 	:lines: 44-124, 181-214
 	
 For reasons of completion, we'll use again BOHB to optimize the hyperparameters.
 
-.. literalinclude:: ../../hpbandster/examples/example_config_space/example_mnist.py
+.. literalinclude:: ../../hpbandster/examples/example_4_config_space.py

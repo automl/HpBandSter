@@ -1,4 +1,8 @@
-import torch
+"""
+Example 4 - How to use the configuration space
+==============================================
+
+"""
 import torchvision
 import torchvision.transforms as transforms
 

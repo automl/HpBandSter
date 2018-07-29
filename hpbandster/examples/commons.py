@@ -1,11 +1,17 @@
+"""
+Worker-example
+==============
+
+This class contains a commonly used worker class.
+"""
+
 import numpy as np
 import random
+import time
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
-
 import ConfigSpace as CS
-
 from hpbandster.core.worker import Worker
 
 
@@ -39,6 +45,8 @@ class MyWorker(Worker):
             tmp = np.clip(config['x'] + np.random.randn()/budget, config['x']/2, 1.5*config['x'])
             res.append(tmp)
 
+        time.sleep(1)
+
         return({
                     'loss': np.abs(np.mean(res)),  # this is the a mandatory field to run hyperband
                     'info': res  # can be used for any user-defined information - also mandatory
@@ -46,7 +54,11 @@ class MyWorker(Worker):
 
 
 def sample_configspace():
-    """ create a configspace with the 3 parameters x, y and z """
+    """
+    create a configspace with the 3 parameters x, y and z
+    :return: Configuration space
+    """
+
     config_space = CS.ConfigurationSpace()
     config_space.add_hyperparameter(CS.UniformFloatHyperparameter('x', lower=0, upper=1))
     config_space.add_hyperparameter(CS.UniformFloatHyperparameter('y', lower=-1, upper=1))

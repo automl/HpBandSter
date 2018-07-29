@@ -1,15 +1,19 @@
-# A more involved example of training a RNN on the 20 Newsgroups dataset.
-# The results are not really good, but a RNN on character level and with
-# all the the simple features ('header', 'footer' and 'quotes') removed,
-# this is actually a hard problem, especially if no word embeddings are
-# used.
-# The purpose of this example is to show how a more complicated worker
-# could look like.
+"""
+Example 2 - RNN 20 - with live logging
+======================================
+A more involved example of training a RNN on the 20 Newsgroups dataset.
+The results are not really good, but a RNN on character level and with
+all the the simple features ('header', 'footer' and 'quotes') removed,
+this is actually a hard problem, especially if no word embeddings are
+used.
+The purpose of this example is to show how a more complicated worker
+could look like.
 
-# NOTE: obviously, the implementation is very inefficient as every document
-# gets converted into a tensor on the fly. For better performance, this
-# should probably be done once and then reused
-
+..note::
+obviously, the implementation of the RNN is very inefficient
+as every document gets converted into a tensor on the fly.
+For better performance, this should probably be done once and then reused
+"""
 
 import time
 import os, sys

@@ -49,9 +49,25 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx.ext.napoleon',
     'sphinx.ext.githubpages',
+    'sphinx_gallery.gen_gallery',
 ]
 # add __init__ docstring to docs
 autoclass_content = 'both'
+
+
+from sphinx_gallery.sorting import FileNameSortKey
+# Now to declare your project structure, we add a configuration dictionary
+# for Sphinx-Gallery. The examples directory ../examples is declared
+# with a relative path from the conf.py file location:
+sphinx_gallery_conf = {
+                        # path to your examples scripts
+                        'examples_dirs': '../../hpbandster/examples',
+                        # path where to save gallery generated examples
+                        'gallery_dirs': 'auto_examples',
+                        # ignore files with this pattern.
+                        'ignore_pattern': '__init__\.py|.*_worker\.py|.*\.sh',
+                        'within_subsection_order': FileNameSortKey,
+                      }
 
 
 # Add any paths that contain templates here, relative to this directory.
@@ -104,6 +120,7 @@ using_rtd_theme = True
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
 html_sidebars = {'**': ['localtoc.html']}
+
 #
 # The default sidebars (for documents that don't match any pattern) are
 # defined by theme itself.  Builtin themes are using these templates by
