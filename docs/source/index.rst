@@ -19,6 +19,7 @@ Welcome to HpBandSter's documentation!
    optimizers.rst
    core_components.rst
    faq.rst
+   contact.rst
    license.rst
 
 

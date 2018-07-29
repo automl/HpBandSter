@@ -104,7 +104,7 @@ Here's a short excerpt from the *worker* used in example 1. (:doc:`Worker <auto_
   It contains the hyperparameters to be optimized.
 
 .. literalinclude:: ../../hpbandster/examples/commons.py
-    :lines: 56, 62-66
+    :lines: 56, 62-64
 
 .. note::
     It's good practice to save the configuration space to file, so that you can use it later in
