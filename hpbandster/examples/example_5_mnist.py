@@ -10,7 +10,7 @@ import hpbandster.core.nameserver as hpns
 import hpbandster.core.result as hpres
 
 from hpbandster.optimizers import BOHB as BOHB
-from worker_mnist import MyWorker
+from example_5_mnist_worker import MyWorker
 
 import time
 

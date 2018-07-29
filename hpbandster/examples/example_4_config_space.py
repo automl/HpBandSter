@@ -12,7 +12,7 @@ import hpbandster.core.nameserver as hpns
 import hpbandster.core.result as hpres
 
 from hpbandster.optimizers import BOHB as BOHB
-from worker_mnist import MyWorker
+from example_4_config_space_worker import MyWorker
 
 
 # Every run has to have a unique (at runtime) id.

@@ -14,7 +14,7 @@ from hpbandster.optimizers.bohb import BOHB
 import ConfigSpace as CS
 from ConfigSpace.read_and_write import json, pcs_new
 
-from worker import RNN20NGWorker as MyWorker
+from example_6_rnn_20_newsgroups_worker import RNN20NGWorker as MyWorker
 
 config_space = MyWorker.get_config_space()
 
