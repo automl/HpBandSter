@@ -42,10 +42,35 @@ class Job(object):
 
 
 class Worker(object):
-	def __init__(self, name, uri):
+	def __init__(self, name, uri, timeout):
 		self.name = name
 		self.proxy = Pyro4.Proxy(uri)
 		self.runs_job = None
+		
+		self.logger = logging.getLogger('hpbandster')
+		self.timeout = timeout
+		self.alive = True
+		
+		self.activate_timer = threading.Event()
+		self.activate_timer.set()
+		self.deactivate_timer = threading.Event()
+		
+		thread = threading.Thread(target=self.countdown, args=())
+		thread.daemon = True
+		thread.start()
+		
+	def countdown(self):
+		while self.alive:
+			if self.is_busy():
+				self.deactivate_timer.set()
+			if self.activate_timer.is_set():
+				self.logger.info('Starting timer for worker %s'%(self.name))
+				t = threading.Timer(self.timeout, self.shutdown)
+				t.start()
+				self.activate_timer.clear()
+				self.deactivate_timer.clear()
+			elif self.deactivate_timer.is_set():
+				t.cancel()
 
 	def is_alive(self):
 		try:
@@ -57,6 +82,7 @@ class Worker(object):
 		return(True)
 	
 	def shutdown(self):
+		self.alive = False
 		self.proxy.shutdown()
 
 	def is_busy(self):
@@ -70,7 +96,7 @@ class Dispatcher(object):
 	def __init__(self, new_result_callback, run_id='0',
 					ping_interval=10, nameserver='localhost',
 					nameserver_port=None, 
-					host=None, logger=None, queue_callback=None):
+					host=None, logger=None, queue_callback=None, timeout=None):
 
 		self.new_result_callback = new_result_callback
 		self.queue_callback = queue_callback
@@ -80,6 +106,11 @@ class Dispatcher(object):
 		self.host = host
 		self.ping_interval = int(ping_interval)
 		self.shutdown_all_threads = False
+		
+		if timeout is None:
+			self.timeout = self.ping_interval
+		else:
+			self.timeout = timeout
 
 
 		if logger is None:
@@ -179,7 +210,7 @@ class Dispatcher(object):
 				
 				for wn, uri in worker_names.items():
 					if not wn in self.worker_pool:
-						w = Worker(wn, uri)
+						w = Worker(wn, uri, self.timeout)
 						if not w.is_alive():
 							self.logger.debug('DISPATCHER: skipping dead worker, %s'%wn)
 							continue 
@@ -250,6 +281,12 @@ class Dispatcher(object):
 		while True:
 			
 			while self.waiting_jobs.empty() or len(self.idle_workers) == 0:
+				all_workers = list(self.worker_pool.keys())
+				for wn in all_workers:
+					if not self.worker_pool[wn].alive:
+						del self.worker_pool[wn]
+						self.idle_workers.discard(wn)
+						self.logger.debug('DISPATCHER: Removed timeout idle worker %s from queue'%wn)
 				self.logger.debug('DISPATCHER: jobs to submit = %i, number of idle workers = %i -> waiting!'%(self.waiting_jobs.qsize(),  len(self.idle_workers) ))
 				self.runner_cond.wait()
 				self.logger.debug('DISPATCHER: Trying to submit another job.')
@@ -307,6 +344,8 @@ class Dispatcher(object):
 			# label worker as idle again
 			try:
 				self.worker_pool[job.worker_name].runs_job = None
+				self.worker_pool[job.worker_name].activate_timer.set()
+				self.worker_pool[job.worker_name].deactivate_timer.clear()
 				self.worker_pool[job.worker_name].proxy._pyroRelease()
 				self.idle_workers.add(job.worker_name)
 				# notify the job_runner to check for more jobs to run
