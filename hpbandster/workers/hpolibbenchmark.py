@@ -33,7 +33,6 @@ class HPOlib2Worker(Worker):
 		
 		kwargs = {self.budget_name: self.budget_preprocessor(budget)}
 		res = self.benchmark.objective_function(c, **kwargs)
-		#import pdb; pdb.set_trace()
 		if self.measure_test_loss:
 			del kwargs[self.budget_name]
 			res['test_loss'] = self.benchmark.objective_function_test(c, **kwargs)['function_value']
