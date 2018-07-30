@@ -54,7 +54,7 @@ It is equal to a container holding all different kinds of hyperparameters.
 
 .. literalinclude:: ../../hpbandster/examples/example_4_config_space_worker.py
     :dedent: 4
-    :lines: 126-127, 133
+    :lines: 128-129, 135
 
 As already mentioned, *ConfigSpace* supports different types of Hyperparamters.
 
@@ -69,7 +69,7 @@ As already mentioned, *ConfigSpace* supports different types of Hyperparamters.
 
 .. literalinclude:: ../../hpbandster/examples/example_4_config_space_worker.py
     :dedent: 4
-    :lines: 135-136
+    :lines: 137-138
 
 .. _Categorical hyperparamter:
 
@@ -81,7 +81,7 @@ As already mentioned, *ConfigSpace* supports different types of Hyperparamters.
 
 .. literalinclude:: ../../hpbandster/examples/example_4_config_space_worker.py
     :dedent: 4
-    :lines: 137-138
+    :lines: 139-140
 
 .. _Integer hyperparameter:
 
@@ -93,7 +93,7 @@ As already mentioned, *ConfigSpace* supports different types of Hyperparamters.
 
 .. literalinclude:: ../../hpbandster/examples/example_4_config_space_worker.py
     :dedent: 4
-    :lines: 160-171
+    :lines: 162-173
 
 .. _Conditional hyperparameters:
 
@@ -107,7 +107,7 @@ As already mentioned, *ConfigSpace* supports different types of Hyperparamters.
 
 .. literalinclude:: ../../hpbandster/examples/example_4_config_space_worker.py
     :dedent: 4
-    :lines: 143-151, 154-155
+    :lines: 145-153, 156-157
 
 | It is also possible to realize inequality constraints.
 | In the code, you can find inequality constraints on the dimensions of the hidden layers.
@@ -116,7 +116,7 @@ As already mentioned, *ConfigSpace* supports different types of Hyperparamters.
 
 .. literalinclude:: ../../hpbandster/examples/example_4_config_space_worker.py
     :dedent: 4
-    :lines: 174-180
+    :lines: 176-182
 
 .. _neural network:
 
@@ -126,7 +126,7 @@ As already mentioned, *ConfigSpace* supports different types of Hyperparamters.
 As neural network we use a simple pytorch implementation of a feed forward network.
 
 .. literalinclude:: ../../hpbandster/examples/example_4_config_space_worker.py
-    :lines: 183, 187-217
+    :lines: 185, 189-219
 
 
 .. _worker:
@@ -144,7 +144,8 @@ the *master* (here: :py:class:`BOHB <hpbandster.optimizers.bohb>`).
 The sampled configurations are stored in the *config* - dictionary.
 
 .. literalinclude:: ../../hpbandster/examples/example_4_config_space_worker.py
-    :lines: 69, 88-124
+    :dedent: 4
+    :lines: 69, 88-126
 
 
 .. _bohb:

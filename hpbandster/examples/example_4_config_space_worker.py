@@ -98,7 +98,8 @@ class MyWorker(Worker):
         if config['optimizer'] == 'Adam':
             optimizer = torch.optim.Adam(model.parameters(), lr=config['lr'])
         else:
-            optimizer = torch.optim.SGD(model.parameters(), lr=config['lr'], momentum=config['sgd_momentum'])
+            optimizer = torch.optim.SGD(model.parameters(), lr=config['lr'],
+                                        momentum=config['sgd_momentum'])
 
         loss = 0
         for epoch in range(int(budget)):
@@ -120,7 +121,8 @@ class MyWorker(Worker):
 
         return ({
             'loss': loss.item(),  # this is the a mandatory field to run hyperband
-            'info': {'loss': 'value you like to store'}  # can be used for any user-defined information - also mandatory
+            # info can be used for any user-defined information - also mandatory
+            'info': {'loss': 'value you like to store'}
         })
 
     @staticmethod
