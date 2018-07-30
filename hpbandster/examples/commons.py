@@ -55,12 +55,10 @@ class MyWorker(Worker):
 
 def sample_configspace():
     """
-    create a configspace with the 3 parameters x, y and z
+    create a configspace with the parameter x
     :return: Configuration space
     """
 
     config_space = CS.ConfigurationSpace()
     config_space.add_hyperparameter(CS.UniformFloatHyperparameter('x', lower=0, upper=1))
-    config_space.add_hyperparameter(CS.UniformFloatHyperparameter('y', lower=-1, upper=1))
-    config_space.add_hyperparameter(CS.UniformFloatHyperparameter('z', lower=-1, upper=0))
     return config_space

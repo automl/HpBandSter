@@ -3,15 +3,12 @@ Example 4 - How to use the configuration space
 ==============================================
 
 """
+import torch
 import torchvision
 import torchvision.transforms as transforms
 
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
-
-import time
-import numpy as np
-import random
 
 from hpbandster.core.worker import Worker
 
@@ -160,7 +157,8 @@ class MyWorker(Worker):
         # The hyperparameters (hidden units for layer 2 and 3) are conditional parameters conditioned by
         # the number of hidden layers.
         # These dependencies are realised with inequality conditions.
-        num_hidden_layers = CSH.UniformIntegerHyperparameter('num_hidden_layers', lower=1, upper=3, default_value=1)
+        num_hidden_layers = CSH.UniformIntegerHyperparameter('num_hidden_layers',
+                                                             lower=1, upper=3, default_value=1)
         cs.add_hyperparameter(num_hidden_layers)
 
         hidden_dim_1 = CSH.UniformIntegerHyperparameter('hidden_dim_1', lower=100, upper=1000, log=False)
@@ -186,7 +184,8 @@ class NeuralNet(torch.nn.Module):
     """
     Just a simple pytorch implementation of a feed forward network.
     """
-    def __init__(self, input_dim, num_hidden_layers, hidden_dim_1, hidden_dim_2, hidden_dim_3, output_dim, act_f):
+    def __init__(self, input_dim, num_hidden_layers, hidden_dim_1,
+                 hidden_dim_2, hidden_dim_3, output_dim, act_f):
         super(NeuralNet, self).__init__()
 
         self.fc1 = torch.nn.Linear(input_dim, hidden_dim_1)
@@ -205,7 +204,7 @@ class NeuralNet(torch.nn.Module):
 
         if act_f == 'ReLU':
             self.act_f = torch.nn.ReLU()
-        elif act_f == 'Tanh':
+        if act_f == 'Tanh':
             self.act_f = torch.nn.Tanh()
 
     def forward(self, x):
