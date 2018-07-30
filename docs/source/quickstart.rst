@@ -10,26 +10,27 @@ Quickstart Guide
 .. contents::
     :local:
 
-What is HpBandSter
+What is HpBandSter?
 ~~~~~~~~~~~~~~~~~~
 
-a distributed Hyperband implementation on Steroids.
+HpBandSter (HyperBand on STERoids) implements recently published methods for
+optimizing hyperparameters of machine learning algorithms. We designed
+HpBandSter such that it scales from running sequentially on a local machine
+to running on a distributed system in parallel
 
-It contains **BOHB**, which combines Bayesian Optimization and HyperBand.
-The paper can be found `here <https://arxiv.org/pdf/1807.01774.pdf>`_
-
-HpBandSter is able to optimize hyperparameters locally or on a cluster, sequential or parallel.
+One of the implemented algorithms is **BOHB**, which combines Bayesian
+Optimization and HyperBand to efficiently search for well performing configurations.
+Learn more about this method by reading out paper, published at `ICML 2018 <https://arxiv.org/pdf/1807.01774.pdf>`_
 
 How to use HpBandSter
 ~~~~~~~~~~~~~~~~~~~~~
 
-To get started, we will guide you through some basic examples.
-The full examples are located in the :doc:`gallery <auto_examples/index>`.
+To get started, we will guide you through some basic examples:
 
-1) :ref:`we will explain the basic usage of BOHB by optimizing a toy function <1st example>`
-2) :ref:`we will expand example 1 to use it on a cluster <2nd example>`
-3) :ref:`we will show you how to do warmstarting with BOHB and how to use the visualization tool <3rd example>`
-4) :ref:`we will give you an introduction how to combine BOHB with CAVE_ to analyze the results <BOHB with CAVE>`
+1) :ref:`Basic Setup: Local and Sequential Usage <1st example>`
+2) :ref:`Advanced: Distributed and Parallel Usage <2nd example>`
+3) :ref:`Continue Runs and Visualize Results <3rd example>`
+4) :ref:`Combine BOHB and CAVE to analyze results <BOHB with CAVE>`
 
 .. note::
 
@@ -37,110 +38,113 @@ The full examples are located in the :doc:`gallery <auto_examples/index>`.
 
 .. _1st example:
 
-1st example - local, sequential evaluations
+1st example - Local and Sequential Usage
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In the first example, you'll see the basic usage of BOHB. 
-It'll run locally with a simple setup.
+Whether you like to use BOHB locally on your machine or on a cluster, the setup
+always consists of three ingredients: The *master*, also refered to a the
+optimization algoritm, steers the hyperparameter optimization
+and communicates over the *nameserver* with *workers* to use them to evaluate configurations:
 
-Whether you like to use BOHB on your machine or on a cluster,
-basically you need just to follow the next three steps:
+:ref:`Configure and Set up a Nameserver`
+   | The *nameserver* serves as a phonebook-like lookup table keeping track and communicating
+     with the *workers*. Unique names are created so the *workers* can work in parallel and register their results
+     without creating racing conditions. It manages also the communication between all *workers*.
 
-:ref:`Set up a nameserver`
-   | The *nameserver* serves as a phonebook-like lookup table for your *workers*.
-     Unique names are created so the *workers* can work in parallel and register their results
-     without creating racing conditions.
-   | It manages also the communication between all *workers*.
-
-:ref:`Implement a worker`
+:ref:`Implement and Instantiate a Worker`
    | The *worker* is responsible for evaluating a given model with a single configuration on a single budget at a time.
 
-:ref:`Initialize the master & start it`
-   | The *master* (here: :py:class:`BOHB <hpbandster.optimizers.bohb>`) is responsible for book keeping and to decide what to run next.
-   | For example, it samples the configuration to evaluate and passes it to a free *worker*.
-   | Optimizers are instantiations of the *master*-class, that handle the important steps of deciding what
+:ref:`Initialize and Start the Master`
+   | The *master* (here: :py:class:`BOHB <hpbandster.optimizers.bohb>`) is
+     responsible for book keeping and decides which configuration the workers should evaluate next.
+     Optimizers are instantiations of the *master*-class, that handle the important steps of deciding what
      configurations to run on what budget.
 
-.. _Set up a nameserver:
+.. _Configure and Set up a Nameserver:
 
-Step 1: Set up a :py:class:`nameserver <hpbandster.core.nameserver>`
+Step 1: Set up a :py:class:`Nameserver <hpbandster.core.nameserver>`
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 | First, we start the :py:class:`nameserver <hpbandster.core.nameserver>` and assign a *run_id* to it.
-  This *run_id* has to be unique for concurrent runs, i.e. when multiple instances run at the same time,
-  they have to have different *run_id* s.
-| Since we work locally, we can pass a random port (here: 0) to the NameServer.
+  The *run_id* can be a string or an integer to for example describe the current experiment. Since
+  we work locally, we can pass a random port (here: 0) to the NameServer.
 
 .. literalinclude:: ../../hpbandster/examples/example_1_simple_locally.py
     :lines: 29-30, 40-44
 
+.. note:: The *run_id* has to be unique for concurrent runs, i.e. when multiple optimization runs are executed
+   at the same time, they have to have different *run_id*'s.
 
-.. _Implement a worker:
+.. _Implement and Instantiate a Worker:
 
-Step 2: Implement a :py:class:`worker <hpbandster.core.worker>`
+Step 2: Implement and Instantiate a :py:class:`Worker <hpbandster.core.worker>`
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-| Next, we have to set up a *worker*. The *worker* implements the connection to the model to be evaluated.
-| It needs a reference to the *nameserver* and its port, as well as the *run_id*.
-| In this first example, we work with only one *worker*. How to use more than one
+| Next, we set up a *worker*. The *worker* is responsible to evaluate a hyperparameter setting.
+  The *worker* requires the *nameserver*, its *port*, as well as the *run_id* to carry out evaluations.
+  In this first example, we work with only one *worker*. How to use more than one
   locally or on a cluster will be explained in a later example
   (e.g. :doc:`Example 5 <auto_examples/example_5_mnist>`)
 
 .. literalinclude:: ../../hpbandster/examples/example_1_simple_locally.py
     :lines: 52-56
 
-In the *worker*, we need to **inherit** from the class :py:class:`hpbandster.core.worker`
-and **overwrite the compute-method** .
-Its *compute* -method will be called later by the BOHB-optimizer repeatedly
-with the sampled configurations and return the computed loss (and additional infos).
+The *worker* **inherits** from the class :py:class:`hpbandster.core.worker`
+and **overwrites the compute-method** .
+The *compute* -method will be called by the optimizer (master) with a
+configurations and must return the computed loss (and optionally additional information).
 
-Here's a short excerpt from the *worker* used in example 1. (:doc:`Worker <auto_examples/commons>`)
+Here's a short excerpt from the *worker* used in (:doc:`example 1 <auto_examples/commons>`)
 
 .. literalinclude:: ../../hpbandster/examples/commons.py
     :lines: 15-16, 18-53
 
 
-| Before we can continue to *Step 3*, we have to create a ConfigSpace_-object.
-  It contains the hyperparameters to be optimized.
+| Before we can continue to *Step 3*, we have to create a *ConfigurationSpace*-object defining
+  the space of possible hyperparameters and their ranges to search during optimization.
+  For this we make use of the ConfigSpace_-package and define one continuous hyperparameter:
 
 .. literalinclude:: ../../hpbandster/examples/commons.py
     :lines: 56, 62-64
 
 .. note::
+    Of course, we also support categorical and conditional hyperparameter types.
+    For more examples we refer to the documentation of the ConfigSpace_ or
+    please have a look at the :doc:`ConfigSpace example<auto_examples/example_4_config_space>`.
+
+.. note::
     It's good practice to save the configuration space to file, so that you can use it later in
-    tools like CAVE_ .
+    analysis tools like CAVE_ .
 
-| For more insights into the ConfigSpace, please have a look in the
-  :doc:`ConfigSpace-example <auto_examples/example_4_config_space>`
-| In the near future, there will be a documentation for the ConfigSpace_ .
+.. _Initialize and Start the Master:
 
-.. _Initialize the master & start it:
-
-Step 3: Initialize the master & start it
+Step 3: Initialize and Start the Master
 ++++++++++++++++++++++++++++++++++++++++
 
-| In the last of the three steps, we create a *master*, or also referred to as :doc:`optimizer object<optimizers>`.
-  It samples configurations from the ConfigurationSpace, using successive halving.
-| The number of sampled configurations is determined by the
-  parameters *eta*, *min_budget* and *max_budget*.
-| After evaluating each configuration, starting with the minimum budget
-  on the same subset size, only a fraction of 1 / *eta* of them
-  'advances' to the next round. At the same time the current budget will be doubled.
-| This process runs until the maximum budget is reached.
-
-| For example, if *eta* = 2, *min_budget* = 1, *max_budget* =10,
-  then in the first round we have 8 configurations with a budget of 1.
-  Only 4 configurations will advance to the second iteration with a budget of 2.
-  In the 3. iteration, there will be 2 configurations with a budget of 5.
-  And in the last iteration only one configuration will run with a maximum budget of 10.
-
-We need to pass the configuration space, as well as *nameserver* information to the object.
+| Finally, we can can instantiate a *master*. In this example we will use *BOHB*,
+  for althernatives, see :doc:`here <optimizers>`.
+  It performs iterative rounds of Successive Halving while in each round proposing
+  a set of configurations using Bayesian optimizations.
+| Besides the hyperparameters *eta*, *min_budget* and *max_budget*, the optimizer also requires
+  a *run_id* (must be the same as for the *nameserver*), a reference to the *nameserver*, a *port* and of course
+  the *configspace*.
 
 .. literalinclude:: ../../hpbandster/examples/example_1_simple_locally.py
     :lines: 68-75
 
+| First, BOHB will evaluate a set of configuration with the *min_budget* and then eliminates the 1 / *eta* worst
+  performing configurations. Then, the same time the budget for the next round will be increased by a factor of *eta*.
+| This process runs until the maximum budget is reached and one configuration is left.
+  So *eta* not only defines the elimination ratio, but also the size of the initial set of configurations.
+
+.. note:: For example, if *eta* = 2, *min_budget* = 1, *max_budget* =10,
+  then in the first round we have 8 configurations with a budget of 1.
+  Only 8/2=4 configurations will advance to the second iteration with a budget of 1*2=2.
+  In the 3. iteration, there will be 2 configurations left and in the
+  last iteration only one configuration will run with the *max_budget* of 10.
+
 When everything is set up, the optimizer can be started.
-With the parameter *n_iterations*, it can be specified how many iterations BOHB will run.
+*n_iterations* specify how many iterations BOHB will run.
 After it has finished, the *master* will shut down.
 
 .. literalinclude:: ../../hpbandster/examples/example_1_simple_locally.py
@@ -163,37 +167,37 @@ or access the best found configuration:
 
 .. _2nd example:
 
-2nd example - HpBandSter on a cluster
+2nd example - Distributed and Parallel Usage
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In this example, we will show how to use HpBandSter on a cluster
 
-| :ref:`Nameserver, master, first worker`
-| :ref:`Setting up the other workers`
-| :ref:`Submitting the job` to the cluster
+| :ref:`Initialize Nameserver, Master, First Worker`
+| :ref:`Initialize more Workers`
+| :ref:`Submit the Job` to the cluster
 
-The workflow to use HpBandster on a cluster is similar to example 1. We have to start a *nameserver*, a *master*, and
-in comparison to example 1 multiple *workers*.
-This time we call the script with a bash script. It will be shown in Step 3.
+The workflow to use HpBandster on a cluster is similar to example 1. We first
+start a *nameserver*, a *master*, and multiple *workers*.
+This time we start the example via bash as shown in Step 3.
 
-.. _Nameserver, master, first worker:
+.. _Initialize Nameserver, Master, First Worker:
 
-1) Nameserver, master, first worker
+1) Initialize Nameserver, Master, First Worker
 +++++++++++++++++++++++++++++++++++
 
 On the first node (*array_id == 1*), we start the *nameserver*, and the *master*.
-BOHB is usually so cheap, that we can affort to run a *worker* on the *master* node, too.
+BOHB is usually so cheap, that we can afford to run a *worker* on the *master* node, too.
 
 .. literalinclude:: ../../hpbandster/examples/example_2_cluster.py
     :lines: 23-30, 37, 39-46, 48-66, 68, 71
 
 
-.. _Setting up the other workers:
+.. _Initialize more Workers:
 
-2) Setting up the other workers
+2) Initialize more Workers
 +++++++++++++++++++++++++++++++
 
-The other *workers*, which will be started on other nodes. They only instantiate the *worker*-class, look for the
+The other *workers*, which will be run on other nodes only instantiate the *worker*-class, connect to the
 *nameserver* and start serving.
 
 .. literalinclude:: ../../hpbandster/examples/example_2_cluster.py
@@ -202,7 +206,7 @@ The other *workers*, which will be started on other nodes. They only instantiate
 
 .. _Submitting the job:
 
-3) Submitting the job
+3) Submit the Job
 +++++++++++++++++++++
 
 We start our optimization run with a *bash file* to submit our jobs to a
@@ -212,7 +216,7 @@ resource manager (*here SunGridEngine*).
 
 .. _3rd example:
 
-3rd example - Warmstarting
+3rd example - Continue Runs and Visualize Results
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In this example we will cover the functionalities:
@@ -275,7 +279,7 @@ We use it here to show the warmstart functionality.
 
 .. _BOHB with CAVE:
 
-BOHB with CAVE
+4th example - Combine BOHB and CAVE to analyze results
 ~~~~~~~~~~~~~~
 
 To run CAVE on BOHB-results, you need a folder with the files *results.json*, *configs.json* and *configspace.pcs* in
