@@ -14,6 +14,7 @@ Welcome to HpBandSter's documentation!
    :titlesonly:
    
    quickstart.rst
+   advanced_examples.rst
    auto_examples/index.rst
    configspace.rst
    optimizers.rst

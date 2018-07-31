@@ -11,7 +11,7 @@ Quickstart Guide
     :local:
 
 What is HpBandSter?
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 HpBandSter (HyperBand on STERoids) implements recently published methods for
 optimizing hyperparameters of machine learning algorithms. We designed
@@ -22,6 +22,26 @@ One of the implemented algorithms is **BOHB**, which combines Bayesian
 Optimization and HyperBand to efficiently search for well performing configurations.
 Learn more about this method by reading out paper, published at `ICML 2018 <https://arxiv.org/pdf/1807.01774.pdf>`_
 
+
+How to install HpBandSter
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+HpBandSter can be installed via pip for python3:
+
+.. code-block:: bash
+
+    pip install hpbandster
+
+If you want to develop on the code you could install it via
+
+.. code-block:: bash
+
+    python3 setup.py develop --user
+
+.. note::
+
+    HpBandSter is only supported for python3
+
 How to use HpBandSter
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -29,6 +49,9 @@ To get started, we will guide you through some basic examples:
 
 1) :ref:`Basic Setup: Local and Sequential Usage <1st example>`
 2) :ref:`Advanced: Distributed and Parallel Usage <2nd example>`
+
+In the :doc:`advanced examples <advanced_examples>`, there will be shown
+
 3) :ref:`Continue Runs and Visualize Results <3rd example>`
 4) :ref:`Combine BOHB and CAVE to analyze results <BOHB with CAVE>`
 
@@ -38,8 +61,8 @@ To get started, we will guide you through some basic examples:
 
 .. _1st example:
 
-1st example - Local and Sequential Usage
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Local and Sequential
+~~~~~~~~~~~~~~~~~~~~
 
 Whether you like to use BOHB locally on your machine or on a cluster, the setup
 always consists of three ingredients: The *master*, also refered to a the
@@ -78,7 +101,7 @@ Step 1: Set up a :py:class:`Nameserver <hpbandster.core.nameserver>`
 .. _Implement and Instantiate a Worker:
 
 Step 2: Implement and Instantiate a :py:class:`Worker <hpbandster.core.worker>`
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 | Next, we set up a *worker*. The *worker* is responsible to evaluate a hyperparameter setting.
   The *worker* requires the *nameserver*, its *port*, as well as the *run_id* to carry out evaluations.
@@ -167,8 +190,8 @@ or access the best found configuration:
 
 .. _2nd example:
 
-2nd example - Distributed and Parallel Usage
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Distributed and Parallel
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 In this example, we will show how to use HpBandSter on a cluster
 
@@ -183,7 +206,7 @@ This time we start the example via bash as shown in Step 3.
 .. _Initialize Nameserver, Master, First Worker:
 
 1) Initialize Nameserver, Master, First Worker
-+++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++++
 
 On the first node (*array_id == 1*), we start the *nameserver*, and the *master*.
 BOHB is usually so cheap, that we can afford to run a *worker* on the *master* node, too.
@@ -195,7 +218,7 @@ BOHB is usually so cheap, that we can afford to run a *worker* on the *master* n
 .. _Initialize more Workers:
 
 2) Initialize more Workers
-+++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++
 
 The other *workers*, which will be run on other nodes only instantiate the *worker*-class, connect to the
 *nameserver* and start serving.
@@ -204,102 +227,15 @@ The other *workers*, which will be run on other nodes only instantiate the *work
     :lines: 73, 74-76, 78-80, 82
 
 
-.. _Submitting the job:
+.. _Submit the Job:
 
 3) Submit the Job
-+++++++++++++++++++++
++++++++++++++++++
 
 We start our optimization run with a *bash file* to submit our jobs to a
 resource manager (*here SunGridEngine*).
 
 .. literalinclude:: ../../hpbandster/examples/example_2_cluster_submit_me.sh
-
-.. _3rd example:
-
-3rd example - Continue Runs and Visualize Results
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-In this example we will cover the functionalities:
-
-| :ref:`live logging`
-| :ref:`warmstart`
-| :ref:`warmstart visualization`
-
-.. _live logging:
-
-1) Live logging
-+++++++++++++++
-
-We'd like to introduce another function: **live logging**.
-
-HpBandSter is able to write all results on the fly to file.
-This is done by using a :py:class:`result logger <hpbandster.core.result.json_result_logger>` .
-It receives as input a storage path and the boolean parameter *overwrite*.
-If *overwrite* is set to true, already existing results will be replaced by the new ones.
-Otherwise the result logger will just append the new results to the existing file.
-
-Additionally, we set up again the *nameserver*, *worker* and the *master*.
-
-.. literalinclude:: ../../hpbandster/examples/example_3_warmstarting_visualization.py
-    :lines: 22-29, 34-39, 43, 50-51, 58-59, 61-64, 73-82
-
-The parameter *min_points_in_model* specifies the number of observations BOHB needs to start building a *kernel density estimation* (KDE).
-The default value is *dim+1*.
-
-The parameter *min_bandwidth* forces the model to keep diversity. Even when all samples have the same value
-for one of the parameters, a minimum bandwidth (Default: 1e-3) is used instead of zero.
-
-.. _warmstart:
-
-2) Warmstart
-++++++++++++
-We start the *master* for the first time and after the run we shutdown the *master*, but keep the *nameserver* alive:
-
-.. literalinclude:: ../../hpbandster/examples/example_3_warmstarting_visualization.py
-    :lines: 85-86
-
-| We increase the minimum and maximum budget by a factor of 3.
-| Now let's start a new run, but feed in the results of the first one to warmstart the model.
-  Note that the budgets don't have to align, but beware: if the maximum budget of the second run is not
-  greater or equal to the maximum budget in the previous runs, BOHB's model might never be updated!
-
-.. literalinclude:: ../../hpbandster/examples/example_3_warmstarting_visualization.py
-    :lines: 92-108, 110-111
-
-.. _warmstart visualization:
-
-3) Warmstart visualization
-++++++++++++++++++++++++++
-
-HpBandster contains an interactive visualization tool to plot the results of the optimization run.
-We use it here to show the warmstart functionality.
-
-.. literalinclude::  ../../hpbandster/examples/example_3_warmstarting_visualization.py
-    :lines: 124-133
-
-.. _BOHB with CAVE:
-
-4th example - Combine BOHB and CAVE to analyze results
-~~~~~~~~~~~~~~
-
-To run CAVE on BOHB-results, you need a folder with the files *results.json*, *configs.json* and *configspace.pcs* in
-it. CAVE will output an individual report for each budget. Simply run:
-
-    .. code-block:: bash
-
-        cave --folder bohb_results_folder --ta_exec_dir folder_from_which_bohb_was_run --file_format BOHB
-
-E.g. to analyze the RNN-example, just run:
-
-    .. code-block:: bash
-
-        python hpbandster/examples/example_6_rnn_20_newsgroups.py
-        cave --folder results_example_rnn --ta_exec_dir . --file_format BOHB
-
-.. note::
-
-        To use CAVE with BOHB, currently you have to install CAVE from the development-branch
-        (e.g. `pip install git+https://github.com/automl/CAVE@development`).
 
 
 .. _ConfigSpace: https://github.com/automl/ConfigSpace
