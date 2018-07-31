@@ -20,7 +20,8 @@ to running on a distributed system in parallel
 
 One of the implemented algorithms is **BOHB**, which combines Bayesian
 Optimization and HyperBand to efficiently search for well performing configurations.
-Learn more about this method by reading out paper, published at `ICML 2018 <https://arxiv.org/pdf/1807.01774.pdf>`_
+Learn more about this method by reading out paper, published at
+`ICML 2018 <http://proceedings.mlr.press/v80/falkner18a.html>`_
 
 
 How to install HpBandSter
@@ -66,7 +67,7 @@ Local and Sequential
 
 Whether you like to use BOHB locally on your machine or on a cluster, the setup
 always consists of three ingredients: The *master*, also refered to a the
-optimization algoritm, steers the hyperparameter optimization
+optimization algorithm, steers the hyperparameter optimization
 and communicates over the *nameserver* with *workers* to use them to evaluate configurations:
 
 :ref:`Configure and Set up a Nameserver`
@@ -145,7 +146,7 @@ Step 3: Initialize and Start the Master
 ++++++++++++++++++++++++++++++++++++++++
 
 | Finally, we can can instantiate a *master*. In this example we will use *BOHB*,
-  for althernatives, see :doc:`here <optimizers>`.
+  for alternatives, see :doc:`here <optimizers>`.
   It performs iterative rounds of Successive Halving while in each round proposing
   a set of configurations using Bayesian optimizations.
 | Besides the hyperparameters *eta*, *min_budget* and *max_budget*, the optimizer also requires

@@ -25,19 +25,19 @@ class BOHB(Master):
                 at scale by combining the speed of Hyperband searches with the
                 guidance and guarantees of convergence of Bayesian
                 Optimization. Instead of sampling new configurations at random,
-                BOHB uses random forests to select promising candidates.
+                BOHB uses kernel density estimators to select promising candidates.
 
                 .. highlight:: none
 
                 For reference: ::
 
-                   @misc{
-                     1807.01774,
-                     Author = {Stefan Falkner and Aaron Klein and Frank Hutter},
-                     Title = {BOHB: Robust and Efficient Hyperparameter Optimization at Scale},
-                     Year = {2018},
-                     Eprint = {arXiv:1807.01774},
-                   }
+			@InProceedings{falkner-icml-18,
+			  title =        {{BOHB}: Robust and Efficient Hyperparameter Optimization at Scale},
+			  author =       {Falkner, Stefan and Klein, Aaron and Hutter, Frank},
+			  booktitle =    {Proceedings of the 35th International Conference on Machine Learning},
+			  pages =        {1436--1445},
+			  year =         {2018},
+			}
 
 		Parameters
 		----------
