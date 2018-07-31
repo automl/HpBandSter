@@ -84,6 +84,9 @@ and communicates over the *nameserver* with *workers* to use them to evaluate co
      Optimizers are instantiations of the *master*-class, that handle the important steps of deciding what
      configurations to run on what budget.
 
+The full example can be found :doc:`here <auto_examples/example_1_simple_locally>`
+
+
 .. _Configure and Set up a Nameserver:
 
 Step 1: Set up a :py:class:`Nameserver <hpbandster.core.nameserver>`
@@ -203,6 +206,8 @@ In this example, we will show how to use HpBandSter on a cluster
 The workflow to use HpBandster on a cluster is similar to example 1. We first
 start a *nameserver*, a *master*, and multiple *workers*.
 This time we start the example via bash as shown in Step 3.
+
+The full example can be found :doc:`here <auto_examples/example_2_cluster>`
 
 .. _Initialize Nameserver, Master, First Worker:
 
