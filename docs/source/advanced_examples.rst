@@ -20,6 +20,8 @@ In this example we will cover the functionalities:
 | :ref:`warmstart visualization`
 | :ref:`BOHB with CAVE`
 
+The full example can be found :doc:`here <auto_examples/example_3_warmstarting_visualization>`
+
 .. _live logging:
 
 1) Live logging
