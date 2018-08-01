@@ -55,11 +55,11 @@ class Worker(object):
 		self.activate_timer.set()
 		self.deactivate_timer = threading.Event()
 		
-		thread = threading.Thread(target=self.countdown, args=())
+		thread = threading.Thread(target=self.timer, args=())
 		thread.daemon = True
 		thread.start()
 		
-	def countdown(self):
+	def timer(self):
 		while self.alive:
 			if self.is_busy():
 				self.deactivate_timer.set()
@@ -286,7 +286,7 @@ class Dispatcher(object):
 					if not self.worker_pool[wn].alive:
 						del self.worker_pool[wn]
 						self.idle_workers.discard(wn)
-						self.logger.debug('DISPATCHER: Removed timeout idle worker %s from queue'%wn)
+						self.logger.debug('DISPATCHER: Removed timed out idle worker %s from queue'%wn)
 				self.logger.debug('DISPATCHER: jobs to submit = %i, number of idle workers = %i -> waiting!'%(self.waiting_jobs.qsize(),  len(self.idle_workers) ))
 				self.runner_cond.wait()
 				self.logger.debug('DISPATCHER: Trying to submit another job.')

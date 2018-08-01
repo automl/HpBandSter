@@ -78,7 +78,7 @@ class Master(object):
 		previous_result: hpbandster.core.result.Result object
 			previous run to warmstart the run
 		timeout: int
-		    seconds to wait before an idle worker is shuts down
+		    seconds to wait before an idle worker shuts down
 		"""
 
 		self.working_directory = working_directory
