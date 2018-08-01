@@ -3,6 +3,7 @@ import os
 import json
 
 from hpbandster.core.base_iteration import  Datum
+
 class Run(object):
 	"""
 		Not a proper class, more a 'struct' to bundle important
@@ -67,7 +68,7 @@ class json_result_logger(object):
 		Logger that writes job results into two files (configs.json and results.json).
 		Both files contain propper json objects in each line.
 
-		This version (v1) opens and closes the files for each result.
+		This version opens and closes the files for each result.
 		This might be very slow if individual runs are fast and the
 		filesystem is rather slow (e.g. a NFS).
 
