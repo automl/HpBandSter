@@ -1,38 +1,18 @@
-# HpBandSter
-a distributed Hyperband implementation on Steroids
+# ICML 2018 Experiments
 
-## How to install
+This branch contains source code to reproduce most of the experiments from the paper
 
-A simple
-```
-pip install hpbandster
-```
-should do. It should install the dependencies automatically.
+    Falkner, Stefan and Klein, Aaron and Hutter, Frank
+    BOHB: Robust and Efficient Hyperparameter Optimization at Scale
+    In: Proceedings of the 35th International Conference on Machine Learning
 
+Everything you need to run is in the `icml_2018` folder, in particular:
+	- a `requirements.txt` to install all necessary python dependencies.
+	- python scripts to actually run the experiments under `experiments`.
+	- scripts to go through the results and produce plots similar to the ones in the paper in `analysis`
+	- some precomputed results of the more expensive methods (mostly based on Gaussian Processes) that are quite expensive to rerun in `data`
 
-If you want to develop on the code you could install it via
+If you have any problems running the code or questions about it, please don't hesitate to contact us.
 
-```
-python3 setup.py develop --user
-```
-
-
-## How to use
-
-Right now, there are only three example showing how to use. You can find them in the `hpbandster/examples` folder.
-The basic components of every run are
-1. a `NameServer` keeping track of the master's and workers' IPs and ports
-2. a `Master` (Usually `BOHB` or `HyperBand`) that coordinates the work
-3. one or more `Worker` instances that perform the actual computations.
-
-The first example shows how to do computations locally on one machine with all workers launched in separate threads.
-The second one is closer to a usecase on a cluster (SGE in this case).
-It contains launching a nameserver and distributing its credentials over a shared filesystem (often found on clusters),
-starting a master and multiple workers. The workers don't really perform anything interesting, but hopefully it can
-illustrated the usage.
-The third example shows how live results can be logged. Use this for long and expensive runs to inspect intermediate results.
-
-## Documentation
-
-There is no real documentation, although many methods and functions do have docstrings.
-There is going to be a Sphinx at some point with a bit more detail.
+*NOTE:* The folder `icml_2018/experiments/workers/lib/cifar10_cutout_validation` contains modified code based on the work by X. Gastaldi see.
+Please refer to https://github.com/xgastaldi/shake-shake for the requirements needed to run it.

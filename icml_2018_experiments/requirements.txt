@@ -1,0 +1,8 @@
+numpy
+cython
+matplotlib
+hpbandster>=0.6.0
+git+https://github.com/hyperopt/hyperopt.git
+smac
+git+https://github.com/automl/sgmcmc.git
+git+https://github.com/automl/HPOlib2.git@surrogates#egg=hpolib2
