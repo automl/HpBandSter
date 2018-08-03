@@ -30,7 +30,8 @@ class Master(object):
 			dynamic_queue_size=True,
 			logger=None,
 			result_logger=None,
-			previous_result = None,
+			previous_result=None,
+			timeout=None,
 			):
 		"""The Master class is responsible for the book keeping and to decide what to run next.
 		
@@ -76,6 +77,8 @@ class Master(object):
 			a result logger that writes live results to disk
 		previous_result: hpbandster.core.result.Result object
 			previous run to warmstart the run
+		timeout: int
+		    seconds to wait before an idle worker shuts down
 		"""
 
 		self.working_directory = working_directory
@@ -118,7 +121,7 @@ class Master(object):
 						'time_ref'   : self.time_ref
 					}
 
-		self.dispatcher = Dispatcher( self.job_callback, queue_callback=self.adjust_queue_size, run_id=run_id, ping_interval=ping_interval, nameserver=nameserver, nameserver_port=nameserver_port, host=host)
+		self.dispatcher = Dispatcher( self.job_callback, queue_callback=self.adjust_queue_size, run_id=run_id, ping_interval=ping_interval, nameserver=nameserver, nameserver_port=nameserver_port, host=host, timeout=timeout)
 
 		self.dispatcher_thread = threading.Thread(target=self.dispatcher.run)
 		self.dispatcher_thread.start()
