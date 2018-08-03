@@ -11,12 +11,38 @@ import Pyro4
 
 
 class Worker(object):
-	def __init__(self, run_id, nameserver=None, nameserver_port=None, logger=None, host=None, id=None):
+	def __init__(self, run_id, nameserver=None, nameserver_port=None, logger=None, host=None, id=None, timeout=None):
+		"""
+		
+		Parameters
+		----------
+		run_id: anything with a __str__ method
+			unique id to identify individual HpBandSter run
+		nameserver: str
+			hostname or IP of the nameserver
+		nameserver_port: int
+			port of the nameserver
+		logger: logging.logger instance
+			logger used for debugging output
+		host: str
+			hostname for this worker process
+		id: anything with a __str__method
+			if multiple workers are started in the same process, you MUST provide a unique id for each one of them using the `id` argument.
+		timeout: int or float
+			specifies the timeout a worker will wait for a new after finishing a computation before shutting down.
+			Towards the end of a long run with multiple workers, this helps to shutdown idling workers. We recommend
+			a timeout that is roughly half the time it would take for the second largest budget to finish.
+			The default (None) means that the worker will wait indefinitely and never shutdown on its own.
+		"""
 		self.run_id = run_id
 		self.host = host
 		self.nameserver = nameserver
 		self.nameserver_port = nameserver_port
 		self.worker_id =  "hpbandster.run_%s.worker.%s.%i"%(self.run_id, socket.gethostname(), os.getpid())
+		
+		self.timeout = timeout
+		self.timer = None
+		
 		
 		if not id is None:
 			self.worker_id +='.%s'%str(id)
@@ -29,8 +55,6 @@ class Worker(object):
 		else:
 			self.logger = logger
 
-
-		
 		self.busy = False
 		self.thread_cond = threading.Condition(threading.Lock())
 
@@ -56,7 +80,7 @@ class Worker(object):
 					self.nameserver, self.nameserver_port = pickle.load(fh)
 				return
 			except FileNotFoundError:
-				print('config file %s not found (trail %i/%i)'%(fn, i+1, num_tries))
+				self.logger.warning('config file %s not found (trail %i/%i)'%(fn, i+1, num_tries))
 				time.sleep(interval)
 			except:
 				raise
@@ -85,10 +109,21 @@ class Worker(object):
 
 	def _run(self):
 		# initial ping to the dispatcher to register the worker
-		with Pyro4.locateNS(host=self.nameserver, port=self.nameserver_port) as ns:
-			self.logger.debug('WORKER: Connected to nameserver %s'%(str(ns)))
-			dispatchers = ns.list(prefix="hpbandster.run_%s.dispatcher"%self.run_id)
-
+		
+		try:
+			with Pyro4.locateNS(host=self.nameserver, port=self.nameserver_port) as ns:
+				self.logger.debug('WORKER: Connected to nameserver %s'%(str(ns)))
+				dispatchers = ns.list(prefix="hpbandster.run_%s.dispatcher"%self.run_id)
+		except Pyro4.errors.NamingError:
+			if self.thread is None:
+				raise RuntimeError('No nameserver found. Make sure the nameserver is running at that the host (%s) and port (%s) are correct'%(self.nameserver, self.nameserver_port))
+			else:
+				self.logger.error('No nameserver found. Make sure the nameserver is running at that the host (%s) and port (%s) are correct'%(self.nameserver, self.nameserver_port))
+				exit(1)
+		except:
+			raise
+			
+			
 		for dn, uri in dispatchers.items():
 			try:
 				self.logger.debug('WORKER: found dispatcher %s'%dn)
@@ -119,7 +154,30 @@ class Worker(object):
 		
 		
 
-	def compute(self, *args, **kwargs):
+	def compute(self, config_id, config, budget, working_directory):
+		""" The function you have to overload implementing your computation.
+		
+		Parameters
+		----------
+		config_id: tuple
+			a triplet of ints that uniquely identifies a configuration. the convention is
+			id = (iteration, budget index, running index) with the following meaning:
+				- iteration: the iteration of the optimization algorithms. E.g, for Hyperband that is one round of Successive Halving
+				- budget index: the budget (of the current iteration) for which this configuration was sampled by the optimizer. This is only nonzero if the majority of the runs fail and Hyperband resamples to fill empty slots, or you use a more 'advanced' optimizer.
+				- running index: this is simply an int >= 0 that sort the configs into the order they where sampled, i.e. (x,x,0) was sampled before (x,x,1).
+			config: dict
+				the actual configuration to be evaluated.
+			budget: float
+				the budget for the evaluation
+			working_directory: str
+				a name of a directory that is unique to this configuration. Use this to store intermediate results on lower budgets that can be reused later for a larger budget (for iterative algorithms, for example).
+		Returns
+		-------
+		dict:
+			needs to return a dictionary with two mandatory entries:
+				- 'loss': a numerical value that is MINIMIZED
+				- 'info': This can be pretty much any build in python type, e.g. a dict with lists as value. Due to Pyro4 handling the remote function calls, 3rd party types like numpy arrays are not supported!
+		"""
 		raise NotImplementedError("Subclass hpbandster.distributed.worker and overwrite the compute method in your worker script")
 
 	@Pyro4.expose
@@ -130,6 +188,8 @@ class Worker(object):
 			while self.busy:
 				self.thread_cond.wait()
 			self.busy = True
+		if not self.timeout is None and not self.timer is None:
+			self.timer.cancel()
 		self.logger.info('WORKER: start processing job %s'%str(id))
 		self.logger.debug('WORKER: args: %s'%(str(args)))
 		self.logger.debug('WORKER: kwargs: %s'%(str(kwargs)))
@@ -146,6 +206,10 @@ class Worker(object):
 				callback.register_result(id, result)
 				self.thread_cond.notify()
 		self.logger.info('WORKER: registered result for job %s with dispatcher'%str(id))
+		if not self.timeout is None:
+			self.timer = threading.Timer(self.timeout, self.shutdown)
+			self.timer.daemon=True
+			self.timer.start()
 		return(result)
 
 	@Pyro4.expose	
@@ -155,6 +219,7 @@ class Worker(object):
 	@Pyro4.expose
 	@Pyro4.oneway
 	def shutdown(self):
+		self.logger.debug('WORKER: shutting down now!')
 		self.pyro_daemon.shutdown()
 		if not self.thread is None:
 			self.thread.join()
