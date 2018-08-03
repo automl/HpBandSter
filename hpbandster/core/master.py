@@ -257,14 +257,15 @@ class Master(object):
 			self.logger.debug('job_callback for %s got condition'%str(job.id))
 			self.num_running_jobs -= 1
 
-			if self.num_running_jobs <= self.job_queue_sizes[0]:
-				self.logger.debug("HBMASTER: Trying to run another job!")
-				self.thread_cond.notify()
-
 			if not self.result_logger is None:
 				self.result_logger(job)
 			self.iterations[job.id[0]].register_result(job)
 			self.config_generator.new_result(job)
+
+			if self.num_running_jobs <= self.job_queue_sizes[0]:
+				self.logger.debug("HBMASTER: Trying to run another job!")
+				self.thread_cond.notify()
+
 		self.logger.debug('job_callback for %s finished'%str(job.id))
 
 	def _queue_wait(self):
