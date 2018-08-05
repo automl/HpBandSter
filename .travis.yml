@@ -7,6 +7,7 @@ before_install:
   # nothing to be done here
 install:
   - pip install --upgrade pip
+  - pip install cython
   - python setup.py install
   - pip install coveralls
 
