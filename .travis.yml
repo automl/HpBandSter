@@ -1,0 +1,14 @@
+language: python
+python:
+  - "3.5"
+os:
+  - linux
+before_install:
+  # nothing to be done here
+install:
+  - pip install --upgrade pip
+  - python setup.py install
+  - pip install coveralls
+
+script: coverage run --source=test -m unittest discover test -v
+after_success: coveralls

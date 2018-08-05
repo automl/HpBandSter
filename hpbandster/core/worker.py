@@ -168,15 +168,15 @@ class Worker(object):
 		config_id: tuple
 			a triplet of ints that uniquely identifies a configuration. the convention is
 			id = (iteration, budget index, running index) with the following meaning:
-				- iteration: the iteration of the optimization algorithms. E.g, for Hyperband that is one round of Successive Halving
-				- budget index: the budget (of the current iteration) for which this configuration was sampled by the optimizer. This is only nonzero if the majority of the runs fail and Hyperband resamples to fill empty slots, or you use a more 'advanced' optimizer.
-				- running index: this is simply an int >= 0 that sort the configs into the order they where sampled, i.e. (x,x,0) was sampled before (x,x,1).
-			config: dict
-				the actual configuration to be evaluated.
-			budget: float
-				the budget for the evaluation
-			working_directory: str
-				a name of a directory that is unique to this configuration. Use this to store intermediate results on lower budgets that can be reused later for a larger budget (for iterative algorithms, for example).
+			- iteration: the iteration of the optimization algorithms. E.g, for Hyperband that is one round of Successive Halving
+			- budget index: the budget (of the current iteration) for which this configuration was sampled by the optimizer. This is only nonzero if the majority of the runs fail and Hyperband resamples to fill empty slots, or you use a more 'advanced' optimizer.
+			- running index: this is simply an int >= 0 that sort the configs into the order they where sampled, i.e. (x,x,0) was sampled before (x,x,1).
+		config: dict
+			the actual configuration to be evaluated.
+		budget: float
+			the budget for the evaluation
+		working_directory: str
+			a name of a directory that is unique to this configuration. Use this to store intermediate results on lower budgets that can be reused later for a larger budget (for iterative algorithms, for example).
 		Returns
 		-------
 		dict:
@@ -184,6 +184,7 @@ class Worker(object):
 				- 'loss': a numerical value that is MINIMIZED
 				- 'info': This can be pretty much any build in python type, e.g. a dict with lists as value. Due to Pyro4 handling the remote function calls, 3rd party types like numpy arrays are not supported!
 		"""
+		
 		raise NotImplementedError("Subclass hpbandster.distributed.worker and overwrite the compute method in your worker script")
 
 	@Pyro4.expose
