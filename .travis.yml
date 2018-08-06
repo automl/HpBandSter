@@ -8,7 +8,7 @@ before_install:
 install:
   - pip install --upgrade pip
   - pip install cython
-  - pin install codecov
+  - pip install codecov
   - python setup.py install
 
 script:
