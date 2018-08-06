@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 
 import ConfigSpace as CS
-from hpbandster.config_generators.bohb import BOHB
+from hpbandster.optimizers.config_generators.bohb import BOHB
 from hpbandster.core.dispatcher import Job
 
 
@@ -53,7 +53,6 @@ class TestBinaryRssRegressionForest(unittest.TestCase):
 		
 		for j in range(64):
 			conf, info = bohb.get_config(1)
-			print(conf, info)
 			self.assertTrue(info['model_based_pick'])
 
 if __name__ == '__main__':

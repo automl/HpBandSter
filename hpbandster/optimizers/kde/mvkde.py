@@ -109,7 +109,7 @@ class MultivariateKDE(object):
 				self._set_kernel_bandwidths()
 				return(self.loo_negloglikelihood())
 			
-			res = spo.minimize(opt_me, self.bandwidths, bounds=self.bw_bounds)#, method='SLSQP')
+			res = spo.minimize(opt_me, self.bandwidths, bounds=self.bw_bounds, method='SLSQP')
 			self.optimizer_result = res
 			self.bandwidths[:] = res.x
 		self._set_kernel_bandwidths()
@@ -165,7 +165,7 @@ class MultivariateKDE(object):
 			
 			pdfs = pdfs.sum(axis=-2)/(1-self.weights[:,None])
 			lhs = np.prod(pdfs, axis=-1)
-		
+			
 		return(-np.sum(self.weights*np.log(lhs)))
 
 

@@ -3,13 +3,16 @@ import time
 import unittest
 import tempfile
 
+import logging
+logging.basicConfig(level=logging.WARNING)
+
 
 import ConfigSpace as CS
 from hpbandster.core.worker import Worker
 import hpbandster.core.nameserver as hpn
 from hpbandster.optimizers.hyperband import HyperBand
 rapid_development=True
-#rapid_development=False
+rapid_development=False
 
 
 
@@ -88,7 +91,8 @@ class TestWorkers(unittest.TestCase):
 			
 			# shutdown the nameserver before the temporary directory is gone
 			ns.shutdown()
-
+	
+	@unittest.skipIf(rapid_development, "test skipped to accelerate developing new tests")
 	def test_Timeout(self):
 		
 		host = hpn.nic_name_to_host('lo')
