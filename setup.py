@@ -11,9 +11,9 @@ setup(
 	classifiers=['Development Status :: 4 - Beta'],
 	packages=find_packages(),
 	python_requires='>=3',
-	install_requires=['Pyro4', 'serpent', 'ConfigSpace', 'numpy','statsmodels', 'scipy'],
+	install_requires=['Pyro4', 'serpent', 'ConfigSpace', 'numpy','statsmodels', 'scipy', 'netifaces'],
 	extras_require = {
-		'Automatic hostname inference': ['netifaces'],
+		'docu': ['sphinx', 'sphinx_rtd_theme', 'sphinx_gallery'],
 	},
 	keywords=['distributed', 'optimization', 'multifidelity'],
 )
