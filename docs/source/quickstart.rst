@@ -37,11 +37,13 @@ If you want to develop on the code you could install it via
 
 .. code-block:: bash
 
+	git clone git@github.com:automl/HpBandSter.git
+	cd HpBandSter
     python3 setup.py develop --user
 
 .. note::
 
-    HpBandSter is only supported for python3
+    We only support Python3 for HpBandSter!
 
 How to use HpBandSter
 ~~~~~~~~~~~~~~~~~~~~~
@@ -62,187 +64,152 @@ In the :doc:`advanced examples <advanced_examples>`, there will be shown
 
 .. _1st example:
 
-Local and Sequential
-~~~~~~~~~~~~~~~~~~~~
+The basic Ingredients
+~~~~~~~~~~~~~~~~~~~~~
 
-Whether you like to use BOHB locally on your machine or on a cluster, the setup
-always consists of three ingredients: The *master*, also refered to a the
-optimization algorithm, steers the hyperparameter optimization
-and communicates over the *nameserver* with *workers* to use them to evaluate configurations:
+Whether you like to use HpBandSter locally on your machine or on a cluster, the basic setup
+is always the same. For now, let's focus on the most important ingredients needed
+to apply an optimizer to a new problem:
 
-:ref:`Configure and Set up a Nameserver`
-   | The *nameserver* serves as a phonebook-like lookup table keeping track and communicating
-     with the *workers*. Unique names are created so the *workers* can work in parallel and register their results
-     without creating racing conditions. It manages also the communication between all *workers*.
-
-:ref:`Implement and Instantiate a Worker`
+:ref:`Implement a Worker`
    | The *worker* is responsible for evaluating a given model with a single configuration on a single budget at a time.
 
-:ref:`Initialize and Start the Master`
-   | The *master* (here: :py:class:`BOHB <hpbandster.optimizers.bohb>`) is
-     responsible for book keeping and decides which configuration the workers should evaluate next.
-     Optimizers are instantiations of the *master*-class, that handle the important steps of deciding what
-     configurations to run on what budget.
+:ref:`Define the Search Space`
+   | Next, the parameters being optimized need to be defined. HpBandSter relies on the **ConfigSpace** package for that.
 
-The full example can be found :doc:`here <auto_examples/example_1_simple_locally>`
+:ref:`Pick the Budgets and the Number of Iterations`
+   | To get good performance, HpBandSter needs to know meaningful budgets to use. You also have to specify how many iterations the optimizer performs.
 
+1. A :py:class:`Worker <hpbandster.core.worker>`
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. _Configure and Set up a Nameserver:
+| First, we need to implement a *worker* for the problem.
+  The *worker* is responsible to evaluate a hyperparameter setting and returning the associated loss that is minimized.
+  By deriving from the :py:class:`base class <hpbandster.core.worker>`, encoding a new problem consists of implementing two methods: **__init__** and **compute**.
+  The first allows to perform inital computations, e.g. loading the dataset, when the worker is started, while the latter is called repeatedly called during the optimization and evaluates a given configuration yielding the associated loss.
 
-Step 1: Set up a :py:class:`Nameserver <hpbandster.core.nameserver>`
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-| First, we start the :py:class:`nameserver <hpbandster.core.nameserver>` and assign a *run_id* to it.
-  The *run_id* can be a string or an integer to for example describe the current experiment. Since
-  we work locally, we can pass a random port (here: 0) to the NameServer.
-
-.. literalinclude:: ../../hpbandster/examples/example_1_simple_locally.py
-    :lines: 29-30, 40-44
-
-.. note:: The *run_id* has to be unique for concurrent runs, i.e. when multiple optimization runs are executed
-   at the same time, they have to have different *run_id*'s.
-
-.. _Implement and Instantiate a Worker:
-
-Step 2: Implement and Instantiate a :py:class:`Worker <hpbandster.core.worker>`
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-| Next, we set up a *worker*. The *worker* is responsible to evaluate a hyperparameter setting.
-  The *worker* requires the *nameserver*, its *port*, as well as the *run_id* to carry out evaluations.
-  In this first example, we work with only one *worker*. How to use more than one
-  locally or on a cluster will be explained in a later example
-  (e.g. :doc:`Example 5 <auto_examples/example_5_mnist>`)
-
-.. literalinclude:: ../../hpbandster/examples/example_1_simple_locally.py
-    :lines: 52-56
-
-The *worker* **inherits** from the class :py:class:`hpbandster.core.worker`
-and **overwrites the compute-method** .
-The *compute* -method will be called by the optimizer (master) with a
-configurations and must return the computed loss (and optionally additional information).
-
-Here's a short excerpt from the *worker* used in (:doc:`example 1 <auto_examples/commons>`)
+| The worker below demonstrates the concept.
+  The worker implements a simple toy problem where there is a single parameter `x` in the configuration and we try to minimize it.
+  The function evaluations are corrupted by some Gaussian noise that shrinks as the budget grows.
 
 .. literalinclude:: ../../hpbandster/examples/commons.py
-    :lines: 15-16, 18-53
+    :lines: 8-50
 
 
-| Before we can continue to *Step 3*, we have to create a *ConfigurationSpace*-object defining
-  the space of possible hyperparameters and their ranges to search during optimization.
-  For this we make use of the ConfigSpace_-package and define one continuous hyperparameter:
+2. The Search Space Definition
+++++++++++++++++++++++++++++++
+
+| Every problem needs a description of the search space to be complete.
+  In HpBandSter, a *ConfigurationSpace*-object defining all hyperparameters, their ranges, and potential dependencies between them.
+  In our toy example here, the search space consists of a single continuous parameter `x` between zero and one.
+  For convenience, we attach the configuration space definition to the worker as a static method.
+  This way, the worker's compute function and its parameters are neatly combined.
 
 .. literalinclude:: ../../hpbandster/examples/commons.py
-    :lines: 56, 62-64
+    :lines: 14-15, 48-53
 
 .. note::
-    Of course, we also support categorical and conditional hyperparameter types.
-    For more examples we refer to the documentation of the ConfigSpace_ or
+    Of course, we also support integer, ordinal, and  categorical hyperparameters.
+    To express dependencies, the ConfigSpace package also also to express conditions and forbidden relations between parameters.
+    For more examples we refer to the documentation of the ConfigSpace or
     please have a look at the :doc:`ConfigSpace example<auto_examples/example_4_config_space>`.
 
-.. note::
-    It's good practice to save the configuration space to file, so that you can use it later in
-    analysis tools like CAVE_ .
 
-.. _Initialize and Start the Master:
+3. Meaningful Budgets and Number of Iterations
++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Step 3: Initialize and Start the Master
-++++++++++++++++++++++++++++++++++++++++
-
-| Finally, we can can instantiate a *master*. In this example we will use *BOHB*,
-  for alternatives, see :doc:`here <optimizers>`.
-  It performs iterative rounds of Successive Halving while in each round proposing
-  a set of configurations using Bayesian optimizations.
-| Besides the hyperparameters *eta*, *min_budget* and *max_budget*, the optimizer also requires
-  a *run_id* (must be the same as for the *nameserver*), a reference to the *nameserver*, a *port* and of course
-  the *configspace*.
-
-.. literalinclude:: ../../hpbandster/examples/example_1_simple_locally.py
-    :lines: 68-75
-
-| First, BOHB will evaluate a set of configuration with the *min_budget* and then eliminates the 1 / *eta* worst
-  performing configurations. Then, the same time the budget for the next round will be increased by a factor of *eta*.
-| This process runs until the maximum budget is reached and one configuration is left.
-  So *eta* not only defines the elimination ratio, but also the size of the initial set of configurations.
-
-.. note:: For example, if *eta* = 2, *min_budget* = 1, *max_budget* =10,
-  then in the first round we have 8 configurations with a budget of 1.
-  Only 8/2=4 configurations will advance to the second iteration with a budget of 1*2=2.
-  In the 3. iteration, there will be 2 configurations left and in the
-  last iteration only one configuration will run with the *max_budget* of 10.
-
-When everything is set up, the optimizer can be started.
-*n_iterations* specify how many iterations BOHB will run.
-After it has finished, the *master* will shut down.
-
-.. literalinclude:: ../../hpbandster/examples/example_1_simple_locally.py
-    :lines: 79, 82
-
-The optimization-run returns an :py:class:`result object <hpbandster.core.result>`.
-This class offers a simple API to access those information.
-
-For example, we can plot the incumbent trajectory
-
-.. literalinclude:: ../../hpbandster/examples/example_1_simple_locally.py
-    :lines: 88-90, 96-102
-
-or access the best found configuration:
-
-.. code-block:: python
-
-    incumbent_id = res.get_incumbent_id()
-    incumbent_config = id2config[incumbent_id]['config']
-
-.. _2nd example:
-
-Distributed and Parallel
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-In this example, we will show how to use HpBandSter on a cluster
-
-| :ref:`Initialize Nameserver, Master, First Worker`
-| :ref:`Initialize more Workers`
-| :ref:`Submit the Job` to the cluster
-
-The workflow to use HpBandster on a cluster is similar to example 1. We first
-start a *nameserver*, a *master*, and multiple *workers*.
-This time we start the example via bash as shown in Step 3.
-
-The full example can be found :doc:`here <auto_examples/example_2_cluster>`
-
-.. _Initialize Nameserver, Master, First Worker:
-
-1) Initialize Nameserver, Master, First Worker
-++++++++++++++++++++++++++++++++++++++++++++++
-
-On the first node (*array_id == 1*), we start the *nameserver*, and the *master*.
-BOHB is usually so cheap, that we can afford to run a *worker* on the *master* node, too.
-
-.. literalinclude:: ../../hpbandster/examples/example_2_cluster.py
-    :lines: 23-30, 37, 39-46, 48-66, 68, 71
+| To take advantage of lower fidelity approximation, i.e. budgets lower than *max_budget*, those *lower accuracy* evaluations have to be meaningful.
+  As these budgets can mean very different things (epochs of training a neural network, number of data points to train the model, or number of cross-validation folds to name a few), these have to be user specified.
+  This is done by two parameters, called `min_budget` and `max_budget` for all optimizers.
+  For better speed ups, the lower budget should be as small as possible while still being informative.
+  By `informative`, we mean that the performance is a *ok* indicator for the loss on higher budgets.
+  It's hard to be more concrete for the general case.
+  The two budgets are problem dependent and require some domain knowledge.
 
 
-.. _Initialize more Workers:
-
-2) Initialize more Workers
-++++++++++++++++++++++++++
-
-The other *workers*, which will be run on other nodes only instantiate the *worker*-class, connect to the
-*nameserver* and start serving.
-
-.. literalinclude:: ../../hpbandster/examples/example_2_cluster.py
-    :lines: 73, 74-76, 78-80, 82
+| The number of iterations is usually a much easier parameter to pick.
+  Depending on the optimizer, an iteration requires the computational budget of a couple of function evaluations on `max_budget`
+  In general the more the better, and things become more complicated when multiple workers run in parallel.
+  For now, the number of iterations simply controls how many configurations are evaluated.
 
 
-.. _Submit the Job:
-
-3) Submit the Job
-+++++++++++++++++
-
-We start our optimization run with a *bash file* to submit our jobs to a
-resource manager (*here SunGridEngine*).
-
-.. literalinclude:: ../../hpbandster/examples/example_2_cluster_submit_me.sh
 
 
-.. _ConfigSpace: https://github.com/automl/ConfigSpace
-.. _CAVE: https://github.com/automl/CAVE
+The first toy examples
+~~~~~~~~~~~~~~~~~~~~~~
+
+| Let us now take the above worker, its search space and that in a few different settings.
+  Specifically, we will run
+
+1. locally and sequentially
+2. locally and in parallel (thread based)
+3. locally and in parallel (process based)
+4. distributed in a cluster environment
+
+| Each example, showcases how to setup HpBandSter in different environments and highlights specifics for it.
+  Every compute environment is slightly different, but it should be easy to bootstrap from one of the examples and adapt it to any specific needs.
+  The first example slowly introduces the main workflow for any HpBandSter run.
+  the following ones gradually add complexity by including more features.
+
+
+
+1. A Local and Sequential Run
++++++++++++++++++++++++++++++
+| We are now ready to look at our first real example [ADD LINK!!] to illustrate how HpBandSter is used.
+  Every run consists of the same 5 basic steps which we will now cover.
+
+Step 1: Start a :py:class:`Nameserver <hpbandster.core.nameserver.NameServer>` 
+
+.. literalinclude:: ../../hpbandster/examples/example_1_local_sequential.py
+    :lines: 31-32
+
+Step 2: Start a :py:class:`Worker <hpbandster.core.worker.Worker>` 
+
+.. literalinclude:: ../../hpbandster/examples/example_1_local_sequential.py
+    :lines: 39-40
+
+Step 3: Run an Optimizer :py:class:`Worker <hpbandster.core.master.Master>` 
+
+.. literalinclude:: ../../hpbandster/examples/example_1_local_sequential.py
+    :lines: 46-50
+
+Step 4: Stop all services
+
+.. literalinclude:: ../../hpbandster/examples/example_1_local_sequential.py
+    :lines: 54-55
+
+
+Step 5: Analysis of the Results
+
+| After a run is finished, one might be interested in all kinds of information.
+  HpBandSter offers full access to all evaluated configurations including timing information and potential error messages for failed runs.
+  In this first example, we simply look up the best configuration (called incumbent), count the number of configurations and evaluations, and the total budget spent.
+  For more details, see some of the other examples and the documentation of the :py:class:`Result <hpbandster.core.result.Result>` class.
+
+.. literalinclude:: ../../hpbandster/examples/example_1_local_sequential.py
+    :lines: 62-69
+
+| The complete source code for this example can be found here [ADD LINK!!].
+
+
+2. A Local parallel Run using Threads
++++++++++++++++++++++++++++++++++++++
+
+| Let us now extend this example to start multiple workers, each in a separate thread.
+  This is a useful mode to exploit a multicore CPU system, if the individual workers get around Python's global interpreter lock.
+  For example, many scikit learn algorithms outsource the heavy duty computations to some C module, making them run truly in parallel even if threaded.
+
+| Below, we can instantiate the specified number of workers.
+  To emphasize the effect, we introduce a sleep_interval of one second, which makes every function evaluation take a bit of time.
+  Note the additional id argument that helps separating the individual workers.
+  This is necessary because every worker uses its processes ID which is the same for all threads here.
+
+.. literalinclude:: ../../hpbandster/examples/example_2_local_parallel.py
+    :lines: 38-42
+
+
+| When starting the optimizer, we can add the min_n_workers argument to the run methods to make the optimizer wait for all workers to start.
+  This is not mandatory, and workers can be added at any time, but if the timing of the run is essential, this can be used to synchronize all workers right at the start.
+
+.. literalinclude:: ../../hpbandster/examples/example_2_local_parallel.py
+    :lines: 52
