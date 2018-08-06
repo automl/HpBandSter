@@ -8,7 +8,11 @@ before_install:
 install:
   - pip install --upgrade pip
   - pip install cython
+  - pin install codecov
   - python setup.py install
 
-script: nosetests -sv --with-coverage --cover-package=hpbandster 
-after_success: coveralls
+script:
+  - nosetests -sv --with-coverage --cover-package=hpbandster 
+
+after_success:
+  - codecov
