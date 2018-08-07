@@ -70,6 +70,7 @@ class NameServer(object):
 		thread.start()
 
 		if not self.dir is None:
+			os.makedirs(self.dir, exist_ok=True)
 			self.conf_fn = os.path.join(self.dir, 'HPB_run_%s_pyro.pkl'%self.run_id)
 
 			with open(self.conf_fn, 'wb') as fh:

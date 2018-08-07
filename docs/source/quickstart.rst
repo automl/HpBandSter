@@ -187,12 +187,12 @@ Step 5: Analysis of the Results
   For more details, see some of the other examples and the documentation of the :py:class:`Result <hpbandster.core.result.Result>` class.
 
 .. literalinclude:: ../../hpbandster/examples/example_1_local_sequential.py
-    :lines: 62-69
+    :lines: 62-68
 
 | The complete source code for this example can be found here [ADD LINK!!].
 
 
-2. A Local parallel Run using Threads
+2. A Local Parallel Run using Threads
 +++++++++++++++++++++++++++++++++++++
 
 | Let us now extend this example to start multiple workers, each in a separate thread.
@@ -204,12 +204,113 @@ Step 5: Analysis of the Results
   Note the additional id argument that helps separating the individual workers.
   This is necessary because every worker uses its processes ID which is the same for all threads here.
 
-.. literalinclude:: ../../hpbandster/examples/example_2_local_parallel.py
+.. literalinclude:: ../../hpbandster/examples/example_2_local_parallel_threads.py
     :lines: 38-42
 
 
 | When starting the optimizer, we can add the min_n_workers argument to the run methods to make the optimizer wait for all workers to start.
   This is not mandatory, and workers can be added at any time, but if the timing of the run is essential, this can be used to synchronize all workers right at the start.
 
-.. literalinclude:: ../../hpbandster/examples/example_2_local_parallel.py
-    :lines: 52
+.. literalinclude:: ../../hpbandster/examples/example_2_local_parallel_threads.py
+    :lines: 54
+
+| The source code can be found here [ADD LINK!!].
+  Try running it with different number of workers by changing the `--n_worker` command line argument.
+
+
+
+3. A Local Parallel Run using Different Processes
++++++++++++++++++++++++++++++++++++++++++++++++++
+
+| Before we can go to a distributed system, we shall first extend our toy example to run in different processes.
+  In order to do that, we add the `--worker` flag
+
+.. literalinclude:: ../../hpbandster/examples/example_3_local_parallel_processes.py
+    :lines: 24
+
+| which will allow us to run the same script for dedicated workers.
+  Those only have to instantiate the worker class and call its run method, but this time the worker runs in the foreground.
+  After they processed all the configurations and get the shutdown signal from the master the workers simply exit.
+
+.. literalinclude:: ../../hpbandster/examples/example_3_local_parallel_processes.py
+    :lines: 30-33
+
+| You can download the source code here [ADD LINK!!].
+  Try running the script in three different shells, twice with the `--worker` flag and see what happens.
+  To see what is happening, the logging level for this script is set to *INFO*, so you can see messages from the master and the workers.
+
+
+
+4. A Distributed Run on a Cluster with a Shared File System
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+| Example 3 is already close to the setup for a distributed environment.
+  The only things missing are providing a unique run id, looking up the hostname and distributing the nameserver information across all processes.
+  So far, the run id was always hard coded, and the nameserver was running on `localhost` (127.0.0.1, which was also the hostname) on the default port.
+  We now have to tell all processes which Network Interface Card (NIC) to use and where the nameserver is located.
+  To that end, we introduce three new command line arguments:
+
+.. literalinclude:: ../../hpbandster/examples/example_4_cluster.py
+    :lines: 27-29
+
+| The first two are self-explanatory, and we will use a shared directory to distribute the nameserver information to every worker.
+
+.. note::
+    This is not the only way to distribute this information, but in our experience almost all clusters offer a shared file system accessible by every compute node.
+    We have therefore implemented an easy solution for this scenario.
+    If that does not cover your use case, you must find another way to distribute the information about the nameserver to all workers.
+    It might be an option then to start a static nameserver, for example on the submission node of the cluster.
+    That way, you can hard code the information into the script.
+
+| To find a valid host name we can use the convenience function :py:func:`nic_to_host <hpbandster.core.nameserver.nic_name_to_host>` which looks up a valid hostname for a given NIC.
+
+
+.. literalinclude:: ../../hpbandster/examples/example_4_cluster.py
+    :lines: 35
+ 
+
+| When creating the nameserver, we can provide the `working_directory` argument to make it store its hostname and port upon start.
+  Both values are also returned by the `start` method so that we can use them in the master directly.
+  
+.. literalinclude:: ../../hpbandster/examples/example_4_cluster.py
+    :lines: 47-48
+ 
+| The workers can then simply retrieve that information by loading it from disc:
+
+.. literalinclude:: ../../hpbandster/examples/example_4_cluster.py
+    :lines: 38-43
+
+| For the master, we can usually afford to run a worker in the background, as most optimizers have very little overhead.
+
+.. literalinclude:: ../../hpbandster/examples/example_4_cluster.py
+    :lines: 53-54
+
+| We also provide the `host`, `nameserver`, and `nameserver_port` arguments to the optimizer.
+  Once the run is done, we usually do not want to print out any information, but rather store the result for later analysis.
+  Pickling the object returned by the optimizer's run is a very easy way of doing that.
+
+.. literalinclude:: ../../hpbandster/examples/example_4_cluster.py
+    :lines: 70-71
+
+| The full example can be found here [ADD LINK!!]
+
+| Now all that is left to do is running this on your cluster.
+  This usually requires a small shell script that contains the appropriate commands.
+  This will vary from cluster to cluster, as there are several popular schedulers (e.g. Sun Grid Engine, Torque, Moab, ...).
+  We have provided an example script for SGE [ADD LINK!!], but it contains hard coded paths to virtual environments and needs to be adapted before you can use that on your cluster.
+  What the script does is simple: It creates a so called array job, where the job consists of multiple independent processes. Every process loads the virtual environment and calls the python script. For those with an job array index larger than one, it executes the worker only. That way, the first job in the array starts the nameserver, one worker and the optimizer.
+
+
+
+
+
+What to read next
+~~~~~~~~~~~~~~~~~
+
+| If you are now excited about trying HpBandSter on your problem, you might want to consider reading the `good practices` on how to make sure you do not run into problems when writing your worker and running the optimizer.
+  The advanced examples also contain some useful scripts to start from, especially workers using PyTorch, and Keras.
+
+| If you run into problems, please check the FAQ and the Github issues first, before contacting us.
+  
+
+

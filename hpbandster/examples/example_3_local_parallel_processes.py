@@ -30,38 +30,38 @@ args=parser.parse_args()
 if args.worker:
 	w = MyWorker(sleep_interval = 0.5, nameserver='127.0.0.1',run_id='example3')
 	w.run(background=False)
+	exit(0)
 
-else:
-	# Start a nameserver (see example_1)
-	NS = hpns.NameServer(run_id='example3', host='127.0.0.1', port=None)
-	NS.start()
+# Start a nameserver (see example_1)
+NS = hpns.NameServer(run_id='example3', host='127.0.0.1', port=None)
+NS.start()
 
 
-	# Run an optimizer (see example_2)
-	bohb = BOHB(  configspace = MyWorker.get_configspace(),
-				  run_id = 'example3',
-				  min_budget=args.min_budget, max_budget=args.max_budget
-			   )
-	res = bohb.run(n_iterations=args.n_iterations, min_n_workers=args.n_workers)
+# Run an optimizer (see example_2)
+bohb = BOHB(  configspace = MyWorker.get_configspace(),
+			  run_id = 'example3',
+			  min_budget=args.min_budget, max_budget=args.max_budget
+		   )
+res = bohb.run(n_iterations=args.n_iterations, min_n_workers=args.n_workers)
 
-	# Step 4: Shutdown
-	# After the optimizer run, we must shutdown the master and the nameserver.
-	bohb.shutdown(shutdown_workers=True)
-	NS.shutdown()
+# Step 4: Shutdown
+# After the optimizer run, we must shutdown the master and the nameserver.
+bohb.shutdown(shutdown_workers=True)
+NS.shutdown()
 
-	# Step 5: Analysis
-	# Each optimizer returns a hpbandster.core.result.Result object.
-	# It holds informations about the optimization run like the incumbent (=best) configuration.
-	# For further details about the Result object, see its documentation.
-	# Here we simply print out the best config and some statistics about the performed runs.
-	id2config = res.get_id2config_mapping()
-	incumbent = res.get_incumbent_id()
+# Step 5: Analysis
+# Each optimizer returns a hpbandster.core.result.Result object.
+# It holds informations about the optimization run like the incumbent (=best) configuration.
+# For further details about the Result object, see its documentation.
+# Here we simply print out the best config and some statistics about the performed runs.
+id2config = res.get_id2config_mapping()
+incumbent = res.get_incumbent_id()
 
-	all_runs = res.get_all_runs()
+all_runs = res.get_all_runs()
 
-	print('Best found configuration:', id2config[incumbent]['config'])
-	print('A total of %i unique configurations where sampled.' % len(id2config.keys()))
-	print('A total of %i runs where executed.' % len(res.get_all_runs()))
-	print('Total budget corresponds to %.1f full function evaluations.'%(sum([r.budget for r in all_runs])/args.max_budget))
-	print('Total budget corresponds to %.1f full function evaluations.'%(sum([r.budget for r in all_runs])/args.max_budget))
-	print('The run took  %.1f seconds to complete.'%(all_runs[-1].time_stamps['finished'] - all_runs[0].time_stamps['started']))
+print('Best found configuration:', id2config[incumbent]['config'])
+print('A total of %i unique configurations where sampled.' % len(id2config.keys()))
+print('A total of %i runs where executed.' % len(res.get_all_runs()))
+print('Total budget corresponds to %.1f full function evaluations.'%(sum([r.budget for r in all_runs])/args.max_budget))
+print('Total budget corresponds to %.1f full function evaluations.'%(sum([r.budget for r in all_runs])/args.max_budget))
+print('The run took  %.1f seconds to complete.'%(all_runs[-1].time_stamps['finished'] - all_runs[0].time_stamps['started']))
