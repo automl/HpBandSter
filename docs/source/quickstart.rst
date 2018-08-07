@@ -39,7 +39,7 @@ If you want to develop on the code you could install it via
 
 	git clone git@github.com:automl/HpBandSter.git
 	cd HpBandSter
-    python3 setup.py develop --user
+	python3 setup.py develop --user
 
 .. note::
 
@@ -168,7 +168,7 @@ Step 2: Start a :py:class:`Worker <hpbandster.core.worker.Worker>`
 .. literalinclude:: ../../hpbandster/examples/example_1_local_sequential.py
     :lines: 39-40
 
-Step 3: Run an Optimizer :py:class:`Worker <hpbandster.core.master.Master>` 
+Step 3: Run an :py:class:`Optimizer <hpbandster.core.master.Master>`
 
 .. literalinclude:: ../../hpbandster/examples/example_1_local_sequential.py
     :lines: 46-50
