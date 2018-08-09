@@ -1,31 +1,55 @@
 """
-Example 5 - Worker:
+Example 5 - PyTorchWorker:
 ===================
 
-In this example we'll show:
-    1) how to connect a worker with a neural network.
-    2) implement a more complex ConfigSpace with conditional hyperparameters
+In this example implements a small CNN in PyTorch to train it on MNIST.
+The configuration space shows the most common types of hyperparameters and
+even contains conditional dependencies.
 
 We'll optimise the following hyperparameters:
-    - learning rate:             (float)        [1e-6, 1e-2]
-    - optimizer:                 (categorical)  ['Adam', 'SGD']
-      > sgd momentum:            (float)        [0.0, 0.99]        # only if optimizer == 'SGD'
-    - number of hidden layers    (int)          [1,3]
-      > dimension hidden layer 1 (int)          [100, 1000]
-      > dimension hidden layer 2 (int)          [100, 1000]        # only if number of hidden layers > 1
-      > dimension hidden layer 3 (int)          [100, 1000]        # only if number of hidden layers > 2
+	- learning rate:                   (float)        [1e-6, 1e-2]     # varied logarithmically, i.e. we sample the exponent uniformly at random
+	- optimizer:                       (categorical)  ['Adam', 'SGD']
+	  > sgd momentum:                  (float)        [0.0, 0.99]      # only if optimizer == 'SGD'
+	- number of convolutional layers   (int)          [1,3]
+	  > number of filters in layer 1   (int)          [4, 64]          # all 'number of filters' follow a log-uniform distribution
+	  > number of filters in layer 2   (int)          [4, 64]          # only if number of hidden layers > 1
+	  > number of filters in layer 3   (int)          [4, 64]          # only if number of hidden layers > 2
+	- filter size in all layers        (ordinal)      {3,5,7}          # ordered discrete values
+	- dropout rate:                    (float)        [0, 0.9]
+	- number of hidden units FC layer  (int)          [8,256]          # also logartihmically distributed
+	
+	  
+The network does not achieve stellar performance when a random configuration is samples,
+but a few iterations should yield an accuracy of >90%. To speed up training, only
+8192 images are used for training, 1024 for validation.
+The purpose is not to achieve state of the art on MNIST, but to show how to use
+PyTorch inside HpBandSter, and to demonstrate a more complicated search space.
+
+Note that some of the configurations are invalid. If the filter size is 7, the
+network can not have more than one convolutional layer. These failures can
+be seen in the logs and the results, but they do not affect the run. In fact,
+for more iterations, model based opitimzers (like BOHB) will avoid sampling these
+failing configurations. This goes to show the robustnes towards failing runs.
 """
 
-import torch
-import torchvision
-import torchvision.transforms as transforms
+try:
+	import torch
+	import torch.utils.data
+	import torch.nn as nn
+	import torch.nn.functional as F
+except:
+	raise ImportError("For this example you need to install pytorch.")
+
+try:
+	import torchvision
+	import torchvision.transforms as transforms
+except:
+	raise ImportError("For this example you need to install pytorch-vision.")
+
+
 
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
-
-import time
-import numpy as np
-import random
 
 from hpbandster.core.worker import Worker
 
@@ -36,174 +60,203 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 
-class MyWorker(Worker):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+class PyTorchWorker(Worker):
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
 
-        batch_size = 64
+		batch_size = 64
+		
+		N_train = 8192
+		N_valid = 1024
 
-        # Load the MNIST Data here
-        train_dataset = torchvision.datasets.MNIST(root='../../data',
-                                                   train=True,
-                                                   transform=transforms.ToTensor(),
-                                                   download=True)
+		# Load the MNIST Data here
+		train_dataset = torchvision.datasets.MNIST(root='../../data', train=True, transform=transforms.ToTensor(), download=True)
+		test_dataset = torchvision.datasets.MNIST(root='../../data', train=False, transform=transforms.ToTensor())
+		
+		train_sampler = torch.utils.data.sampler.SubsetRandomSampler(range(N_train))
+		validation_sampler = torch.utils.data.sampler.SubsetRandomSampler(range(N_train, N_train+N_valid))
 
-        test_dataset = torchvision.datasets.MNIST(root='../../data',
-                                                  train=False,
-                                                  transform=transforms.ToTensor())
+		
+		self.train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, sampler=train_sampler)
+		self.validation_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=1024, sampler=validation_sampler)
 
-        self.train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
-                                                   batch_size=batch_size,
-                                                   shuffle=True)
-
-        self.test_loader = torch.utils.data.DataLoader(dataset=test_dataset,
-                                                  batch_size=batch_size,
-                                                  shuffle=False)
+		self.test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=1024, shuffle=False)
 
 
+	def compute(self, config, budget, working_directory, *args, **kwargs):
+		"""
+		Simple example for a compute function using a feed forward network.
+		It is trained on the MNIST dataset.
+		The input parameter "config" (dictionary) contains the sampled configurations passed by the bohb optimizer
+		"""
 
-    def compute(self, config, budget, working_directory, *args, **kwargs):
-        """
-        Simple example for a compute function using a feed forward network.
-        It is trained on the MNIST dataset.
-        The input parameter "config" (dictionary) contains the sampled configurations passed by the bohb optimizer
-        """
+		# device = torch.device('cpu')
+		model = MNISTConvNet(num_conv_layers=config['num_conv_layers'],
+							num_filters_1=config['num_filters_1'],
+							num_filters_2=config['num_filters_2'] if 'num_filters_2' in config else None,
+							num_filters_3=config['num_filters_3'] if 'num_filters_3' in config else None,
+							dropout_rate=config['dropout_rate'],
+							num_fc_units=config['num_fc_units'],
+							kernel_size=config['kernel_size']
+		)
 
-        # device = torch.device('cpu')
+		criterion = torch.nn.CrossEntropyLoss()
+		if config['optimizer'] == 'Adam':
+			optimizer = torch.optim.Adam(model.parameters(), lr=config['lr'])
+		else:
+			optimizer = torch.optim.SGD(model.parameters(), lr=config['lr'], momentum=config['sgd_momentum'])
 
-        model = NeuralNet(input_dim=28*28,
-                          num_hidden_layers=config['num_hidden_layers'],
-                          hidden_dim_1=config['hidden_dim_1'],
-                          hidden_dim_2=config['hidden_dim_2'] if 'hidden_dim_2' in config else None,
-                          hidden_dim_3=config['hidden_dim_3'] if 'hidden_dim_3' in config else None,
-                          output_dim=10,
-                          act_f=config['act_f']
-                          )
+		for epoch in range(int(budget)):
+			loss = 0
+			model.train()
+			for i, (x, y) in enumerate(self.train_loader):
+				optimizer.zero_grad()
+				output = model(x)
+				loss = F.nll_loss(output, y)
+				loss.backward()
+				optimizer.step()
 
-        criterion = torch.nn.CrossEntropyLoss()
-        if config['optimizer'] == 'Adam':
-            optimizer = torch.optim.Adam(model.parameters(), lr=config['lr'])
-        else:
-            optimizer = torch.optim.SGD(model.parameters(), lr=config['lr'], momentum=config['sgd_momentum'])
+			train_accuracy = self.evaluate_accuracy(model, self.train_loader)
+			validation_accuracy = self.evaluate_accuracy(model, self.validation_loader)
+			test_accuracy = self.evaluate_accuracy(model, self.test_loader)
 
-        loss = 0
-        for epoch in range(int(budget)):
-            loss = 0
+		return ({
+			'loss': 1-validation_accuracy, # remember: HpBandSter always minimizes!
+			'info': {	'test accuracy': test_accuracy,
+						'train accuray': train_accuracy,
+						'validation accuracy': validation_accuracy,
+						'number of parameters': model.number_of_parameters(),
+					}
+						
+		})
 
-            for i, (x, y) in enumerate(self.train_loader):
-                optimizer.zero_grad()
-
-                x = x.reshape(-1, 28*28)
-
-                output = model(x)
-                err = criterion(output, y)
-                loss += err.data.item()
-
-                err.backward()
-                optimizer.step()
-
-            print('Epoch [{:4}|{:4}] Loss: {:10.4f}'
-                  .format(epoch+1, int(budget), loss))
-
-        return ({
-            'loss': loss,  # this is the a mandatory field to run hyperband
-            'info': {'loss': 'value you like to store'}  # can be used for any user-defined information - also mandatory
-        })
-
-    @staticmethod
-    def get_configspace():
-        """
-        It builds the configuration space with the needed hyperparameters.
-        It is easily possible to implement different types of hyperparameters.
-        Beside float-hyperparameters on a log scale, it is also able to handle categorical input parameter.
-        :return: ConfigurationsSpace-Object
-        """
-        cs = CS.ConfigurationSpace()
-
-        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(
-            'lr', lower=1e-6, upper=1e-2, default_value='1e-2', log=True))
-        cs.add_hyperparameter(CSH.CategoricalHyperparameter(
-            'act_f', ['ReLU', 'Tanh'], default_value='ReLU'))
+	def evaluate_accuracy(self, model, data_loader):
+		model.eval()
+		correct=0
+		with torch.no_grad():
+			for x, y in data_loader:
+				output = model(x)
+				#test_loss += F.nll_loss(output, target, reduction='sum').item() # sum up batch loss
+				pred = output.max(1, keepdim=True)[1] # get the index of the max log-probability
+				correct += pred.eq(y.view_as(pred)).sum().item()
+		#import pdb; pdb.set_trace()	
+		accuracy = correct/len(data_loader.sampler)
+		return(accuracy)
 
 
+	@staticmethod
+	def get_configspace():
+		"""
+		It builds the configuration space with the needed hyperparameters.
+		It is easily possible to implement different types of hyperparameters.
+		Beside float-hyperparameters on a log scale, it is also able to handle categorical input parameter.
+		:return: ConfigurationsSpace-Object
+		"""
+		cs = CS.ConfigurationSpace()
 
-        # For demonstration purposes, we add different optimizers as categorical hyperparameters.
-        # To show how to use conditional hyperparameters with ConfigSpace, we'll add the optimizers 'Adam' and 'SGD'.
-        # SGD has a different parameter 'momentum'.
-        optimizer = CSH.CategoricalHyperparameter('optimizer',
-                                                  ['Adam', 'SGD'])
-        cs.add_hyperparameter(optimizer)
+		lr = CSH.UniformFloatHyperparameter('lr', lower=1e-6, upper=1e-1, default_value='1e-2', log=True)
 
-        sgd_momentum = CSH.UniformFloatHyperparameter('sgd_momentum',
-                                                      lower=0.0, upper=0.99, default_value=0.9,
-                                                      log=False)
-        cs.add_hyperparameter(sgd_momentum)
+		# For demonstration purposes, we add different optimizers as categorical hyperparameters.
+		# To show how to use conditional hyperparameters with ConfigSpace, we'll add the optimizers 'Adam' and 'SGD'.
+		# SGD has a different parameter 'momentum'.
+		optimizer = CSH.CategoricalHyperparameter('optimizer', ['Adam', 'SGD'])
 
-        # The hyperparameter sgd_momentum will be used,
-        # if the configuration contains 'SGD' as optimizer.
-        cond = CS.EqualsCondition(sgd_momentum, optimizer, 'SGD')
-        cs.add_condition(cond)
+		sgd_momentum = CSH.UniformFloatHyperparameter('sgd_momentum', lower=0.0, upper=0.99, default_value=0.9, log=False)
 
-        num_hidden_layers = CSH.UniformIntegerHyperparameter('num_hidden_layers', lower=1, upper=3, default_value=1)
-        cs.add_hyperparameter(num_hidden_layers)
+		cs.add_hyperparameters([lr, optimizer, sgd_momentum])
 
-        hidden_dim_1 = CSH.UniformIntegerHyperparameter('hidden_dim_1', lower=100, upper=1000, log=False)
-        cs.add_hyperparameter(hidden_dim_1)
+		# The hyperparameter sgd_momentum will be used,if the configuration
+		# contains 'SGD' as optimizer.
+		cond = CS.EqualsCondition(sgd_momentum, optimizer, 'SGD')
+		cs.add_condition(cond)
 
-        hidden_dim_2 = CSH.UniformIntegerHyperparameter('hidden_dim_2', lower=100, upper=1000, log=False)
-        cs.add_hyperparameter(hidden_dim_2)
-
-        hidden_dim_3 = CSH.UniformIntegerHyperparameter('hidden_dim_3', lower=100, upper=1000, log=False)
-        cs.add_hyperparameter(hidden_dim_3)
-
-
-
-        # You can also use inequality conditions:
-        cond = CS.GreaterThanCondition(hidden_dim_2, num_hidden_layers, 1)
-        cs.add_condition(cond)
-
-        cond = CS.GreaterThanCondition(hidden_dim_3, num_hidden_layers, 2)
-        cs.add_condition(cond)
-
-        return cs
+		num_conv_layers =  CSH.UniformIntegerHyperparameter('num_conv_layers', lower=1, upper=3, default_value=2)
+		
+		num_filters_1 = CSH.UniformIntegerHyperparameter('num_filters_1', lower=4, upper=64, default_value=16, log=True)
+		num_filters_2 = CSH.UniformIntegerHyperparameter('num_filters_2', lower=4, upper=64, default_value=16, log=True)
+		num_filters_3 = CSH.UniformIntegerHyperparameter('num_filters_3', lower=4, upper=64, default_value=16, log=True)
 
 
-class NeuralNet(torch.nn.Module):
-    """
-    Just a simple pytorch implementation of a feed forward network.
-    """
-    def __init__(self, input_dim, num_hidden_layers, hidden_dim_1, hidden_dim_2, hidden_dim_3, output_dim, act_f):
-        super(NeuralNet, self).__init__()
+		cs.add_hyperparameters([num_conv_layers, num_filters_1, num_filters_2, num_filters_3])
+		
+		# You can also use inequality conditions:
+		cond = CS.GreaterThanCondition(num_filters_2, num_conv_layers, 1)
+		cs.add_condition(cond)
 
-        self.fc1 = torch.nn.Linear(input_dim, hidden_dim_1)
-        self.fc2 = None
-        self.fc3 = None
+		cond = CS.GreaterThanCondition(num_filters_3, num_conv_layers, 2)
+		cs.add_condition(cond)
 
-        if num_hidden_layers >= 2:
-            self.fc2 = torch.nn.Linear(hidden_dim_1, hidden_dim_2)
-        if num_hidden_layers == 3:
-            self.fc3 = torch.nn.Linear(hidden_dim_2, hidden_dim_3)
 
-        last_hidden_dim = hidden_dim_1 if num_hidden_layers == 1 else \
-            hidden_dim_2 if num_hidden_layers == 2 else hidden_dim_3
+		dropout_rate = CSH.UniformFloatHyperparameter('dropout_rate', lower=0.0, upper=0.9, default_value=0.5, log=False)
+		num_fc_units = CSH.UniformIntegerHyperparameter('num_fc_units', lower=8, upper=256, default_value=32, log=True)
+		kernel_size = CSH.OrdinalHyperparameter('kernel_size', [3,5,7])
 
-        self.fc_out = torch.nn.Linear(last_hidden_dim, output_dim)
+		cs.add_hyperparameters([dropout_rate, num_fc_units, kernel_size])
 
-        if act_f == 'ReLU':
-            self.act_f = torch.nn.ReLU()
-        elif act_f == 'Tanh':
-            self.act_f = torch.nn.Tanh()
+		return cs
 
-    def forward(self, x):
-        x = self.act_f(self.fc1(x))
-        if self.fc2 is not None:
-            x = self.act_f(self.fc2(x))
-        if self.fc3 is not None:
-            x = self.act_f(self.fc3(x))
-        x = self.fc_out(x)
-        return x
+
+
+
+class MNISTConvNet(torch.nn.Module):
+	def __init__(self, num_conv_layers, num_filters_1, num_filters_2, num_filters_3, dropout_rate, num_fc_units, kernel_size):
+		super().__init__()
+		
+		self.conv1 = nn.Conv2d(1, num_filters_1, kernel_size=kernel_size)
+		self.conv2 = None
+		self.conv3 = None
+		
+		output_size = (28-kernel_size + 1)//2
+		num_output_filters = num_filters_1
+		
+		if num_conv_layers > 1:
+			self.conv2 = nn.Conv2d(num_filters_1, num_filters_2, kernel_size=kernel_size)
+			num_output_filters = num_filters_2
+			output_size = (output_size - kernel_size + 1)//2
+
+		if num_conv_layers > 2:
+			self.conv3 = nn.Conv2d(num_filters_2, num_filters_3, kernel_size=kernel_size)
+			num_output_filters = num_filters_3
+			output_size = (output_size - kernel_size + 1)//2
+		
+		self.dropout = nn.Dropout(p = dropout_rate)
+
+		self.conv_output_size = num_output_filters*output_size*output_size
+
+		self.fc1 = nn.Linear(self.conv_output_size, num_fc_units)
+		self.fc2 = nn.Linear(num_fc_units, 10)
+		
+
+
+	def forward(self, x):
+		
+		x = F.relu(F.max_pool2d(self.conv1(x), 2))
+		
+		if not self.conv2 is None:
+			x = F.relu(F.max_pool2d(self.conv2(x), 2))
+
+		if not self.conv3 is None:
+			x = F.relu(F.max_pool2d(self.conv3(x), 2))
+
+		x = self.dropout(x)
+		
+		x = x.view(-1, self.conv_output_size)
+		x = F.relu(self.fc1(x))
+		x = self.dropout(x)
+		x = self.fc2(x)
+		return F.log_softmax(x, dim=1)
+
+
+	def number_of_parameters(self):
+		return(sum(p.numel() for p in self.parameters() if p.requires_grad))
+
+
 
 if __name__ == "__main__":
-    worker = MyWorker(run_id='0')
-    cs = MyWorker.get_configspace()
-    print(cs.sample_configuration())
+	worker = KerasWorker(run_id='0')
+	cs = worker.get_configspace()
+	
+	config = cs.sample_configuration().get_dictionary()
+	print(config)
+	res = worker.compute(config=config, budget=2, working_directory='.')
+	print(res)

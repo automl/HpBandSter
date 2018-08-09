@@ -44,7 +44,7 @@ w.run(background=True)
 # Here, we run BOHB, but that is not essential.
 # The run method will return the `Result` that contains all runs performed.
 bohb = BOHB(  configspace = w.get_configspace(),
-              run_id = 'example1',
+              run_id = 'example1', nameserver='127.0.0.1',
               min_budget=args.min_budget, max_budget=args.max_budget
            )
 res = bohb.run(n_iterations=args.n_iterations)

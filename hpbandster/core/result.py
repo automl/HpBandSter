@@ -57,7 +57,8 @@ def extract_HB_learning_curves(runs):
 		
 	"""
 	sr = sorted(runs, key=lambda r: r.budget)
-	return([[(r.budget, r.loss) for r in sr],])
+	lc = list(filter(lambda t: not t[1] is None, [(r.budget, r.loss) for r in sr]))
+	return([lc,])
 		
 
 class json_result_logger(object):

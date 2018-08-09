@@ -1,73 +1,95 @@
 """
 Example 5: MNIST
 ================
-"""
 
-import logging
-logging.basicConfig(level=logging.DEBUG)
+Small CNN for MNIST implementet in both Keras and PyTorch.
+This example also shows how to log results to disk during the optimization
+which is useful for long runs, because intermediate results are directly available
+for analysis.
+
+
+"""
+import os
+import pickle
+import argparse
 
 import hpbandster.core.nameserver as hpns
 import hpbandster.core.result as hpres
 
-from hpbandster.optimizers import BOHB as BOHB
-from example_5_mnist_worker import MyWorker
+from hpbandster.optimizers import BOHB
 
-import time
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
-run_id = '0'
+
+
+parser = argparse.ArgumentParser(description='Example 1 - sequential and local execution.')
+parser.add_argument('--min_budget',   type=float, help='Minimum number of epochs for training.',    default=1)
+parser.add_argument('--max_budget',   type=float, help='Maximum number of epochs for training.',    default=9)
+parser.add_argument('--n_iterations', type=int,   help='Number of iterations performed by the optimizer', default=4)
+
+parser.add_argument('--worker', help='Flag to turn this into a worker process', action='store_true')
+
+parser.add_argument('--run_id', type=str, help='A unique run id for this optimization run. An easy option is to use the job id of the clusters scheduler.')
+parser.add_argument('--nic_name',type=str, help='Which network interface to use for communication.', default='lo')
+parser.add_argument('--shared_directory',type=str, help='A directory that is accessible for all processes, e.g. a NFS share.', default='.')
+parser.add_argument('--backend',help='Toggles which worker is used. Choose between a pytorch and a keras implementation.', choices=['pytorch', 'keras'], default='pytorch')
+
+args=parser.parse_args()
+
+
+if args.backend == 'pytorch':
+	from example_5_pytorch_worker import PyTorchWorker as worker
+else:
+	from example_5_mnist_worker import KerasWorker as worker
+
+
+# Every process has to lookup the hostname
+host = hpns.nic_name_to_host(args.nic_name)
+
+
+if args.worker:
+	import time
+	time.sleep(5)	# short artificial delay to make sure the nameserver is already running
+	w = worker(run_id=args.run_id, host=host, timeout=10)
+	w.load_nameserver_credentials(working_directory=args.shared_directory)
+	w.run(background=False)
+	exit(0)
+
 
 # This example shows how to log live results. This is most useful
 # for really long runs, where intermediate results could already be
-# interesting. The results submodule contains the functionality to
+# interesting. The core.result submodule contains the functionality to
 # read the two generated files (results.json and configs.json) and
-# create a Result object. See below!
-# Specify the directory and whether or not existing files are overwritten
-result_logger = hpres.json_result_logger(directory='.', overwrite=True)
+# create a Result object.
+result_logger = hpres.json_result_logger(directory=args.shared_directory, overwrite=True)
 
 
-NS = hpns.NameServer(run_id=run_id, host='localhost', port=0)
+# Start a nameserver:
+NS = hpns.NameServer(run_id=args.run_id, host=host, port=0, working_directory=args.shared_directory)
 ns_host, ns_port = NS.start()
 
+# Start local worker
+w = worker(run_id=args.run_id, host=host, nameserver=ns_host, nameserver_port=ns_port, timeout=10)
+w.run(background=True)
 
-# Initialize a given number of workers
-num_workers = 4
-workers = []
-for i in range(num_workers):
-    w = MyWorker(   nameserver=ns_host,
-                    nameserver_port=ns_port,
-                    run_id=run_id,  # unique Hyperband run id
-                    id=i
-                )
-    w.run(background=True)
-    workers.append(w)
+# Run an optimizer
+bohb = BOHB(  configspace = worker.get_configspace(),
+			  run_id = args.run_id,
+			  host=host,
+			  nameserver=ns_host,
+			  nameserver_port=ns_port,
+			  result_logger=result_logger,
+			  min_budget=args.min_budget, max_budget=args.max_budget, 
+			  ping_interval=3600, 
+		   )
+res = bohb.run(n_iterations=args.n_iterations)
 
+# store results
+with open(os.path.join(args.shared_directory, 'results.pkl'), 'wb') as fh:
+	pickle.dump(res, fh)
 
-
-HB = BOHB(  configspace=MyWorker.get_configspace(),
-            run_id=run_id,
-            eta=3, min_budget=1, max_budget=25,  # Hyperband parameters
-            nameserver=ns_host,
-            nameserver_port=ns_port,
-            result_logger=result_logger,
-            ping_interval=10**6
-         )
-
-res = HB.run(n_iterations=2, min_n_workers=num_workers)
-
-HB.shutdown(shutdown_workers=True)
+# shutdown
+bohb.shutdown(shutdown_workers=True)
 NS.shutdown()
 
-id2config = res.get_id2config_mapping()
-
-print('A total of %i unique configurations where sampled.'%len(id2config.keys()))
-print('A total of %i runs where executed.'%len(res.get_all_runs()))
-
-
-incumbent_trajectory = res.get_incumbent_trajectory()
-
-
-import matplotlib.pyplot as plt
-plt.plot(incumbent_trajectory['times_finished'], incumbent_trajectory['losses'])
-plt.xlabel('wall clock time [s]')
-plt.ylabel('incumbent loss')
-plt.show()

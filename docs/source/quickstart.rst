@@ -37,32 +37,13 @@ If you want to develop on the code you could install it via
 
 .. code-block:: bash
 
-	git clone git@github.com:automl/HpBandSter.git
-	cd HpBandSter
-	python3 setup.py develop --user
+    git clone git@github.com:automl/HpBandSter.git
+    cd HpBandSter
+    python3 setup.py develop --user
 
 .. note::
 
     We only support Python3 for HpBandSter!
-
-How to use HpBandSter
-~~~~~~~~~~~~~~~~~~~~~
-
-To get started, we will guide you through some basic examples:
-
-1) :ref:`Basic Setup: Local and Sequential Usage <1st example>`
-2) :ref:`Advanced: Distributed and Parallel Usage <2nd example>`
-
-In the :doc:`advanced examples <advanced_examples>`, there will be shown
-
-3) :ref:`Continue Runs and Visualize Results <3rd example>`
-4) :ref:`Combine BOHB and CAVE to analyze results <BOHB with CAVE>`
-
-.. note::
-
-    For some further examples, please visit the :doc:`gallery <auto_examples/index>`.
-
-.. _1st example:
 
 The basic Ingredients
 ~~~~~~~~~~~~~~~~~~~~~
@@ -71,30 +52,33 @@ Whether you like to use HpBandSter locally on your machine or on a cluster, the 
 is always the same. For now, let's focus on the most important ingredients needed
 to apply an optimizer to a new problem:
 
-:ref:`Implement a Worker`
+:ref:`Implementing a Worker<worker>`
    | The *worker* is responsible for evaluating a given model with a single configuration on a single budget at a time.
 
-:ref:`Define the Search Space`
+:ref:`Defining the Search Space<searchspace>`
+
    | Next, the parameters being optimized need to be defined. HpBandSter relies on the **ConfigSpace** package for that.
 
-:ref:`Pick the Budgets and the Number of Iterations`
+:ref:`Picking the Budgets and the Number of Iterations<budgets>`
    | To get good performance, HpBandSter needs to know meaningful budgets to use. You also have to specify how many iterations the optimizer performs.
 
-1. A :py:class:`Worker <hpbandster.core.worker>`
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+.. _worker:
 
-| First, we need to implement a *worker* for the problem.
-  The *worker* is responsible to evaluate a hyperparameter setting and returning the associated loss that is minimized.
+1. Implementing a Worker
+++++++++++++++++++++++++
+
+| The :py:class:`Worker <hpbandster.core.worker>` is responsible to evaluate a hyperparameter setting and returning the associated loss that is minimized.
   By deriving from the :py:class:`base class <hpbandster.core.worker>`, encoding a new problem consists of implementing two methods: **__init__** and **compute**.
   The first allows to perform inital computations, e.g. loading the dataset, when the worker is started, while the latter is called repeatedly called during the optimization and evaluates a given configuration yielding the associated loss.
 
 | The worker below demonstrates the concept.
-  The worker implements a simple toy problem where there is a single parameter `x` in the configuration and we try to minimize it.
+  It implements a simple toy problem where there is a single parameter `x` in the configuration and we try to minimize it.
   The function evaluations are corrupted by some Gaussian noise that shrinks as the budget grows.
 
 .. literalinclude:: ../../hpbandster/examples/commons.py
     :lines: 8-50
 
+.. _searchspace:
 
 2. The Search Space Definition
 ++++++++++++++++++++++++++++++
@@ -114,6 +98,7 @@ to apply an optimizer to a new problem:
     For more examples we refer to the documentation of the ConfigSpace or
     please have a look at the :doc:`ConfigSpace example<auto_examples/example_4_config_space>`.
 
+.. _budgets:
 
 3. Meaningful Budgets and Number of Iterations
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -134,17 +119,16 @@ to apply an optimizer to a new problem:
 
 
 
-
 The first toy examples
 ~~~~~~~~~~~~~~~~~~~~~~
 
 | Let us now take the above worker, its search space and that in a few different settings.
   Specifically, we will run
 
-1. locally and sequentially
-2. locally and in parallel (thread based)
-3. locally and in parallel (process based)
-4. distributed in a cluster environment
+1. :ref:`locally and sequentially<example 1>`
+2. :ref:`locally and in parallel (thread based)<example 2>`
+3. :ref:`locally and in parallel (process based)<example 3>`
+4. :ref:`distributed in a cluster environment<example 4>`
 
 | Each example, showcases how to setup HpBandSter in different environments and highlights specifics for it.
   Every compute environment is slightly different, but it should be easy to bootstrap from one of the examples and adapt it to any specific needs.
@@ -152,30 +136,54 @@ The first toy examples
   the following ones gradually add complexity by including more features.
 
 
+.. _example 1:
 
 1. A Local and Sequential Run
 +++++++++++++++++++++++++++++
-| We are now ready to look at our first real example [ADD LINK!!] to illustrate how HpBandSter is used.
+
+| We are now ready to look at our first real :doc:`example <auto_examples/example_1_local_sequential>` to illustrate how HpBandSter is used.
   Every run consists of the same 5 basic steps which we will now cover.
 
 Step 1: Start a :py:class:`Nameserver <hpbandster.core.nameserver.NameServer>` 
 
-.. literalinclude:: ../../hpbandster/examples/example_1_local_sequential.py
+| To initiate the communication between the worker(s) and the optimizer, HpBandSter requires a nameserver to be present.
+  This is a small service that keeps track of all running processes and their IP addresses and ports.
+  It is a building block that HpBandster inherits from `Pyro4 <https://pythonhosted.org/Pyro4/nameserver.html>`_.
+  In this first example, we will run it using the loop back interface with the IP `127.0.0.1`.
+  Using the `port=None` argument, will make it use the default port 9090.
+  The `run_id` is used to identify individual runs and needs to be given to all other components as well (see below).
+  For now, we just fix it to `example1`.
+
+  .. literalinclude:: ../../hpbandster/examples/example_1_local_sequential.py
     :lines: 31-32
 
 Step 2: Start a :py:class:`Worker <hpbandster.core.worker.Worker>` 
 
-.. literalinclude:: ../../hpbandster/examples/example_1_local_sequential.py
+| The worker implements the actual problem that is optimized.
+  By deriving your worker from the  :py:class:`base worker <hpbandster.core.worker.Worker>` and implementing the `compute` method, it can easily be instantiated with all arguments your specific `__init__` requires and the additional arguments from the base class. The bare minimum is the location of the nameserver and the `run_id`.
+
+  .. literalinclude:: ../../hpbandster/examples/example_1_local_sequential.py
     :lines: 39-40
 
 Step 3: Run an :py:class:`Optimizer <hpbandster.core.master.Master>`
 
-.. literalinclude:: ../../hpbandster/examples/example_1_local_sequential.py
+| The optimizer decides which configurations are evaluated, and how the budgets are distributed.
+  Besides :py:class:`Random Search <hpbandster.optimizers.randomsearch.RandomSearch>`, and :py:class:`Random Search <hpbandster.optimizers.hyperband.HyperBand>`, there is :py:class:`Random Search <hpbandster.optimizers.bohb.BOHB>` our own combination of Hyperband and Bayesian Optimization that we will use here.
+  Checkout out the :doc:`list of available optimizers <optimizers>` for more info.
+
+| At least, we have to provide the description of the search space, the `run_id`, the nameserver and the budgets.
+  The optimization starts when the `run` method is called with the number of iterations as the only mandatory argument.
+
+  .. literalinclude:: ../../hpbandster/examples/example_1_local_sequential.py
     :lines: 46-50
 
 Step 4: Stop all services
 
-.. literalinclude:: ../../hpbandster/examples/example_1_local_sequential.py
+| After the run is finished, the services started above need to be shutdown.
+  This ensures that the worker, the nameserver and the master all properly exit and no (daemon) threads keep running afterwards.
+  In particular we shutdown the optimizer (which shuts down all workers) and the nameserver.
+
+  .. literalinclude:: ../../hpbandster/examples/example_1_local_sequential.py
     :lines: 54-55
 
 
@@ -189,8 +197,10 @@ Step 5: Analysis of the Results
 .. literalinclude:: ../../hpbandster/examples/example_1_local_sequential.py
     :lines: 62-68
 
-| The complete source code for this example can be found here [ADD LINK!!].
+| The complete source code for this example can be found :doc:`here <auto_examples/example_1_local_sequential>`
 
+
+.. _example 2:
 
 2. A Local Parallel Run using Threads
 +++++++++++++++++++++++++++++++++++++
@@ -214,10 +224,11 @@ Step 5: Analysis of the Results
 .. literalinclude:: ../../hpbandster/examples/example_2_local_parallel_threads.py
     :lines: 54
 
-| The source code can be found here [ADD LINK!!].
+| The source code can be found here :doc:`here <auto_examples/example_2_local_parallel_threads>`
   Try running it with different number of workers by changing the `--n_worker` command line argument.
 
 
+.. _example 3:
 
 3. A Local Parallel Run using Different Processes
 +++++++++++++++++++++++++++++++++++++++++++++++++
@@ -235,11 +246,12 @@ Step 5: Analysis of the Results
 .. literalinclude:: ../../hpbandster/examples/example_3_local_parallel_processes.py
     :lines: 30-33
 
-| You can download the source code here [ADD LINK!!].
-  Try running the script in three different shells, twice with the `--worker` flag and see what happens.
-  To see what is happening, the logging level for this script is set to *INFO*, so you can see messages from the master and the workers.
+| You can download the source code here :doc:`here <auto_examples/example_3_local_parallel_processes>`
+  Try running the script in three different shells, twice with the `--worker` flag.
+  To see what is happening, the logging level for this script is set to *INFO*, so messages from the optimizer and the workers are shown.
 
 
+.. _example 4:
 
 4. A Distributed Run on a Cluster with a Shared File System
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -292,13 +304,20 @@ Step 5: Analysis of the Results
 .. literalinclude:: ../../hpbandster/examples/example_4_cluster.py
     :lines: 70-71
 
-| The full example can be found here [ADD LINK!!]
+| The full example can be found :doc:`here <auto_examples/example_4_cluster>`
 
 | Now all that is left to do is running this on your cluster.
   This usually requires a small shell script that contains the appropriate commands.
   This will vary from cluster to cluster, as there are several popular schedulers (e.g. Sun Grid Engine, Torque, Moab, ...).
-  We have provided an example script for SGE [ADD LINK!!], but it contains hard coded paths to virtual environments and needs to be adapted before you can use that on your cluster.
-  What the script does is simple: It creates a so called array job, where the job consists of multiple independent processes. Every process loads the virtual environment and calls the python script. For those with an job array index larger than one, it executes the worker only. That way, the first job in the array starts the nameserver, one worker and the optimizer.
+  Here is an example script for SGE, but it contains hard coded paths to virtual environments and needs to be adapted before you can use that on your cluster.
+
+.. literalinclude:: ../../hpbandster/examples/example_4_cluster_submit_me.sh
+    :lines: 1-15
+  
+| What the script does is simple: It creates a so called array job, where the job consists of multiple independent processes. 
+  Every process loads the virtual environment and calls the python script.
+  For those with an job array index larger than one, it executes the worker only.
+  The first job in the array starts the nameserver, one worker and the optimizer.
 
 
 
@@ -308,7 +327,7 @@ What to read next
 ~~~~~~~~~~~~~~~~~
 
 | If you are now excited about trying HpBandSter on your problem, you might want to consider reading the `good practices` on how to make sure you do not run into problems when writing your worker and running the optimizer.
-  The advanced examples also contain some useful scripts to start from, especially workers using PyTorch, and Keras.
+  The :doc:`gallery <auto_examples/index>` also contains some useful scripts to start from, especially workers training PyTorch, and Keras models.
 
 | If you run into problems, please check the FAQ and the Github issues first, before contacting us.
   
