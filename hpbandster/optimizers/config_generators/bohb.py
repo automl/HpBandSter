@@ -69,6 +69,9 @@ class BOHB(base_config_generator):
 
 
 		for h in hps:
+			if hasattr(h, 'sequence'):
+				raise RuntimeError('This version on BOHB does not support ordinal hyperparameters. Please encode %s as an integer parameter!'%(h.name))
+			
 			if hasattr(h, 'choices'):
 				self.kde_vartypes += 'u'
 				self.vartypes +=[ len(h.choices)]

@@ -101,12 +101,12 @@ def performance_histogram_model_vs_random(runs, id2conf, show=False):
 		losses[b] = {'model_based': [], 'random': []}
 
 	for r in model_based_runs:
-		if r.loss is None:
+		if r.loss is None or not np.isfinite(r.loss):
 			continue
 		losses[r.budget]['model_based'].append(r.loss)
 
 	for r in random_runs:
-		if r.loss is None:
+		if r.loss is None or not np.isfinite(r.loss):
 			continue
 		losses[r.budget]['random'].append(r.loss)
 
@@ -115,7 +115,7 @@ def performance_histogram_model_vs_random(runs, id2conf, show=False):
 
 	for i,b in enumerate(budgets):
 		mbax, rax = axarr[i]
-		
+		print(losses[b]['model_based'])
 		mbax.hist(losses[b]['model_based'], label='b = %f \n n = %i'%(b,len(losses[b]['model_based'])))
 		mbax.set_ylabel('frequency')
 		mbax.legend()
@@ -163,6 +163,7 @@ def correlation_across_budgets(results_object, show=False):
 		
 		for r1,r2 in itertools.combinations(runs,2):
 			if r1.loss is None or r2.loss is None: continue
+			if not np.isfinite(r1.loss) or not np.isfinite(r2.loss): continue
 			loss_pairs[float(r1.budget)][float(r2.budget)].append((r1.loss, r2.loss))
 		
 		

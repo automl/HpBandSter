@@ -97,7 +97,7 @@ class PyTorchWorker(Worker):
 							num_filters_3=config['num_filters_3'] if 'num_filters_3' in config else None,
 							dropout_rate=config['dropout_rate'],
 							num_fc_units=config['num_fc_units'],
-							kernel_size=config['kernel_size']
+							kernel_size=3
 		)
 
 		criterion = torch.nn.CrossEntropyLoss()
@@ -116,9 +116,9 @@ class PyTorchWorker(Worker):
 				loss.backward()
 				optimizer.step()
 
-			train_accuracy = self.evaluate_accuracy(model, self.train_loader)
-			validation_accuracy = self.evaluate_accuracy(model, self.validation_loader)
-			test_accuracy = self.evaluate_accuracy(model, self.test_loader)
+		train_accuracy = self.evaluate_accuracy(model, self.train_loader)
+		validation_accuracy = self.evaluate_accuracy(model, self.validation_loader)
+		test_accuracy = self.evaluate_accuracy(model, self.test_loader)
 
 		return ({
 			'loss': 1-validation_accuracy, # remember: HpBandSter always minimizes!
@@ -189,9 +189,8 @@ class PyTorchWorker(Worker):
 
 		dropout_rate = CSH.UniformFloatHyperparameter('dropout_rate', lower=0.0, upper=0.9, default_value=0.5, log=False)
 		num_fc_units = CSH.UniformIntegerHyperparameter('num_fc_units', lower=8, upper=256, default_value=32, log=True)
-		kernel_size = CSH.OrdinalHyperparameter('kernel_size', [3,5,7])
 
-		cs.add_hyperparameters([dropout_rate, num_fc_units, kernel_size])
+		cs.add_hyperparameters([dropout_rate, num_fc_units])
 
 		return cs
 
@@ -230,13 +229,16 @@ class MNISTConvNet(torch.nn.Module):
 
 	def forward(self, x):
 		
-		x = F.relu(F.max_pool2d(self.conv1(x), 2))
+		# switched order of pooling and relu compared to the original example
+		# to make it identical to the keras worker
+		# seems to also give better accuracies
+		x = F.max_pool2d(F.relu(self.conv1(x)), 2)
 		
 		if not self.conv2 is None:
-			x = F.relu(F.max_pool2d(self.conv2(x), 2))
+			x = F.max_pool2d(F.relu(self.conv2(x)), 2)
 
 		if not self.conv3 is None:
-			x = F.relu(F.max_pool2d(self.conv3(x), 2))
+			x = F.max_pool2d(F.relu(self.conv3(x)), 2)
 
 		x = self.dropout(x)
 		
