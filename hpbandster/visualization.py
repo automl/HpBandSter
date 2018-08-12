@@ -115,7 +115,6 @@ def performance_histogram_model_vs_random(runs, id2conf, show=False):
 
 	for i,b in enumerate(budgets):
 		mbax, rax = axarr[i]
-		print(losses[b]['model_based'])
 		mbax.hist(losses[b]['model_based'], label='b = %f \n n = %i'%(b,len(losses[b]['model_based'])))
 		mbax.set_ylabel('frequency')
 		mbax.legend()
@@ -135,10 +134,6 @@ def performance_histogram_model_vs_random(runs, id2conf, show=False):
 	return(fig, axarr)
 
 
-
-
-
-
 def correlation_across_budgets(results_object, show=False):
 	
 	runs = results_object.get_all_runs()
@@ -156,7 +151,6 @@ def correlation_across_budgets(results_object, show=False):
 	for b1,b2 in itertools.combinations(budgets, 2):
 		loss_pairs[b1][b2]= []
 
-	print(loss_pairs)
 	for cid in id2conf.keys():
 		runs = results_object.get_runs_by_id(cid)
 		if len(runs) < 2: continue
@@ -205,19 +199,38 @@ def correlation_across_budgets(results_object, show=False):
 
 
 
+def losses_over_time(runs, get_loss_from_run_fn = lambda r: r.loss, cmap = plt.get_cmap("tab10"), show=False):
+
+	budgets = set([r.budget for r in runs])
+
+	data = {}
+	for b in budgets:
+		data[b] = []
+
+	for r in runs:
+		b = r.budget
+		t = r.time_stamps['finished']
+		l = get_loss_from_run_fn(r)
+		data[b].append((t,l))
+
+	for b in budgets:
+		data[b].sort()
 
 
+	fig, ax = plt.subplots()
 
+	for i, b in enumerate(budgets):
+		data[b] = np.array(data[b])
+		ax.scatter(data[b][:,0], data[b][:,1], color=cmap(i), label='b=%f'%b)
+		
+		ax.step(data[b][:,0], np.minimum.accumulate(data[b][:,1]), where='post')
 
-
-
-
-
-
-
-
-
-
+	ax.set_title('Losses for different budgets over time')
+	ax.set_xlabel('wall clock time [s]')
+	ax.set_ylabel('loss')
+	ax.legend()
+	if show:
+		plt.show()
 
 
 

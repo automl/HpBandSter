@@ -23,12 +23,6 @@ but a few iterations should yield an accuracy of >90%. To speed up training, onl
 8192 images are used for training, 1024 for validation.
 The purpose is not to achieve state of the art on MNIST, but to show how to use
 PyTorch inside HpBandSter, and to demonstrate a more complicated search space.
-
-Note that some of the configurations are invalid. If the filter size is 7, the
-network can not have more than one convolutional layer. These failures can
-be seen in the logs and the results, but they do not affect the run. In fact,
-for more iterations, model based opitimzers (like BOHB) will avoid sampling these
-failing configurations. This goes to show the robustnes towards failing runs.
 """
 
 try:
@@ -166,7 +160,7 @@ class KerasWorker(Worker):
 		return ({
 			'loss': 1-val_score[1], # remember: HpBandSter always minimizes!
 			'info': {	'test accuracy': test_score[1],
-						'train accuray': train_score[1],
+						'train accuracy': train_score[1],
 						'validation accuracy': val_score[1],
 						'number of parameters': model.count_params(),
 					}
@@ -223,7 +217,6 @@ class KerasWorker(Worker):
 
 		cond = CS.GreaterThanCondition(num_filters_3, num_conv_layers, 2)
 		cs.add_condition(cond)
-
 
 		return cs
 

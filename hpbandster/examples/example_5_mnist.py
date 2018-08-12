@@ -26,7 +26,7 @@ logging.basicConfig(level=logging.DEBUG)
 parser = argparse.ArgumentParser(description='Example 1 - sequential and local execution.')
 parser.add_argument('--min_budget',   type=float, help='Minimum number of epochs for training.',    default=1)
 parser.add_argument('--max_budget',   type=float, help='Maximum number of epochs for training.',    default=9)
-parser.add_argument('--n_iterations', type=int,   help='Number of iterations performed by the optimizer', default=1)
+parser.add_argument('--n_iterations', type=int,   help='Number of iterations performed by the optimizer', default=16)
 
 parser.add_argument('--worker', help='Flag to turn this into a worker process', action='store_true')
 
@@ -51,7 +51,7 @@ host = hpns.nic_name_to_host(args.nic_name)
 if args.worker:
 	import time
 	time.sleep(5)	# short artificial delay to make sure the nameserver is already running
-	w = worker(run_id=args.run_id, host=host, timeout=10)
+	w = worker(run_id=args.run_id, host=host, timeout=120)
 	w.load_nameserver_credentials(working_directory=args.shared_directory)
 	w.run(background=False)
 	exit(0)
@@ -70,7 +70,7 @@ NS = hpns.NameServer(run_id=args.run_id, host=host, port=0, working_directory=ar
 ns_host, ns_port = NS.start()
 
 # Start local worker
-w = worker(run_id=args.run_id, host=host, nameserver=ns_host, nameserver_port=ns_port, timeout=10)
+w = worker(run_id=args.run_id, host=host, nameserver=ns_host, nameserver_port=ns_port, timeout=120)
 w.run(background=True)
 
 # Run an optimizer
