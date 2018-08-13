@@ -1,6 +1,6 @@
 """
-Example 1 - Simple and locally
-==============================
+Example 1 - Local and Sequential
+================================
 
 """
 import logging

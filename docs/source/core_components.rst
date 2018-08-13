@@ -8,6 +8,7 @@ HpBandSter works in a Server-Client connection.
    core/nameserver.rst
    core/master.rst
    core/worker.rst
+   core/visualization.rst
    core/dispatcher.rst
    core/result.rst
    core/iteration.rst

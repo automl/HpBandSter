@@ -237,7 +237,7 @@ def losses_over_time(runs, get_loss_from_run_fn = lambda r: r.loss, cmap = plt.g
 
 
 
-def interactive_HB_plot(learning_curves, tool_tip_strings=None,log_y=False, log_x=False, reset_times=False, color_map='Set3', colors_floats=None, title='', show=True):
+def interactive_HBS_plot(learning_curves, tool_tip_strings=None,log_y=False, log_x=False, reset_times=False, color_map='Set3', colors_floats=None, title='', show=True):
 
 	times, losses, config_ids, = [], [], []
 

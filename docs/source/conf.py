@@ -55,7 +55,7 @@ extensions = [
 autoclass_content = 'both'
 
 
-from sphinx_gallery.sorting import FileNameSortKey
+from sphinx_gallery.sorting import ExampleTitleSortKey
 # Now to declare your project structure, we add a configuration dictionary
 # for Sphinx-Gallery. The examples directory ../examples is declared
 # with a relative path from the conf.py file location:
@@ -65,8 +65,8 @@ sphinx_gallery_conf = {
                         # path where to save gallery generated examples
                         'gallery_dirs': 'auto_examples',
                         # ignore files with this pattern.
-                        'ignore_pattern': '__init__\.py|.*_worker\.py|.*\.sh',
-                        'within_subsection_order': FileNameSortKey,
+                        'ignore_pattern': '__init__\.py|.*\.sh',
+                        'within_subsection_order': ExampleTitleSortKey,
                       }
 
 

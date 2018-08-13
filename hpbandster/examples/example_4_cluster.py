@@ -2,6 +2,51 @@
 Example 4 - on the cluster
 ==========================
 
+This example shows how to run HpBandster in a cluster environment.
+The actual python code does differ substantially from example 3, except for a
+shared directory that is used to communicate the location of the nameserver to
+every worker, and the fact that the communication is done over the network instead
+of just the loop back interface.
+
+
+To actually run it as a batch job, usually a shell script is required.
+Those differer slightly from scheduler to scheduler.
+Here we provide an example script for the Sun Grid Engine (SGE), but adapting that to
+any other scheduler should be easy.
+The script simply specifies the logging files for output (`-o`) and error `-e`),
+loads a virtual environment, and then executes the master for the first array task
+and a worker otherwise.
+Array jobs execute the same source multiple times and are bundled together into one job,
+where each task gets a unique task ID.
+For SGE those IDs are positive integers and we simply say the first task is the master.
+
+
+.. code-block:: bash
+
+   # submit via qsub -t 1-4 -q test_core.q example_4_cluster_submit_me.sh
+
+   #$ -cwd
+   #$ -o $JOB_ID-$TASK_ID.o
+   #$ -e $JOB_ID-$TASK_ID.e
+
+   # enter the virtual environment
+   source ~sfalkner/virtualenvs/HpBandSter_tests/bin/activate
+
+
+   if [ $SGE_TASK_ID -eq 1]
+      then python3 example_4_cluster.py --run_id $JOB_ID --nic_name eth0 --working_dir .
+   else 
+      python3 example_4_cluster.py --run_id $JOB_ID --nic_name eth0  --working_dir . --worker
+   fi
+
+You can simply copy the above code into a file, say submit_me.sh, and tell SGE to run it via:
+
+.. code-block:: bash
+
+   qsub -t 1-4 -q your_queue_name submit_me.sh
+
+
+Now to the actual python source:
 """
 import logging
 logging.basicConfig(level=logging.INFO)

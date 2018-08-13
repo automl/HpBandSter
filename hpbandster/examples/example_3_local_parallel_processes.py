@@ -1,6 +1,9 @@
 """
-Example 3 - local and parallel
-==============================
+Example 3 - Local and Parallel (using processes)
+================================================
+
+Getting closer to a distributed setup, this examples shows how to connect a nameserver, an optimizer and several workers running in different processes.
+This would also allow true parallelism if the workers do all the computation in Python, such that the thread based paralelization of example 2 would not work.
 
 """
 import logging
@@ -16,7 +19,7 @@ from hpbandster.examples.commons import MyWorker
 
 
 
-parser = argparse.ArgumentParser(description='Example 1 - sequential and local execution.')
+parser = argparse.ArgumentParser(description='Example 3 - Local and Parallel Execution.')
 parser.add_argument('--min_budget',   type=float, help='Minimum budget used during the optimization.',    default=9)
 parser.add_argument('--max_budget',   type=float, help='Maximum budget used during the optimization.',    default=243)
 parser.add_argument('--n_iterations', type=int,   help='Number of iterations performed by the optimizer', default=4)

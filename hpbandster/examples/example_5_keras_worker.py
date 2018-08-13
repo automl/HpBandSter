@@ -1,28 +1,50 @@
 """
-Example 5 - KerasWorker:
-===================
+Worker for Example 5 - Keras
+============================
 
 In this example implements a small CNN in Keras to train it on MNIST.
 The configuration space shows the most common types of hyperparameters and
 even contains conditional dependencies.
 
 We'll optimise the following hyperparameters:
-	- learning rate:                   (float)        [1e-6, 1e-2]     # varied logarithmically, i.e. we sample the exponent uniformly at random
-	- optimizer:                       (categorical)  ['Adam', 'SGD']
-	  > sgd momentum:                  (float)        [0.0, 0.99]      # only if optimizer == 'SGD'
-	- number of convolutional layers   (int)          [1,3]
-	  > number of filters in layer 1   (int)          [4, 64]          # all 'number of filters' follow a log-uniform distribution
-	  > number of filters in layer 2   (int)          [4, 64]          # only if number of hidden layers > 1
-	  > number of filters in layer 3   (int)          [4, 64]          # only if number of hidden layers > 2
-	- dropout rate:                    (float)        [0, 0.9]
-	- number of hidden units FC layer  (int)          [8,256]          # also logartihmically distributed
-	
+
++-------------------------+----------------+-----------------+------------------------+
+| Parameter Name          | Parameter type |  Range/Choices  | Comment                |
++=========================+================+=================+========================+
+| Learning rate           |  float         | [1e-6, 1e-2]    | varied logarithmically |
++-------------------------+----------------+-----------------+------------------------+
+| Optimizer               | categorical    | {Adam, SGD }    | discrete choice        |
++-------------------------+----------------+-----------------+------------------------+
+| SGD momentum            |  float         | [0, 0.99]       | only active if         |
+|                         |                |                 | optimizer == SGD       |
++-------------------------+----------------+-----------------+------------------------+
+| Number of conv layers   | integer        | [1,3]           | can only take integer  |
+|                         |                |                 | values 1, 2, or 3      |
++-------------------------+----------------+-----------------+------------------------+
+| Number of filters in    | integer        | [4, 64]         | logarithmically varied |
+| the first conf layer    |                |                 | integer values         |
++-------------------------+----------------+-----------------+------------------------+
+| Number of filters in    | integer        | [4, 64]         | only active if number  |
+| the second conf layer   |                |                 | of layers >= 2         |
++-------------------------+----------------+-----------------+------------------------+
+| Number of filters in    | integer        | [4, 64]         | only active if number  |
+| the third conf layer    |                |                 | of layers == 3         |
++-------------------------+----------------+-----------------+------------------------+
+| Dropout rate            |  float         | [0, 0.9]        | standard continuous    |
+|                         |                |                 | parameter              |
++-------------------------+----------------+-----------------+------------------------+
+| Number of hidden units  | integer        | [8,256]         | logarithmically varied |
+| in fully connected layer|                |                 | integer values         |
++-------------------------+----------------+-----------------+------------------------+
+
+Please refer to the compute method below to see how those are defined using the
+ConfigSpace package.
 	  
 The network does not achieve stellar performance when a random configuration is samples,
 but a few iterations should yield an accuracy of >90%. To speed up training, only
 8192 images are used for training, 1024 for validation.
 The purpose is not to achieve state of the art on MNIST, but to show how to use
-PyTorch inside HpBandSter, and to demonstrate a more complicated search space.
+Keras inside HpBandSter, and to demonstrate a more complicated search space.
 """
 
 try:
@@ -56,8 +78,8 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 class KerasWorker(Worker):
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+	def __init__(self, N_train=8192, N_valid=1024, **kwargs):
+		super().__init__(**kwargs)
 
 		self.batch_size = 64
 		
@@ -65,11 +87,6 @@ class KerasWorker(Worker):
 		img_cols = 28
 		self.num_classes = 10
 		
-		N_train = 8192
-		N_valid = 1024
-
-
-
 		# the data, split between train and test sets
 		(x_train, y_train), (x_test, y_test) = mnist.load_data()
 
@@ -229,5 +246,5 @@ if __name__ == "__main__":
 	
 	config = cs.sample_configuration().get_dictionary()
 	print(config)
-	res = worker.compute(config=config, budget=2, working_directory='.')
+	res = worker.compute(config=config, budget=1, working_directory='.')
 	print(res)

@@ -93,10 +93,10 @@ to apply an optimizer to a new problem:
     :lines: 14-15, 48-53
 
 .. note::
-    Of course, we also support integer, ordinal, and  categorical hyperparameters.
+    We also support integer and  categorical hyperparameters.
     To express dependencies, the ConfigSpace package also also to express conditions and forbidden relations between parameters.
     For more examples we refer to the documentation of the ConfigSpace or
-    please have a look at the :doc:`ConfigSpace example<auto_examples/example_4_config_space>`.
+    please have a look at the :doc:`advanced_examples`.
 
 .. _budgets:
 
@@ -263,7 +263,7 @@ Step 5: Analysis of the Results
   To that end, we introduce three new command line arguments:
 
 .. literalinclude:: ../../hpbandster/examples/example_4_cluster.py
-    :lines: 27-29
+    :lines: 72-74
 
 | The first two are self-explanatory, and we will use a shared directory to distribute the nameserver information to every worker.
 
@@ -278,46 +278,35 @@ Step 5: Analysis of the Results
 
 
 .. literalinclude:: ../../hpbandster/examples/example_4_cluster.py
-    :lines: 35
+    :lines: 80
  
 
 | When creating the nameserver, we can provide the `working_directory` argument to make it store its hostname and port upon start.
   Both values are also returned by the `start` method so that we can use them in the master directly.
   
 .. literalinclude:: ../../hpbandster/examples/example_4_cluster.py
-    :lines: 47-48
+    :lines: 92-93
  
 | The workers can then simply retrieve that information by loading it from disc:
 
 .. literalinclude:: ../../hpbandster/examples/example_4_cluster.py
-    :lines: 38-43
+    :lines: 83-88
 
 | For the master, we can usually afford to run a worker in the background, as most optimizers have very little overhead.
 
 .. literalinclude:: ../../hpbandster/examples/example_4_cluster.py
-    :lines: 53-54
+    :lines: 98-99
 
 | We also provide the `host`, `nameserver`, and `nameserver_port` arguments to the optimizer.
   Once the run is done, we usually do not want to print out any information, but rather store the result for later analysis.
   Pickling the object returned by the optimizer's run is a very easy way of doing that.
 
 .. literalinclude:: ../../hpbandster/examples/example_4_cluster.py
-    :lines: 70-71
+    :lines: 115-116
 
-| The full example can be found :doc:`here <auto_examples/example_4_cluster>`
-
-| Now all that is left to do is running this on your cluster.
-  This usually requires a small shell script that contains the appropriate commands.
-  This will vary from cluster to cluster, as there are several popular schedulers (e.g. Sun Grid Engine, Torque, Moab, ...).
-  Here is an example script for SGE, but it contains hard coded paths to virtual environments and needs to be adapted before you can use that on your cluster.
-
-.. literalinclude:: ../../hpbandster/examples/example_4_cluster_submit_me.sh
-    :lines: 1-15
-  
-| What the script does is simple: It creates a so called array job, where the job consists of multiple independent processes. 
-  Every process loads the virtual environment and calls the python script.
-  For those with an job array index larger than one, it executes the worker only.
-  The first job in the array starts the nameserver, one worker and the optimizer.
+| The full example can be found :doc:`here <auto_examples/example_4_cluster>`.
+  There you will also find an example shell script to submit the program on a cluster
+  running the Sun Grid Engine.
 
 
 
@@ -326,7 +315,7 @@ Step 5: Analysis of the Results
 What to read next
 ~~~~~~~~~~~~~~~~~
 
-| If you are now excited about trying HpBandSter on your problem, you might want to consider reading the `good practices` on how to make sure you do not run into problems when writing your worker and running the optimizer.
+| If you are now excited about trying HpBandSter on your problem, you might want to consider reading the :doc:`best practices<best_practices>` on how to make sure you do not run into problems when writing your worker and running the optimizer.
   The :doc:`gallery <auto_examples/index>` also contains some useful scripts to start from, especially workers training PyTorch, and Keras models.
 
 | If you run into problems, please check the FAQ and the Github issues first, before contacting us.

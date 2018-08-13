@@ -1,12 +1,23 @@
 """
-Example 5 - MNIST
-=================
+Example 8 - Warmstarting for MNIST
+==================================
 
-Small CNN for MNIST implementet in both Keras and PyTorch.
-This example also shows how to log results to disk during the optimization
-which is useful for long runs, because intermediate results are directly available
-for analysis. It also contains a more realistic search space with different types
-of variables to be optimized.
+Sometimes it is desired to continue an already finished run because the optimization
+requires more function evaluations. In other cases, one might wish to use results
+from previous runs to speed up the optimization. This might be useful if initial
+runs were done with relatively small budgets, or on only a subset of the data to
+get an initial understanding of the problem.
+
+Here we shall see how to use the results from example 5 to initialize BOHB's model.
+What changed are
+- the number of training points is increased from 8192 to 32768
+- the number of validation points is increased from 1024 to 16384
+- the mimum budget is now 3 instead of 1 because we have already quite a few runs for a small number of epochs
+
+Note that the loaded runs will show up in the results of the new run. They are all
+combined into an iteration with the index -1 and their time stamps are manipulated
+such that the last run finishes at time 0 with all other times being negative.
+That info can be used to filter those runs when analysing the run.
 
 """
 import os
@@ -23,15 +34,16 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 
-parser = argparse.ArgumentParser(description='Example 5 - CNN on MNIST')
-parser.add_argument('--min_budget',   type=float, help='Minimum number of epochs for training.',    default=1)
+parser = argparse.ArgumentParser(description='Example 1 - sequential and local execution.')
+parser.add_argument('--min_budget',   type=float, help='Minimum number of epochs for training.',    default=3)
 parser.add_argument('--max_budget',   type=float, help='Maximum number of epochs for training.',    default=9)
-parser.add_argument('--n_iterations', type=int,   help='Number of iterations performed by the optimizer', default=16)
+parser.add_argument('--n_iterations', type=int,   help='Number of iterations performed by the optimizer', default=4)
 parser.add_argument('--worker', help='Flag to turn this into a worker process', action='store_true')
 parser.add_argument('--run_id', type=str, help='A unique run id for this optimization run. An easy option is to use the job id of the clusters scheduler.')
 parser.add_argument('--nic_name',type=str, help='Which network interface to use for communication.', default='lo')
 parser.add_argument('--shared_directory',type=str, help='A directory that is accessible for all processes, e.g. a NFS share.', default='.')
 parser.add_argument('--backend',help='Toggles which worker is used. Choose between a pytorch and a keras implementation.', choices=['pytorch', 'keras'], default='keras')
+parser.add_argument('--previous_run_dir',type=str, help='A directory that contains a config.json and results.json for the same configuration space.', default='./example_5_run/')
 
 args=parser.parse_args()
 
@@ -71,6 +83,13 @@ ns_host, ns_port = NS.start()
 w = worker(run_id=args.run_id, host=host, nameserver=ns_host, nameserver_port=ns_port, timeout=120)
 w.run(background=True)
 
+
+# Let us load the old run now to use its results to warmstart a new run with slightly
+# different budgets in terms of datapoints and epochs.
+# Note that the search space has to be identical though!
+previous_run = hpres.logged_results_to_HBS_result(args.previous_run_dir)
+
+
 # Run an optimizer
 bohb = BOHB(  configspace = worker.get_configspace(),
 			  run_id = args.run_id,
@@ -79,6 +98,7 @@ bohb = BOHB(  configspace = worker.get_configspace(),
 			  nameserver_port=ns_port,
 			  result_logger=result_logger,
 			  min_budget=args.min_budget, max_budget=args.max_budget, 
+			  previous_result = previous_run,				# this is how you tell any optimizer about previous runs
 		   )
 res = bohb.run(n_iterations=args.n_iterations)
 

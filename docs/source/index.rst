@@ -16,7 +16,7 @@ Welcome to HpBandSter's documentation!
    quickstart.rst
    advanced_examples.rst
    auto_examples/index.rst
-   configspace.rst
+   best_practices.rst
    optimizers.rst
    core_components.rst
    faq.rst

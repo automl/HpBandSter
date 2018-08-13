@@ -1,6 +1,12 @@
 """
-Example 1 - Simple and locally
-==============================
+Example 2 - Local and Parallel (using threads)
+==============================================
+
+This example extends example 1 to multiple parallel workers.
+For demonstrational purposes, the workers are started in separate threads.
+This is probably not the most common use case but serves as a nice example.
+The setup can be useful if the workers do their computations outside Python's Global Interpreter Lock, e.g. in some 3rd party extension in C/C++.
+In that case, all workers can truely work in parallel.
 
 """
 import logging

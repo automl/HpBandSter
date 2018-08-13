@@ -32,7 +32,7 @@ class Run(object):
 		return(getattr(self, k))
 
 
-def extract_HB_learning_curves(runs):
+def extract_HBS_learning_curves(runs):
 	"""
 	function to get the hyperband learning curves
 
@@ -136,7 +136,7 @@ class json_result_logger(object):
 			fh.write("\n")
 
 
-def logged_results_to_HB_result(directory):
+def logged_results_to_HBS_result(directory):
 	"""
 	function to import logged 'live-results' and return a HB_result object
 
@@ -341,7 +341,7 @@ class Result(object):
 		return(runs)
 
 
-	def get_learning_curves(self, lc_extractor=extract_HB_learning_curves, config_ids=None):
+	def get_learning_curves(self, lc_extractor=extract_HBS_learning_curves, config_ids=None):
 		"""
 		extracts all learning curves from all run configurations
 
