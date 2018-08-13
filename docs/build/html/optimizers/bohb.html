@@ -1,0 +1,303 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>BOHB - Bayesian Optimization and Hyperband &mdash; hpbandster  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="How to extend HpBandSter with your optimizer" href="how_to_extend.html" />
+    <link rel="prev" title="Hyperband" href="hyperband.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> hpbandster
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced_examples.html">Advanced examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/index.html">Examples - How to use HpBandSter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../best_practices.html">Best Practices</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../optimizers.html">Optimizers</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="randomsearch.html">Random Search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hyperband.html">Hyperband</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BOHB - Bayesian Optimization and Hyperband</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how_to_extend.html">How to extend HpBandSter with your optimizer</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../core_components.html">The core components in more detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hpbandster</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../optimizers.html">Optimizers</a> &raquo;</li>
+        
+      <li>BOHB - Bayesian Optimization and Hyperband</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/optimizers/bohb.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-hpbandster.optimizers.bohb">
+<span id="bohb-bayesian-optimization-and-hyperband"></span><h1>BOHB - Bayesian Optimization and Hyperband<a class="headerlink" href="#module-hpbandster.optimizers.bohb" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="hpbandster.optimizers.bohb.BOHB">
+<em class="property">class </em><code class="descclassname">hpbandster.optimizers.bohb.</code><code class="descname">BOHB</code><span class="sig-paren">(</span><em>configspace=None</em>, <em>eta=3</em>, <em>min_budget=0.01</em>, <em>max_budget=1</em>, <em>min_points_in_model=None</em>, <em>top_n_percent=15</em>, <em>num_samples=64</em>, <em>random_fraction=0.3333333333333333</em>, <em>bandwidth_factor=3</em>, <em>min_bandwidth=0.001</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/optimizers/bohb.html#BOHB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.optimizers.bohb.BOHB" title="Permalink to this definition">¶</a></dt>
+<dd><p>BOHB performs robust and efficient hyperparameter optimization
+at scale by combining the speed of Hyperband searches with the
+guidance and guarantees of convergence of Bayesian
+Optimization. Instead of sampling new configurations at random,
+BOHB uses kernel density estimators to select promising candidates.</p>
+<p>For reference:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@InProceedings{falkner-icml-18,
+  title =        {{BOHB}: Robust and Efficient Hyperparameter Optimization at Scale},
+  author =       {Falkner, Stefan and Klein, Aaron and Hutter, Frank},
+  booktitle =    {Proceedings of the 35th International Conference on Machine Learning},
+  pages =        {1436--1445},
+  year =         {2018},
+}
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>configspace</strong> (<em>ConfigSpace object</em>) – valid representation of the search space</li>
+<li><strong>eta</strong> (<em>float</em>) – In each iteration, a complete run of sequential halving is executed. In it,
+after evaluating each configuration on the same subset size, only a fraction of
+1/eta of them ‘advances’ to the next round.
+Must be greater or equal to 2.</li>
+<li><strong>min_budget</strong> (<em>float</em>) – The smallest budget to consider. Needs to be positive!</li>
+<li><strong>max_budget</strong> (<em>float</em>) – The largest budget to consider. Needs to be larger than min_budget!
+The budgets will be geometrically distributed
+<span class="math notranslate nohighlight">\(a^2 + b^2 = c^2 \sim \eta^k\)</span> for <span class="math notranslate nohighlight">\(k\in [0, 1, ... , num\_subsets - 1]\)</span>.</li>
+<li><strong>min_points_in_model</strong> (<em>int</em>) – number of observations to start building a KDE. Default ‘None’ means
+dim+1, the bare minimum.</li>
+<li><strong>top_n_percent</strong> (<em>int</em>) – percentage ( between 1 and 99, default 15) of the observations that are considered good.</li>
+<li><strong>num_samples</strong> (<em>int</em>) – number of samples to optimize EI (default 64)</li>
+<li><strong>random_fraction</strong> (<em>float</em>) – fraction of purely random configurations that are sampled from the
+prior without the model.</li>
+<li><strong>bandwidth_factor</strong> (<em>float</em>) – to encourage diversity, the points proposed to optimize EI, are sampled
+from a ‘widened’ KDE where the bandwidth is multiplied by this factor (default: 3)</li>
+<li><strong>min_bandwidth</strong> (<em>float</em>) – to keep diversity, even when all (good) samples have the same value for one of the parameters,
+a minimum bandwidth (Default: 1e-3) is used instead of zero.</li>
+<li><strong>iteration_kwargs</strong> (<em>dict</em>) – kwargs to be added to the instantiation of each iteration</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="hpbandster.optimizers.bohb.BOHB.get_next_iteration">
+<code class="descname">get_next_iteration</code><span class="sig-paren">(</span><em>iteration</em>, <em>iteration_kwargs={}</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/optimizers/bohb.html#BOHB.get_next_iteration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.optimizers.bohb.BOHB.get_next_iteration" title="Permalink to this definition">¶</a></dt>
+<dd><p>BO-HB uses (just like Hyperband) SuccessiveHalving for each iteration.
+See Li et al. (2016) for reference.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>iteration</strong> (<em>int</em>) – the index of the iteration to be instantiated</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>SuccessiveHalving</strong> – corresponding number of configurations</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">the SuccessiveHalving iteration with the</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="how_to_extend.html" class="btn btn-neutral float-right" title="How to extend HpBandSter with your optimizer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="hyperband.html" class="btn btn-neutral" title="Hyperband" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Stefan Falkner.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

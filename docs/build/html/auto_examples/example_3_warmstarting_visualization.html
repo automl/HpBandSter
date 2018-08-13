@@ -1,0 +1,382 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Example 3 - Warmstarting &mdash; hpbandster  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Example 3 - Local and Parallel (using processes)" href="example_3_local_parallel_processes.html" />
+    <link rel="prev" title="Example 2 - Local and Parallel (using threads)" href="example_2_local_parallel_threads.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> hpbandster
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced_examples.html">Advanced examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Examples - How to use HpBandSter</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="example_1_local_sequential.html">Example 1 - Local and Sequential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_2_local_parallel_threads.html">Example 2 - Local and Parallel (using threads)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Example 3 - Warmstarting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_3_local_parallel_processes.html">Example 3 - Local and Parallel (using processes)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_4_cluster.html">Example 4 - on the cluster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_5_mnist.html">Example 5 - MNIST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_example_6_analysis.html">Example 6 -  Analysis of a Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_example_7_interactive_plot.html">Example 7 - Interactive Exploration of the Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_8_mnist_continued.html">Example 8 - Warmstarting for MNIST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_5_keras_worker.html">Worker for Example 5 - Keras</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_5_pytorch_worker.html">Worker for Example 5 - PyTorch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commons.html">example Worker</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../best_practices.html">Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../optimizers.html">Optimizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core_components.html">The core components in more detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hpbandster</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Examples - How to use HpBandSter</a> &raquo;</li>
+        
+      <li>Example 3 - Warmstarting</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/auto_examples/example_3_warmstarting_visualization.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Click <a class="reference internal" href="#sphx-glr-download-auto-examples-example-3-warmstarting-visualization-py"><span class="std std-ref">here</span></a> to download the full example code</p>
+</div>
+<div class="sphx-glr-example-title section" id="example-3-warmstarting">
+<span id="sphx-glr-auto-examples-example-3-warmstarting-visualization-py"></span><h1>Example 3 - Warmstarting<a class="headerlink" href="#example-3-warmstarting" title="Permalink to this headline">¶</a></h1>
+<p>This examples covers the warmstart functionality
+We will start an optimizer run with a small budget
+Then we’ll shutdown the master, but keep the nameserver alive.
+And finally, restarting the optimization run with a new master and a larger budget</p>
+<p>In the end, we’ll introduce an interactive visualization tool.
+With this tool, we can illustrate the progress of the optimizer.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+
+<span class="kn">import</span> <span class="nn">ConfigSpace</span> <span class="kn">as</span> <span class="nn">CS</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">hpbandster.core.nameserver</span> <span class="kn">as</span> <span class="nn">hpns</span>
+<span class="kn">import</span> <span class="nn">hpbandster.core.result</span> <span class="kn">as</span> <span class="nn">hpres</span>
+
+<span class="kn">from</span> <span class="nn">hpbandster.examples.commons</span> <span class="kn">import</span> <span class="n">MyWorker</span><span class="p">,</span> <span class="n">sample_configspace</span>
+<span class="kn">from</span> <span class="nn">hpbandster.optimizers</span> <span class="kn">import</span> <span class="n">H2BO</span> <span class="k">as</span> <span class="n">opt</span>
+<span class="kn">from</span> <span class="nn">hpbandster.core.result</span> <span class="kn">import</span> <span class="n">extract_HB_learning_curves</span>
+<span class="kn">from</span> <span class="nn">hpbandster.visualization</span> <span class="kn">import</span> <span class="n">interactive_HB_plot</span><span class="p">,</span> <span class="n">default_tool_tips</span>
+
+
+<span class="c1"># First, create a ConfigSpace-Object.</span>
+<span class="c1"># It contains the hyperparameters to be optimized</span>
+<span class="c1"># For more details, please have a look in the ConfigSpace-Example in the Documentation</span>
+<span class="n">config_space</span> <span class="o">=</span> <span class="n">sample_configspace</span><span class="p">()</span>
+<span class="n">config_space</span><span class="o">.</span><span class="n">add_hyperparameter</span><span class="p">(</span><span class="n">CS</span><span class="o">.</span><span class="n">UniformFloatHyperparameter</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="c1"># We use live logging with the jason result logger</span>
+<span class="n">result_logger</span> <span class="o">=</span> <span class="n">hpres</span><span class="o">.</span><span class="n">json_result_logger</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Every run has to have a unique (at runtime) id.</span>
+<span class="c1"># This needs to be unique for concurrent runs, i.e. when multiple</span>
+<span class="c1"># instances run at the same time, they have to have different ids</span>
+<span class="n">run_id</span> <span class="o">=</span> <span class="s1">&#39;0&#39;</span>
+
+<span class="c1"># Step 1:</span>
+<span class="c1"># Every run needs a nameserver. It could be a &#39;static&#39; server with a</span>
+<span class="c1"># permanent address, but here it will be started for the local machine</span>
+<span class="c1"># with a random port.</span>
+<span class="c1"># The nameserver manages the concurrent running workers across all possible threads or clusternodes.</span>
+<span class="n">NS</span> <span class="o">=</span> <span class="n">hpns</span><span class="o">.</span><span class="n">NameServer</span><span class="p">(</span><span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">ns_host</span><span class="p">,</span> <span class="n">ns_port</span> <span class="o">=</span> <span class="n">NS</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="c1"># Step 2:</span>
+<span class="c1"># The worker implements the connection to the model to be evaluated.</span>
+<span class="c1"># Its &#39;compute&#39;-method will be called later by the BOHB-optimizer repeatedly</span>
+<span class="c1"># with the sampled configurations and return for example the computed loss.</span>
+<span class="c1"># Further usages of the worker will be covered in a later example.</span>
+<span class="n">worker</span> <span class="o">=</span> <span class="n">MyWorker</span><span class="p">(</span><span class="n">nameserver</span><span class="o">=</span><span class="n">ns_host</span><span class="p">,</span> <span class="n">nameserver_port</span><span class="o">=</span><span class="n">ns_port</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">)</span>
+<span class="n">worker</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">background</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># We will start the first run with a smaller budget, which we define here.</span>
+<span class="c1"># In the second run, we&#39;ll use three times as much.</span>
+<span class="n">min_budget</span> <span class="o">=</span> <span class="mi">9</span>
+<span class="n">max_budget</span> <span class="o">=</span> <span class="mi">243</span>
+
+<span class="c1"># Step 3:</span>
+<span class="c1"># The number of sampled configurations is determined by the</span>
+<span class="c1"># parameters eta, min_budget and max_budget.</span>
+<span class="c1"># After evaluating each configuration, starting with the minimum budget</span>
+<span class="c1"># on the same subset size, only a fraction of 1 / eta of them</span>
+<span class="c1"># &#39;advances&#39; to the next round. At the same time the current budget will be doubled.</span>
+<span class="c1"># This process runs until the maximum budget is reached.</span>
+<span class="n">HB</span> <span class="o">=</span> <span class="n">opt</span><span class="p">(</span>   <span class="n">configspace</span><span class="o">=</span><span class="n">config_space</span><span class="p">,</span>
+            <span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">,</span>
+            <span class="n">eta</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">min_budget</span><span class="o">=</span><span class="n">min_budget</span><span class="p">,</span> <span class="n">max_budget</span><span class="o">=</span><span class="n">max_budget</span><span class="p">,</span>
+            <span class="n">nameserver</span><span class="o">=</span><span class="n">ns_host</span><span class="p">,</span>
+            <span class="n">nameserver_port</span><span class="o">=</span><span class="n">ns_port</span><span class="p">,</span>
+            <span class="n">result_logger</span><span class="o">=</span><span class="n">result_logger</span><span class="p">,</span>
+            <span class="n">min_points_in_model</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+            <span class="n">min_bandwidth</span><span class="o">=</span><span class="mf">1e-1</span>
+        <span class="p">)</span>
+
+
+<span class="c1"># Do a short run and shutdown the master (but keep the name server and the worker alive)</span>
+<span class="n">res</span> <span class="o">=</span> <span class="n">HB</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">HB</span><span class="o">.</span><span class="n">shutdown</span><span class="p">(</span><span class="n">shutdown_workers</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+
+<span class="c1"># Now let&#39;s start a new run, but feed in the results of the first one to warmstart the model.</span>
+<span class="c1"># Note that the budgets don&#39;t have to align, but beware: if the max budget of the second run is not</span>
+<span class="c1"># greater or equal to the max budget in the previous runs, BOHB&#39;s model might never be updated!</span>
+<span class="n">min_budget</span> <span class="o">*=</span> <span class="mi">3</span>
+<span class="n">max_budget</span> <span class="o">*=</span> <span class="mi">3</span>
+
+<span class="n">HB</span> <span class="o">=</span> <span class="n">opt</span><span class="p">(</span>   <span class="n">configspace</span><span class="o">=</span><span class="n">config_space</span><span class="p">,</span>
+            <span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">,</span>
+            <span class="n">eta</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">min_budget</span><span class="o">=</span><span class="n">min_budget</span><span class="p">,</span> <span class="n">max_budget</span><span class="o">=</span><span class="n">max_budget</span><span class="p">,</span>
+            <span class="n">nameserver</span><span class="o">=</span><span class="n">ns_host</span><span class="p">,</span>
+            <span class="n">nameserver_port</span><span class="o">=</span><span class="n">ns_port</span><span class="p">,</span>
+            <span class="n">previous_result</span><span class="o">=</span><span class="n">res</span><span class="p">,</span>  <span class="c1"># Here is where we feed the previous run into our optimizer</span>
+            <span class="n">min_points_in_model</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+            <span class="n">top_n_percent</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+            <span class="n">bandwidth_factor</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">num_samples</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+            <span class="n">min_bandwidth</span><span class="o">=</span><span class="mf">1e-1</span>
+        <span class="p">)</span>
+<span class="n">res</span> <span class="o">=</span> <span class="n">HB</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+
+<span class="c1"># After the optimizer run, we shutdown the master.</span>
+<span class="n">HB</span><span class="o">.</span><span class="n">shutdown</span><span class="p">(</span><span class="n">shutdown_workers</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">NS</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+
+
+<span class="c1"># BOHB will return a result object.</span>
+<span class="c1"># It holds informations about the optimization run like the incumbent (=best) configuration.</span>
+<span class="c1"># For further details about the result-object, see its documentation.</span>
+<span class="n">id2config</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">get_id2config_mapping</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;A total of </span><span class="si">%i</span><span class="s1"> unique configurations where sampled.&#39;</span><span class="o">%</span><span class="nb">len</span><span class="p">(</span><span class="n">id2config</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;A total of </span><span class="si">%i</span><span class="s1"> runs where executed.&#39;</span><span class="o">%</span><span class="nb">len</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">get_all_runs</span><span class="p">()))</span>
+
+
+<span class="c1"># Hpbandster contains also a visualization tool to plot the</span>
+<span class="c1"># &#39;learning curves&#39; of the sampled configurations</span>
+<span class="n">incumbent_trajectory</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">get_incumbent_trajectory</span><span class="p">()</span>
+<span class="n">lcs</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">get_learning_curves</span><span class="p">(</span><span class="n">lc_extractor</span><span class="o">=</span><span class="n">extract_HB_learning_curves</span><span class="p">)</span>
+
+<span class="n">tool_tips</span> <span class="o">=</span> <span class="n">default_tool_tips</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">lcs</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">check</span><span class="p">,</span> <span class="n">none_button</span><span class="p">,</span> <span class="n">all_button</span> <span class="o">=</span> <span class="n">interactive_HB_plot</span><span class="p">(</span><span class="n">lcs</span><span class="p">,</span> <span class="n">tool_tip_strings</span><span class="o">=</span><span class="n">tool_tips</span><span class="p">,</span>
+                                                              <span class="n">show</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="mf">0.1</span><span class="o">*</span><span class="n">incumbent_trajectory</span><span class="p">[</span><span class="s1">&#39;losses&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Total running time of the script:</strong> ( 0 minutes  0.000 seconds)</p>
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-example-3-warmstarting-visualization-py">
+<div class="sphx-glr-download docutils container">
+<a class="reference download internal" href="../_downloads/example_3_warmstarting_visualization.py" download=""><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">example_3_warmstarting_visualization.py</span></code></a></div>
+<div class="sphx-glr-download docutils container">
+<a class="reference download internal" href="../_downloads/example_3_warmstarting_visualization.ipynb" download=""><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">example_3_warmstarting_visualization.ipynb</span></code></a></div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.readthedocs.io">Gallery generated by Sphinx-Gallery</a></p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="example_3_local_parallel_processes.html" class="btn btn-neutral float-right" title="Example 3 - Local and Parallel (using processes)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="example_2_local_parallel_threads.html" class="btn btn-neutral" title="Example 2 - Local and Parallel (using threads)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Stefan Falkner.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

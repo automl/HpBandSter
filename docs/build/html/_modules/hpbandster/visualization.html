@@ -1,0 +1,627 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>hpbandster.visualization &mdash; hpbandster  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> hpbandster
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../advanced_examples.html">Advanced examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../auto_examples/index.html">Examples - How to use HpBandSter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../best_practices.html">Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../optimizers.html">Optimizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../core_components.html">The core components in more detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">hpbandster</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>hpbandster.visualization</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for hpbandster.visualization</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">copy</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="k">as</span> <span class="nn">sps</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib.widgets</span> <span class="k">import</span> <span class="n">CheckButtons</span><span class="p">,</span><span class="n">Button</span>
+
+
+
+<div class="viewcode-block" id="default_tool_tips"><a class="viewcode-back" href="../../core/visualization.html#hpbandster.visualization.default_tool_tips">[docs]</a><span class="k">def</span> <span class="nf">default_tool_tips</span><span class="p">(</span><span class="n">result_object</span><span class="p">,</span> <span class="n">learning_curves</span><span class="p">,</span> <span class="n">include_run_info</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+	<span class="n">tool_tips</span> <span class="o">=</span> <span class="p">{}</span>
+	<span class="n">id2conf</span> <span class="o">=</span> <span class="n">result_object</span><span class="o">.</span><span class="n">get_id2config_mapping</span><span class="p">()</span>
+	
+	<span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">learning_curves</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+		
+		<span class="n">config</span> <span class="o">=</span> <span class="n">id2conf</span><span class="p">[</span><span class="nb">id</span><span class="p">][</span><span class="s1">&#39;config&#39;</span><span class="p">]</span>
+		<span class="n">config_info</span> <span class="o">=</span> <span class="n">id2conf</span><span class="p">[</span><span class="nb">id</span><span class="p">][</span><span class="s1">&#39;config_info&#39;</span><span class="p">]</span>
+
+		<span class="n">all_runs</span> <span class="o">=</span>  <span class="n">result_object</span><span class="o">.</span><span class="n">get_runs_by_id</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_runs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="k">continue</span>
+		<span class="n">longest_run</span> <span class="o">=</span> <span class="n">all_runs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+	
+		<span class="k">while</span> <span class="n">longest_run</span><span class="o">.</span><span class="n">loss</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">all_runs</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_runs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="k">break</span>
+			<span class="n">longest_run</span> <span class="o">=</span> <span class="n">all_runs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+			
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_runs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="k">continue</span>
+		
+		<span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;id: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">),</span> <span class="s1">&#39;duration (sec): </span><span class="si">%f</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">((</span><span class="n">longest_run</span><span class="p">[</span><span class="s1">&#39;time_stamps&#39;</span><span class="p">][</span><span class="s1">&#39;finished&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">longest_run</span><span class="p">[</span><span class="s1">&#39;time_stamps&#39;</span><span class="p">][</span><span class="s1">&#39;started&#39;</span><span class="p">]))]</span>
+
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">longest_run</span><span class="o">.</span><span class="n">loss</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">s</span> <span class="o">+=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">id2conf</span><span class="p">[</span><span class="nb">id</span><span class="p">][</span><span class="s1">&#39;config&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="p">]</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="n">s</span> <span class="o">+=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">id2conf</span><span class="p">[</span><span class="nb">id</span><span class="p">][</span><span class="s1">&#39;config_info&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="p">]</span>
+			<span class="k">except</span><span class="p">:</span>
+				<span class="k">pass</span>
+			
+			<span class="n">s</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;losses: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">([</span><span class="n">r</span><span class="o">.</span><span class="n">loss</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">all_runs</span><span class="p">])]</span>
+			<span class="k">if</span> <span class="n">include_run_info</span><span class="p">:</span>
+				<span class="n">s</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;longest run info: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">longest_run</span><span class="o">.</span><span class="n">info</span><span class="p">)]</span>
+			
+		<span class="n">tool_tips</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+	<span class="k">return</span><span class="p">(</span><span class="n">tool_tips</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="concurrent_runs_over_time"><a class="viewcode-back" href="../../core/visualization.html#hpbandster.visualization.concurrent_runs_over_time">[docs]</a><span class="k">def</span> <span class="nf">concurrent_runs_over_time</span><span class="p">(</span><span class="n">runs</span><span class="p">,</span> <span class="n">num_points</span> <span class="o">=</span> <span class="mi">512</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+	
+	<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([(</span><span class="n">r</span><span class="o">.</span><span class="n">time_stamps</span><span class="p">[</span><span class="s1">&#39;started&#39;</span><span class="p">],</span> <span class="n">r</span><span class="o">.</span><span class="n">time_stamps</span><span class="p">[</span><span class="s1">&#39;finished&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">runs</span><span class="p">])</span>
+	<span class="n">ts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">data</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">512</span><span class="p">)</span>
+	<span class="n">n_workers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="p">((</span><span class="n">data</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">t</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">data</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">&gt;</span><span class="n">t</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">ts</span><span class="p">])</span>
+
+	<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+	<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">n_workers</span><span class="p">)</span>
+	<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;time [s]&#39;</span><span class="p">)</span>
+	<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;number of concurent runs&#39;</span><span class="p">)</span>
+	
+	<span class="k">if</span> <span class="n">show</span><span class="p">:</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+	<span class="k">return</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="finished_runs_over_time"><a class="viewcode-back" href="../../core/visualization.html#hpbandster.visualization.finished_runs_over_time">[docs]</a><span class="k">def</span> <span class="nf">finished_runs_over_time</span><span class="p">(</span><span class="n">runs</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+	<span class="n">budgets</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">r</span><span class="o">.</span><span class="n">budget</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">runs</span><span class="p">])</span>
+	
+	<span class="n">times</span> <span class="o">=</span> <span class="p">{}</span>
+	<span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">budgets</span><span class="p">:</span>
+		<span class="n">times</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+	
+	<span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">runs</span><span class="p">:</span>
+		<span class="n">times</span><span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">budget</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">time_stamps</span><span class="p">[</span><span class="s1">&#39;finished&#39;</span><span class="p">])</span>
+	
+	<span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">budgets</span><span class="p">:</span>
+		<span class="n">times</span><span class="p">[</span><span class="n">b</span><span class="p">]</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+	
+	
+	<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+	<span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">budgets</span><span class="p">:</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="n">b</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="n">b</span><span class="p">])),</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;b = </span><span class="si">%f</span><span class="s1">&#39;</span><span class="o">%</span><span class="n">b</span><span class="p">)</span>
+
+
+	<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;time [s]&#39;</span><span class="p">)</span>
+	<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;number of finished runs&#39;</span><span class="p">)</span>
+	<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+	
+	<span class="k">if</span> <span class="n">show</span><span class="p">:</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+	
+
+<div class="viewcode-block" id="performance_histogram_model_vs_random"><a class="viewcode-back" href="../../core/visualization.html#hpbandster.visualization.performance_histogram_model_vs_random">[docs]</a><span class="k">def</span> <span class="nf">performance_histogram_model_vs_random</span><span class="p">(</span><span class="n">runs</span><span class="p">,</span> <span class="n">id2conf</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+	<span class="n">model_based_runs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">id2conf</span><span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">config_id</span><span class="p">][</span><span class="s1">&#39;config_info&#39;</span><span class="p">][</span><span class="s1">&#39;model_based_pick&#39;</span><span class="p">],</span> <span class="n">runs</span><span class="p">))</span>
+	<span class="n">random_runs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="ow">not</span> <span class="n">id2conf</span><span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">config_id</span><span class="p">][</span><span class="s1">&#39;config_info&#39;</span><span class="p">][</span><span class="s1">&#39;model_based_pick&#39;</span><span class="p">],</span> <span class="n">runs</span><span class="p">))</span>
+
+	<span class="n">budgets</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">r</span><span class="o">.</span><span class="n">budget</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">runs</span><span class="p">]))</span>
+	<span class="n">budgets</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+	<span class="n">losses</span> <span class="o">=</span> <span class="p">{}</span>
+	<span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">budgets</span><span class="p">:</span>
+		<span class="n">losses</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;model_based&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;random&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+
+	<span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">model_based_runs</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">loss</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">loss</span><span class="p">):</span>
+			<span class="k">continue</span>
+		<span class="n">losses</span><span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">budget</span><span class="p">][</span><span class="s1">&#39;model_based&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">loss</span><span class="p">)</span>
+
+	<span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">random_runs</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">loss</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">loss</span><span class="p">):</span>
+			<span class="k">continue</span>
+		<span class="n">losses</span><span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">budget</span><span class="p">][</span><span class="s1">&#39;random&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">loss</span><span class="p">)</span>
+
+	<span class="n">fig</span><span class="p">,</span> <span class="n">axarr</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">budgets</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="s1">&#39;row&#39;</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="s1">&#39;row&#39;</span><span class="p">)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s1">&#39;Loss of model based configurations (left) vs. random configuration (right)&#39;</span><span class="p">)</span>
+
+	<span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">budgets</span><span class="p">):</span>
+		<span class="n">mbax</span><span class="p">,</span> <span class="n">rax</span> <span class="o">=</span> <span class="n">axarr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+		<span class="n">mbax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">losses</span><span class="p">[</span><span class="n">b</span><span class="p">][</span><span class="s1">&#39;model_based&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;b = </span><span class="si">%f</span><span class="s1"> </span><span class="se">\n</span><span class="s1"> n = </span><span class="si">%i</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">losses</span><span class="p">[</span><span class="n">b</span><span class="p">][</span><span class="s1">&#39;model_based&#39;</span><span class="p">])))</span>
+		<span class="n">mbax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;frequency&#39;</span><span class="p">)</span>
+		<span class="n">mbax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+		
+		
+		
+		<span class="n">rax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">losses</span><span class="p">[</span><span class="n">b</span><span class="p">][</span><span class="s1">&#39;random&#39;</span><span class="p">],</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;b = </span><span class="si">%f</span><span class="s1"> </span><span class="se">\n</span><span class="s1"> n = </span><span class="si">%i</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">losses</span><span class="p">[</span><span class="n">b</span><span class="p">][</span><span class="s1">&#39;random&#39;</span><span class="p">])))</span>
+		<span class="n">rax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+		
+		
+		<span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">budgets</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+			<span class="n">mbax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;loss&#39;</span><span class="p">)</span>
+			<span class="n">rax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;loss&#39;</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">show</span><span class="p">:</span>		
+		<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+		
+	<span class="k">return</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">axarr</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="correlation_across_budgets"><a class="viewcode-back" href="../../core/visualization.html#hpbandster.visualization.correlation_across_budgets">[docs]</a><span class="k">def</span> <span class="nf">correlation_across_budgets</span><span class="p">(</span><span class="n">results_object</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+	
+	<span class="n">runs</span> <span class="o">=</span> <span class="n">results_object</span><span class="o">.</span><span class="n">get_all_runs</span><span class="p">()</span>
+	<span class="n">id2conf</span> <span class="o">=</span> <span class="n">results_object</span><span class="o">.</span><span class="n">get_id2config_mapping</span><span class="p">()</span>
+
+	<span class="n">budgets</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">r</span><span class="o">.</span><span class="n">budget</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">runs</span><span class="p">]))</span>
+	<span class="n">budgets</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+	<span class="kn">import</span> <span class="nn">itertools</span>
+
+	<span class="n">loss_pairs</span> <span class="o">=</span> <span class="p">{}</span>
+	<span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">budgets</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+		<span class="n">loss_pairs</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+	<span class="k">for</span> <span class="n">b1</span><span class="p">,</span><span class="n">b2</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">budgets</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+		<span class="n">loss_pairs</span><span class="p">[</span><span class="n">b1</span><span class="p">][</span><span class="n">b2</span><span class="p">]</span><span class="o">=</span> <span class="p">[]</span>
+
+	<span class="k">for</span> <span class="n">cid</span> <span class="ow">in</span> <span class="n">id2conf</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+		<span class="n">runs</span> <span class="o">=</span> <span class="n">results_object</span><span class="o">.</span><span class="n">get_runs_by_id</span><span class="p">(</span><span class="n">cid</span><span class="p">)</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">runs</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span> <span class="k">continue</span>
+		
+		<span class="k">for</span> <span class="n">r1</span><span class="p">,</span><span class="n">r2</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">runs</span><span class="p">,</span><span class="mi">2</span><span class="p">):</span>
+			<span class="k">if</span> <span class="n">r1</span><span class="o">.</span><span class="n">loss</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">r2</span><span class="o">.</span><span class="n">loss</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">continue</span>
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">r1</span><span class="o">.</span><span class="n">loss</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">r2</span><span class="o">.</span><span class="n">loss</span><span class="p">):</span> <span class="k">continue</span>
+			<span class="n">loss_pairs</span><span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">r1</span><span class="o">.</span><span class="n">budget</span><span class="p">)][</span><span class="nb">float</span><span class="p">(</span><span class="n">r2</span><span class="o">.</span><span class="n">budget</span><span class="p">)]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">r1</span><span class="o">.</span><span class="n">loss</span><span class="p">,</span> <span class="n">r2</span><span class="o">.</span><span class="n">loss</span><span class="p">))</span>
+		
+		
+
+	<span class="n">rhos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">budgets</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+	<span class="n">rhos</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+	<span class="n">ps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">budgets</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+	<span class="n">ps</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+	<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">budgets</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+		<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">budgets</span><span class="p">)):</span>
+			<span class="n">spr</span> <span class="o">=</span> <span class="n">sps</span><span class="o">.</span><span class="n">spearmanr</span><span class="p">(</span><span class="n">loss_pairs</span><span class="p">[</span><span class="n">budgets</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="n">budgets</span><span class="p">[</span><span class="n">j</span><span class="p">]])</span>
+			<span class="n">rhos</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">spr</span><span class="o">.</span><span class="n">correlation</span>
+			<span class="n">ps</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">spr</span><span class="o">.</span><span class="n">pvalue</span>
+
+
+	<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+	<span class="n">cax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">matshow</span><span class="p">(</span><span class="n">rhos</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+	<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">cax</span><span class="p">)</span>
+
+
+	<span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">budgets</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+	<span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">budgets</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],)</span>
+
+	<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">budgets</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+	<span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">budgets</span><span class="p">[</span><span class="mi">1</span><span class="p">:],)</span>
+	
+	<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Rank correlation of the loss across the budgets&#39;</span><span class="p">)</span>
+
+	<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">budgets</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+		<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">budgets</span><span class="p">)):</span>
+			<span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$\rho_</span><span class="si">{spearman}</span><span class="s1">= </span><span class="si">%f</span><span class="s1">$&#39;</span><span class="o">%</span><span class="n">rhos</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;$p = </span><span class="si">%f</span><span class="s1">$&#39;</span><span class="o">%</span><span class="n">ps</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;$n = </span><span class="si">%i</span><span class="s1">$&#39;</span><span class="o">%</span><span class="nb">len</span><span class="p">(</span><span class="n">loss_pairs</span><span class="p">[</span><span class="n">budgets</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="n">budgets</span><span class="p">[</span><span class="n">j</span><span class="p">]]),</span>
+						<span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+
+	<span class="k">if</span> <span class="n">show</span><span class="p">:</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="losses_over_time"><a class="viewcode-back" href="../../core/visualization.html#hpbandster.visualization.losses_over_time">[docs]</a><span class="k">def</span> <span class="nf">losses_over_time</span><span class="p">(</span><span class="n">runs</span><span class="p">,</span> <span class="n">get_loss_from_run_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">loss</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s2">&quot;tab10&quot;</span><span class="p">),</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+	<span class="n">budgets</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">r</span><span class="o">.</span><span class="n">budget</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">runs</span><span class="p">])</span>
+
+	<span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+	<span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">budgets</span><span class="p">:</span>
+		<span class="n">data</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+	<span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">runs</span><span class="p">:</span>
+		<span class="n">b</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">budget</span>
+		<span class="n">t</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">time_stamps</span><span class="p">[</span><span class="s1">&#39;finished&#39;</span><span class="p">]</span>
+		<span class="n">l</span> <span class="o">=</span> <span class="n">get_loss_from_run_fn</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+		<span class="n">data</span><span class="p">[</span><span class="n">b</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">t</span><span class="p">,</span><span class="n">l</span><span class="p">))</span>
+
+	<span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">budgets</span><span class="p">:</span>
+		<span class="n">data</span><span class="p">[</span><span class="n">b</span><span class="p">]</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+
+	<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+	<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">budgets</span><span class="p">):</span>
+		<span class="n">data</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">b</span><span class="p">])</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">b</span><span class="p">][:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="n">b</span><span class="p">][:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">cmap</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;b=</span><span class="si">%f</span><span class="s1">&#39;</span><span class="o">%</span><span class="n">b</span><span class="p">)</span>
+		
+		<span class="n">ax</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">b</span><span class="p">][:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="o">.</span><span class="n">accumulate</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">b</span><span class="p">][:,</span><span class="mi">1</span><span class="p">]),</span> <span class="n">where</span><span class="o">=</span><span class="s1">&#39;post&#39;</span><span class="p">)</span>
+
+	<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Losses for different budgets over time&#39;</span><span class="p">)</span>
+	<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;wall clock time [s]&#39;</span><span class="p">)</span>
+	<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;loss&#39;</span><span class="p">)</span>
+	<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+	<span class="k">if</span> <span class="n">show</span><span class="p">:</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+
+
+
+
+<div class="viewcode-block" id="interactive_HBS_plot"><a class="viewcode-back" href="../../core/visualization.html#hpbandster.visualization.interactive_HBS_plot">[docs]</a><span class="k">def</span> <span class="nf">interactive_HBS_plot</span><span class="p">(</span><span class="n">learning_curves</span><span class="p">,</span> <span class="n">tool_tip_strings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">log_y</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">log_x</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">reset_times</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color_map</span><span class="o">=</span><span class="s1">&#39;Set3&#39;</span><span class="p">,</span> <span class="n">colors_floats</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+	<span class="n">times</span><span class="p">,</span> <span class="n">losses</span><span class="p">,</span> <span class="n">config_ids</span><span class="p">,</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+
+	<span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">learning_curves</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+		<span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
+			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="k">continue</span>
+			<span class="n">tmp</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">l</span><span class="p">))</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="n">times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+				<span class="n">losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+				<span class="n">config_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+			<span class="k">except</span><span class="p">:</span>
+				<span class="kn">import</span> <span class="nn">pdb</span><span class="p">;</span> <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+
+
+
+	<span class="n">num_curves</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">)</span>
+	<span class="n">HB_iterations</span> <span class="o">=</span> <span class="p">[</span><span class="nb">id</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">config_ids</span><span class="p">]</span>
+	
+	<span class="n">num_iterations</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">HB_iterations</span><span class="p">))</span>
+	
+	<span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">color_map</span><span class="p">)</span>
+	
+
+	
+	<span class="k">if</span> <span class="n">reset_times</span><span class="p">:</span>
+		<span class="n">times</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span> <span class="o">-</span> <span class="n">ts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">ts</span> <span class="ow">in</span> <span class="n">times</span><span class="p">]</span>
+	
+	
+	<span class="k">if</span> <span class="n">colors_floats</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+		<span class="n">color_floats</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_curves</span><span class="p">):</span>
+			<span class="n">seed</span> <span class="o">=</span> <span class="mi">100</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">config_ids</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="mi">10</span><span class="o">*</span><span class="n">config_ids</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">config_ids</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+			<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+			<span class="n">color_floats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">())</span>
+
+	<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+	
+	<span class="n">lines</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_iterations</span><span class="p">)]</span>
+
+	<span class="n">iteration_labels</span>  <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_iterations</span><span class="p">))</span>
+	<span class="k">if</span> <span class="n">HB_iterations</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+		<span class="n">iteration_labels</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;warmstart data&#39;</span>
+	
+	
+
+	<span class="n">all_lines</span> <span class="o">=</span> <span class="p">[]</span>
+	
+	<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_curves</span><span class="p">):</span>
+		<span class="n">l</span><span class="p">,</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">losses</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">cmap</span><span class="p">(</span><span class="n">color_floats</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">gid</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">picker</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+		<span class="n">lines</span><span class="p">[</span><span class="n">HB_iterations</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+		<span class="n">all_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+
+	<span class="k">if</span> <span class="n">log_y</span><span class="p">:</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+
+	<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+
+	<span class="n">hover_annotation</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s2">&quot;BLABLA&quot;</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">),</span><span class="n">textcoords</span><span class="o">=</span><span class="s2">&quot;offset points&quot;</span><span class="p">,</span>
+					<span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">boxstyle</span><span class="o">=</span><span class="s2">&quot;round&quot;</span><span class="p">,</span> <span class="n">fc</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">),</span>
+					<span class="n">arrowprops</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">arrowstyle</span><span class="o">=</span><span class="s2">&quot;-&gt;&quot;</span><span class="p">))</span>
+	<span class="n">hover_annotation</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+
+	<span class="n">permanent_annotations</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+	<span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+	<span class="n">rax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">([</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">])</span>
+
+	
+	<span class="n">axnone</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">([</span><span class="mf">0.05</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">])</span>
+	<span class="n">axall</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.05</span>  <span class="p">,</span> <span class="mf">0.1</span><span class="p">])</span>
+		
+	<span class="n">check</span> <span class="o">=</span> <span class="n">CheckButtons</span><span class="p">(</span><span class="n">rax</span><span class="p">,</span> <span class="n">iteration_labels</span><span class="p">,</span> <span class="p">[</span><span class="kc">True</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_iterations</span><span class="p">)])</span>
+	
+	<span class="n">none_button</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span><span class="n">axnone</span><span class="p">,</span> <span class="s1">&#39;None&#39;</span><span class="p">)</span>
+	<span class="n">all_button</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span><span class="n">axall</span><span class="p">,</span> <span class="s1">&#39;All&#39;</span><span class="p">)</span>
+	
+
+	<span class="k">def</span> <span class="nf">change_visibility</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">label</span> <span class="o">==</span> <span class="s1">&#39;warmstart data&#39;</span><span class="p">:</span>
+			<span class="n">index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">value</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">lines</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_visible</span><span class="p">()</span>
+		<span class="p">[</span><span class="n">l</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="n">index</span><span class="p">]]</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+
+		
+	<span class="k">def</span> <span class="nf">show_all</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+		<span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_iterations</span><span class="p">):</span>
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">lines</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_visible</span><span class="p">():</span>
+				<span class="n">change_visibility</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+				<span class="n">check</span><span class="o">.</span><span class="n">set_active</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">hide_all</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+		<span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_iterations</span><span class="p">):</span>
+			<span class="k">if</span> <span class="n">lines</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_visible</span><span class="p">():</span>
+				<span class="n">change_visibility</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+				<span class="n">check</span><span class="o">.</span><span class="n">set_active</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+			
+	<span class="n">check</span><span class="o">.</span><span class="n">on_clicked</span><span class="p">(</span><span class="n">change_visibility</span><span class="p">)</span>
+	<span class="n">none_button</span><span class="o">.</span><span class="n">on_clicked</span><span class="p">(</span><span class="n">hide_all</span><span class="p">)</span>
+	<span class="n">all_button</span><span class="o">.</span><span class="n">on_clicked</span><span class="p">(</span><span class="n">show_all</span><span class="p">)</span>
+
+
+	<span class="k">def</span> <span class="nf">update_hover_annotation</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">annotation</span><span class="o">=</span><span class="n">hover_annotation</span><span class="p">):</span>
+		<span class="n">xdata</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">get_xdata</span><span class="p">()</span>
+		<span class="n">ydata</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">get_ydata</span><span class="p">()</span>
+		<span class="n">idx</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">get_gid</span><span class="p">()</span>        
+		<span class="n">annotation</span><span class="o">.</span><span class="n">xy</span> <span class="o">=</span> <span class="p">(</span><span class="n">xdata</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">ydata</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">tool_tip_strings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">annotation</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="n">tool_tip_strings</span><span class="p">[</span><span class="n">config_ids</span><span class="p">[</span><span class="n">idx</span><span class="p">]])</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">annotation</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">config_ids</span><span class="p">[</span><span class="n">idx</span><span class="p">]))</span>
+
+		<span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+
+	<span class="k">def</span> <span class="nf">onpick1</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+
+		<span class="n">line</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">artist</span>
+
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">all_lines</span><span class="p">:</span>
+			<span class="k">return</span>
+		
+		<span class="n">gid</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">get_gid</span><span class="p">()</span>
+
+		<span class="k">if</span> <span class="n">gid</span> <span class="ow">in</span> <span class="n">permanent_annotations</span><span class="p">:</span>
+			<span class="c1"># remove permanent annotation</span>
+			<span class="n">permanent_annotations</span><span class="p">[</span><span class="n">gid</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+			<span class="k">del</span> <span class="n">permanent_annotations</span><span class="p">[</span><span class="n">gid</span><span class="p">]</span>
+			<span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+
+		<span class="k">else</span><span class="p">:</span>
+			<span class="c1"># add a new annotation</span>
+
+			<span class="n">xdata</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">get_xdata</span><span class="p">()</span>
+			<span class="n">ydata</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">get_ydata</span><span class="p">()</span>
+			<span class="n">idx</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">get_gid</span><span class="p">()</span>
+
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">tool_tip_strings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+				<span class="n">text</span> <span class="o">=</span> <span class="n">tool_tip_strings</span><span class="p">[</span><span class="n">config_ids</span><span class="p">[</span><span class="n">idx</span><span class="p">]]</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">config_ids</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+			
+			<span class="n">permanent_annotations</span><span class="p">[</span><span class="n">gid</span><span class="p">]</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">((</span><span class="n">xdata</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">ydata</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])),</span>
+							<span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">),</span><span class="n">textcoords</span><span class="o">=</span><span class="s2">&quot;offset points&quot;</span><span class="p">,</span>
+							<span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">boxstyle</span><span class="o">=</span><span class="s2">&quot;round&quot;</span><span class="p">,</span> <span class="n">fc</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span>
+							<span class="n">arrowprops</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">arrowstyle</span><span class="o">=</span><span class="s2">&quot;-&gt;&quot;</span><span class="p">))</span>
+			<span class="n">permanent_annotations</span><span class="p">[</span><span class="n">gid</span><span class="p">]</span><span class="o">.</span><span class="n">draggable</span><span class="p">()</span>
+			<span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>            
+
+	<span class="k">def</span> <span class="nf">hover</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+		<span class="n">vis</span> <span class="o">=</span> <span class="n">hover_annotation</span><span class="o">.</span><span class="n">get_visible</span><span class="p">()</span>
+		<span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">inaxes</span> <span class="o">==</span> <span class="n">ax</span><span class="p">:</span>
+			<span class="n">active_lines</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">l</span><span class="p">:</span> <span class="n">l</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">event</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">all_lines</span><span class="p">))</span>
+			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">active_lines</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+				<span class="n">hover_annotation</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+				<span class="n">update_hover_annotation</span><span class="p">(</span><span class="n">active_lines</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+			<span class="k">elif</span> <span class="n">vis</span><span class="p">:</span>
+				<span class="n">hover_annotation</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+				<span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+
+
+
+	<span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_connect</span><span class="p">(</span><span class="s1">&#39;pick_event&#39;</span><span class="p">,</span> <span class="n">onpick1</span><span class="p">)</span>
+	<span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_connect</span><span class="p">(</span><span class="s2">&quot;motion_notify_event&quot;</span><span class="p">,</span> <span class="n">hover</span><span class="p">)</span>
+
+
+	<span class="k">if</span> <span class="n">show</span><span class="p">:</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+	<span class="k">return</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">check</span><span class="p">,</span> <span class="n">none_button</span><span class="p">,</span> <span class="n">all_button</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Stefan Falkner.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

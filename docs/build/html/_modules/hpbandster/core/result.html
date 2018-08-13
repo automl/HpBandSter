@@ -1,0 +1,684 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>hpbandster.core.result &mdash; hpbandster  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> hpbandster
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced_examples.html">Advanced examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/index.html">Examples - How to use HpBandSter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../best_practices.html">Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../optimizers.html">Optimizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../core_components.html">The core components in more detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">hpbandster</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>hpbandster.core.result</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for hpbandster.core.result</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="kn">from</span> <span class="nn">hpbandster.core.base_iteration</span> <span class="k">import</span>  <span class="n">Datum</span>
+
+<div class="viewcode-block" id="Run"><a class="viewcode-back" href="../../../core/result.html#hpbandster.core.result.Run">[docs]</a><span class="k">class</span> <span class="nc">Run</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Not a proper class, more a &#39;struct&#39; to bundle important</span>
+<span class="sd">		information about a particular run</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_id</span><span class="p">,</span> <span class="n">budget</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">time_stamps</span><span class="p">,</span> <span class="n">error_logs</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">config_id</span>   <span class="o">=</span> <span class="n">config_id</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">budget</span>      <span class="o">=</span> <span class="n">budget</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">error_logs</span>  <span class="o">=</span> <span class="n">error_logs</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">loss</span>        <span class="o">=</span> <span class="n">loss</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">info</span>        <span class="o">=</span> <span class="n">info</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">time_stamps</span> <span class="o">=</span> <span class="n">time_stamps</span>
+
+	<span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span><span class="p">(</span>\
+			<span class="s2">&quot;config_id: </span><span class="si">%s</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_id</span><span class="p">,)</span> <span class="o">+</span> \
+			<span class="s2">&quot;budget: </span><span class="si">%f</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">budget</span> <span class="o">+</span> \
+			<span class="s2">&quot;loss: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">loss</span> <span class="o">+</span> \
+			<span class="s2">&quot;time_stamps: </span><span class="si">{submitted}</span><span class="s2"> (submitted), </span><span class="si">{started}</span><span class="s2"> (started), </span><span class="si">{finished}</span><span class="s2"> (finished)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">time_stamps</span><span class="p">)</span> <span class="o">+</span> \
+			<span class="s2">&quot;info: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span>
+		<span class="p">)</span>
+	<span class="k">def</span> <span class="nf">__getitem__</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">			 in case somebody wants to use it like a dictionary</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="extract_HBS_learning_curves"><a class="viewcode-back" href="../../../core/result.html#hpbandster.core.result.extract_HBS_learning_curves">[docs]</a><span class="k">def</span> <span class="nf">extract_HBS_learning_curves</span><span class="p">(</span><span class="n">runs</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	function to get the hyperband learning curves</span>
+
+<span class="sd">	This is an example function showing the interface to use the</span>
+<span class="sd">	HB_result.get_learning_curves method.</span>
+
+<span class="sd">	Parameters</span>
+<span class="sd">	----------</span>
+
+<span class="sd">	runs: list of HB_result.run objects</span>
+<span class="sd">		the performed runs for an unspecified config</span>
+
+<span class="sd">	Returns</span>
+<span class="sd">	-------</span>
+
+<span class="sd">	list of learning curves: list of lists of tuples</span>
+<span class="sd">		An individual learning curve is a list of (t, x_t) tuples.</span>
+<span class="sd">		This function must return a list of these. One could think</span>
+<span class="sd">		of cases where one could extract multiple learning curves</span>
+<span class="sd">		from these runs, e.g. if each run is an independent training</span>
+<span class="sd">		run of a neural network on the data.</span>
+<span class="sd">		</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="n">sr</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">runs</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">budget</span><span class="p">)</span>
+	<span class="n">lc</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="ow">not</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="p">[(</span><span class="n">r</span><span class="o">.</span><span class="n">budget</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">loss</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">sr</span><span class="p">]))</span>
+	<span class="k">return</span><span class="p">([</span><span class="n">lc</span><span class="p">,])</span></div>
+		
+
+<div class="viewcode-block" id="json_result_logger"><a class="viewcode-back" href="../../../core/result.html#hpbandster.core.result.json_result_logger">[docs]</a><span class="k">class</span> <span class="nc">json_result_logger</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		convenience logger for &#39;semi-live-results&#39;</span>
+
+<span class="sd">		Logger that writes job results into two files (configs.json and results.json).</span>
+<span class="sd">		Both files contain propper json objects in each line.</span>
+
+<span class="sd">		This version opens and closes the files for each result.</span>
+<span class="sd">		This might be very slow if individual runs are fast and the</span>
+<span class="sd">		filesystem is rather slow (e.g. a NFS).</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+
+<span class="sd">		directory: string</span>
+<span class="sd">			the directory where the two files &#39;configs.json&#39; and</span>
+<span class="sd">			&#39;results.json&#39; are stored</span>
+<span class="sd">		overwrite: bool</span>
+<span class="sd">			In case the files already exist, this flag controls the</span>
+<span class="sd">			behavior:</span>
+<span class="sd">			</span>
+<span class="sd">				* True:   The existing files will be overwritten. Potential risk of deleting previous results</span>
+<span class="sd">				* False:  A FileExistsError is raised and the files are not modified.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">config_fn</span>  <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;configs.json&#39;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">results_fn</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;results.json&#39;</span><span class="p">)</span>
+
+
+		<span class="k">try</span><span class="p">:</span>
+			<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_fn</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span> <span class="k">pass</span>
+		<span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">overwrite</span><span class="p">:</span>
+				<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_fn</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span> <span class="k">pass</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="s1">&#39;The file </span><span class="si">%s</span><span class="s1"> already exists.&#39;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">config_fn</span><span class="p">)</span>
+		<span class="k">except</span><span class="p">:</span>
+			<span class="k">raise</span>
+
+		<span class="k">try</span><span class="p">:</span>
+			<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results_fn</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span> <span class="k">pass</span>
+		<span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">overwrite</span><span class="p">:</span>
+				<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results_fn</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span> <span class="k">pass</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="s1">&#39;The file </span><span class="si">%s</span><span class="s1"> already exists.&#39;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">config_fn</span><span class="p">)</span>
+
+		<span class="k">except</span><span class="p">:</span>
+			<span class="k">raise</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">config_ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+<div class="viewcode-block" id="json_result_logger.new_config"><a class="viewcode-back" href="../../../core/result.html#hpbandster.core.result.json_result_logger.new_config">[docs]</a>	<span class="k">def</span> <span class="nf">new_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_id</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">config_info</span><span class="p">):</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">config_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_ids</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">config_ids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">config_id</span><span class="p">)</span>
+			<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_fn</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+				<span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">([</span><span class="n">config_id</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">config_info</span><span class="p">]))</span>
+				<span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+	<span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job</span><span class="p">):</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">job</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_ids</span><span class="p">:</span>
+			<span class="c1">#should never happen! TODO: log warning here!</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">config_ids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+			<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_fn</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+				<span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">([</span><span class="n">job</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">job</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;config&#39;</span><span class="p">],</span> <span class="p">{}]))</span>
+				<span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+		<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results_fn</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+			<span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">([</span><span class="n">job</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">job</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;budget&#39;</span><span class="p">],</span> <span class="n">job</span><span class="o">.</span><span class="n">timestamps</span><span class="p">,</span> <span class="n">job</span><span class="o">.</span><span class="n">result</span><span class="p">,</span> <span class="n">job</span><span class="o">.</span><span class="n">exception</span><span class="p">]))</span>
+			<span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="logged_results_to_HBS_result"><a class="viewcode-back" href="../../../core/result.html#hpbandster.core.result.logged_results_to_HBS_result">[docs]</a><span class="k">def</span> <span class="nf">logged_results_to_HBS_result</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	function to import logged &#39;live-results&#39; and return a HB_result object</span>
+
+<span class="sd">	You can load live run results with this function and the returned</span>
+<span class="sd">	HB_result object gives you access to the results the same way</span>
+<span class="sd">	a finished run would.</span>
+<span class="sd">	</span>
+<span class="sd">	Parameters</span>
+<span class="sd">	----------</span>
+<span class="sd">	directory: str</span>
+<span class="sd">		the directory containing the results.json and config.json files</span>
+
+<span class="sd">	Returns</span>
+<span class="sd">	-------</span>
+<span class="sd">	hpbandster.core.result.Result: :object:</span>
+<span class="sd">		TODO</span>
+<span class="sd">	</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+	<span class="n">time_ref</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span>
+	<span class="n">budget_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+	
+	<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;configs.json&#39;</span><span class="p">))</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+		<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fh</span><span class="p">:</span>
+			
+			<span class="n">line</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+			
+			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+				<span class="n">config_id</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">config_info</span> <span class="o">=</span> <span class="n">line</span>
+			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+				<span class="n">config_id</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="o">=</span> <span class="n">line</span>
+				<span class="n">config_info</span> <span class="o">=</span> <span class="s1">&#39;N/A&#39;</span>
+
+			<span class="n">data</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">config_id</span><span class="p">)]</span> <span class="o">=</span> <span class="n">Datum</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">config_info</span><span class="o">=</span><span class="n">config_info</span><span class="p">)</span>
+
+	<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;results.json&#39;</span><span class="p">))</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+		<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fh</span><span class="p">:</span>
+			<span class="n">config_id</span><span class="p">,</span> <span class="n">budget</span><span class="p">,</span><span class="n">time_stamps</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">exception</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+			<span class="nb">id</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">config_id</span><span class="p">)</span>
+			
+			<span class="n">data</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">time_stamps</span><span class="p">[</span><span class="n">budget</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_stamps</span>
+			<span class="n">data</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="n">budget</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span>
+			<span class="n">data</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">exceptions</span><span class="p">[</span><span class="n">budget</span><span class="p">]</span> <span class="o">=</span> <span class="n">exception</span>
+
+			<span class="n">budget_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">budget</span><span class="p">)</span>
+			<span class="n">time_ref</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">time_ref</span><span class="p">,</span> <span class="n">time_stamps</span><span class="p">[</span><span class="s1">&#39;submitted&#39;</span><span class="p">])</span>
+
+
+	<span class="c1"># infer the hyperband configuration from the data</span>
+	<span class="n">budget_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">budget_set</span><span class="p">))</span>
+	
+	<span class="n">HB_config</span> <span class="o">=</span> <span class="p">{</span>
+						<span class="s1">&#39;eta&#39;</span>        <span class="p">:</span> <span class="kc">None</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">budget_list</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">budget_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">budget_list</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+						<span class="s1">&#39;min_budget&#39;</span> <span class="p">:</span> <span class="nb">min</span><span class="p">(</span><span class="n">budget_set</span><span class="p">),</span>
+						<span class="s1">&#39;max_budget&#39;</span> <span class="p">:</span> <span class="nb">max</span><span class="p">(</span><span class="n">budget_set</span><span class="p">),</span>
+						<span class="s1">&#39;budgets&#39;</span>    <span class="p">:</span> <span class="n">budget_list</span><span class="p">,</span>
+						<span class="s1">&#39;max_SH_iter&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">budget_set</span><span class="p">),</span>
+						<span class="s1">&#39;time_ref&#39;</span>   <span class="p">:</span> <span class="n">time_ref</span>
+				<span class="p">}</span>
+	<span class="k">return</span><span class="p">(</span><span class="n">Result</span><span class="p">([</span><span class="n">data</span><span class="p">],</span> <span class="n">HB_config</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Result"><a class="viewcode-back" href="../../../core/result.html#hpbandster.core.result.Result">[docs]</a><span class="k">class</span> <span class="nc">Result</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Object returned by the HB_master.run function</span>
+
+<span class="sd">	This class offers a simple API to access the information from</span>
+<span class="sd">	a Hyperband run.</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="k">def</span> <span class="nf">__init__</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">HB_iteration_data</span><span class="p">,</span> <span class="n">HB_config</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">HB_iteration_data</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">HB_config</span> <span class="o">=</span> <span class="n">HB_config</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_merge_results</span><span class="p">()</span>
+
+	<span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+		<span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+
+
+<div class="viewcode-block" id="Result.get_incumbent_id"><a class="viewcode-back" href="../../../core/result.html#hpbandster.core.result.Result.get_incumbent_id">[docs]</a>	<span class="k">def</span> <span class="nf">get_incumbent_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Find the config_id of the incumbent.</span>
+
+<span class="sd">		The incumbent here is the configuration with the smallest loss</span>
+<span class="sd">		among all runs on the maximum budget! If no run finishes on the</span>
+<span class="sd">		maximum budget, None is returned!</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">tmp_list</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="c1"># only things run for the max budget are considered</span>
+				<span class="n">res</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">HB_config</span><span class="p">[</span><span class="s1">&#39;max_budget&#39;</span><span class="p">]]</span>
+				<span class="k">if</span> <span class="ow">not</span> <span class="n">res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+					<span class="n">tmp_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;loss&#39;</span><span class="p">],</span> <span class="n">k</span><span class="p">))</span>
+			<span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+				<span class="k">pass</span>
+			<span class="k">except</span><span class="p">:</span>
+				<span class="k">raise</span>
+
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tmp_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="k">return</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">tmp_list</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+		<span class="k">return</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Result.get_incumbent_trajectory"><a class="viewcode-back" href="../../../core/result.html#hpbandster.core.result.Result.get_incumbent_trajectory">[docs]</a>	<span class="k">def</span> <span class="nf">get_incumbent_trajectory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">all_budgets</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bigger_is_better</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">non_decreasing_budget</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns the best configurations over time</span>
+<span class="sd">		</span>
+<span class="sd">		</span>
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">			all_budgets: bool</span>
+<span class="sd">				If set to true all runs (even those not with the largest budget) can be the incumbent.</span>
+<span class="sd">				Otherwise, only full budget runs are considered</span>
+<span class="sd">			bigger_is_better:bool</span>
+<span class="sd">				flag whether an evaluation on a larger budget is always considered better.</span>
+<span class="sd">				If True, the incumbent might increase for the first evaluations on a bigger budget</span>
+<span class="sd">			non_decreasing_budget: bool</span>
+<span class="sd">				flag whether the budget of a new incumbent should be at least as big as the one for</span>
+<span class="sd">				the current incumbent.</span>
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">			dict:</span>
+<span class="sd">				dictionary with all the config IDs, the times the runs</span>
+<span class="sd">				finished, their respective budgets, and corresponding losses</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">all_runs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_runs</span><span class="p">(</span><span class="n">only_largest_budget</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">all_budgets</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">all_budgets</span><span class="p">:</span>
+			<span class="n">all_runs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">budget</span><span class="o">==</span><span class="n">res</span><span class="o">.</span><span class="n">HB_config</span><span class="p">[</span><span class="s1">&#39;max_budget&#39;</span><span class="p">],</span> <span class="n">all_runs</span><span class="p">))</span>
+		
+		<span class="n">all_runs</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">time_stamps</span><span class="p">[</span><span class="s1">&#39;finished&#39;</span><span class="p">])</span>
+		
+		<span class="n">return_dict</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;config_ids&#39;</span> <span class="p">:</span> <span class="p">[],</span>
+						<span class="s1">&#39;times_finished&#39;</span><span class="p">:</span> <span class="p">[],</span>
+						<span class="s1">&#39;budgets&#39;</span>    <span class="p">:</span> <span class="p">[],</span>
+						<span class="s1">&#39;losses&#39;</span>     <span class="p">:</span> <span class="p">[],</span>
+		<span class="p">}</span>
+	
+		<span class="n">current_incumbent</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span>
+		<span class="n">incumbent_budget</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">HB_config</span><span class="p">[</span><span class="s1">&#39;min_budget&#39;</span><span class="p">]</span>
+		
+		<span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">all_runs</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">loss</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">continue</span>
+			
+			<span class="n">new_incumbent</span> <span class="o">=</span> <span class="kc">False</span>
+			
+			<span class="k">if</span> <span class="n">bigger_is_better</span> <span class="ow">and</span> <span class="n">r</span><span class="o">.</span><span class="n">budget</span> <span class="o">&gt;</span> <span class="n">incumbent_budget</span><span class="p">:</span>
+				<span class="n">new_incumbent</span> <span class="o">=</span> <span class="kc">True</span>
+			
+			
+			<span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">loss</span> <span class="o">&lt;</span> <span class="n">current_incumbent</span><span class="p">:</span>
+				<span class="n">new_incumbent</span> <span class="o">=</span> <span class="kc">True</span>
+			
+			<span class="k">if</span> <span class="n">non_decreasing_budget</span> <span class="ow">and</span> <span class="n">r</span><span class="o">.</span><span class="n">budget</span> <span class="o">&lt;</span> <span class="n">incumbent_budget</span><span class="p">:</span>
+				<span class="n">new_incumbent</span> <span class="o">=</span> <span class="kc">False</span>
+			
+			<span class="k">if</span> <span class="n">new_incumbent</span><span class="p">:</span>
+				<span class="n">current_incumbent</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">loss</span>
+				<span class="n">incumbent_budget</span>  <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">budget</span>
+				
+				<span class="n">return_dict</span><span class="p">[</span><span class="s1">&#39;config_ids&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">config_id</span><span class="p">)</span>
+				<span class="n">return_dict</span><span class="p">[</span><span class="s1">&#39;times_finished&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">time_stamps</span><span class="p">[</span><span class="s1">&#39;finished&#39;</span><span class="p">])</span>
+				<span class="n">return_dict</span><span class="p">[</span><span class="s1">&#39;budgets&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">budget</span><span class="p">)</span>
+				<span class="n">return_dict</span><span class="p">[</span><span class="s1">&#39;losses&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">loss</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">current_incumbent</span> <span class="o">!=</span> <span class="n">r</span><span class="o">.</span><span class="n">loss</span><span class="p">:</span>
+			<span class="n">r</span> <span class="o">=</span> <span class="n">all_runs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+		
+			<span class="n">return_dict</span><span class="p">[</span><span class="s1">&#39;config_ids&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">return_dict</span><span class="p">[</span><span class="s1">&#39;config_ids&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+			<span class="n">return_dict</span><span class="p">[</span><span class="s1">&#39;times_finished&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">time_stamps</span><span class="p">[</span><span class="s1">&#39;finished&#39;</span><span class="p">])</span>
+			<span class="n">return_dict</span><span class="p">[</span><span class="s1">&#39;budgets&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">return_dict</span><span class="p">[</span><span class="s1">&#39;budgets&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+			<span class="n">return_dict</span><span class="p">[</span><span class="s1">&#39;losses&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">return_dict</span><span class="p">[</span><span class="s1">&#39;losses&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+			
+		<span class="k">return</span> <span class="p">(</span><span class="n">return_dict</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Result.get_runs_by_id"><a class="viewcode-back" href="../../../core/result.html#hpbandster.core.result.Result.get_runs_by_id">[docs]</a>	<span class="k">def</span> <span class="nf">get_runs_by_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_id</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		returns a list of runs for a given config id</span>
+
+<span class="sd">		The runs are sorted by ascending budget, so &#39;-1&#39; will give</span>
+<span class="sd">		the longest run for this config.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">config_id</span><span class="p">]</span>
+
+		<span class="n">runs</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="n">err_logs</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+				<span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+					<span class="n">r</span> <span class="o">=</span> <span class="n">Run</span><span class="p">(</span><span class="n">config_id</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span> <span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">time_stamps</span><span class="p">[</span><span class="n">b</span><span class="p">],</span> <span class="n">err_logs</span><span class="p">)</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="n">r</span> <span class="o">=</span> <span class="n">Run</span><span class="p">(</span><span class="n">config_id</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="n">b</span><span class="p">][</span><span class="s1">&#39;loss&#39;</span><span class="p">],</span> <span class="n">d</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="n">b</span><span class="p">][</span><span class="s1">&#39;info&#39;</span><span class="p">]</span> <span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">time_stamps</span><span class="p">[</span><span class="n">b</span><span class="p">],</span> <span class="n">err_logs</span><span class="p">)</span>
+				<span class="n">runs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+			<span class="k">except</span><span class="p">:</span>
+				<span class="k">raise</span>
+		<span class="n">runs</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">budget</span><span class="p">)</span>
+		<span class="k">return</span><span class="p">(</span><span class="n">runs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Result.get_learning_curves"><a class="viewcode-back" href="../../../core/result.html#hpbandster.core.result.Result.get_learning_curves">[docs]</a>	<span class="k">def</span> <span class="nf">get_learning_curves</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lc_extractor</span><span class="o">=</span><span class="n">extract_HBS_learning_curves</span><span class="p">,</span> <span class="n">config_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		extracts all learning curves from all run configurations</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">			lc_extractor: callable</span>
+<span class="sd">				a function to return a list of learning_curves.</span>
+<span class="sd">				defaults to hpbanster.HB_result.extract_HP_learning_curves</span>
+<span class="sd">			config_ids: list of valid config ids</span>
+<span class="sd">				if only a subset of the config ids is wanted</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">			dict</span>
+<span class="sd">				a dictionary with the config_ids as keys and the</span>
+<span class="sd">				learning curves as values</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="n">config_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">config_ids</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">config_ids</span>
+		
+		<span class="n">lc_dict</span> <span class="o">=</span> <span class="p">{}</span>
+		
+		<span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">config_ids</span><span class="p">:</span>
+			<span class="n">runs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_runs_by_id</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+			<span class="n">lc_dict</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">lc_extractor</span><span class="p">(</span><span class="n">runs</span><span class="p">)</span>
+			
+		<span class="k">return</span><span class="p">(</span><span class="n">lc_dict</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Result.get_all_runs"><a class="viewcode-back" href="../../../core/result.html#hpbandster.core.result.Result.get_all_runs">[docs]</a>	<span class="k">def</span> <span class="nf">get_all_runs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">only_largest_budget</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		returns all runs performed</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">			only_largest_budget: boolean</span>
+<span class="sd">				if True, only the largest budget for each configuration</span>
+<span class="sd">				is returned. This makes sense if the runs are continued</span>
+<span class="sd">				across budgets and the info field contains the information</span>
+<span class="sd">				you care about. If False, all runs of a configuration</span>
+<span class="sd">				are returned</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">all_runs</span> <span class="o">=</span> <span class="p">[]</span>
+
+		<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+			<span class="n">runs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_runs_by_id</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+
+			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">runs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+				<span class="k">if</span> <span class="n">only_largest_budget</span><span class="p">:</span>
+					<span class="n">all_runs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">runs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="n">all_runs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">runs</span><span class="p">)</span>
+
+		<span class="k">return</span><span class="p">(</span><span class="n">all_runs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Result.get_id2config_mapping"><a class="viewcode-back" href="../../../core/result.html#hpbandster.core.result.Result.get_id2config_mapping">[docs]</a>	<span class="k">def</span> <span class="nf">get_id2config_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		returns a dict where the keys are the config_ids and the values</span>
+<span class="sd">		are the actual configurations</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">new_dict</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+			<span class="n">new_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+			<span class="n">new_dict</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;config&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="n">new_dict</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;config_info&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">config_info</span><span class="p">)</span>
+			<span class="k">except</span><span class="p">:</span>
+				<span class="k">pass</span>
+		<span class="k">return</span><span class="p">(</span><span class="n">new_dict</span><span class="p">)</span></div>
+
+	<span class="k">def</span> <span class="nf">_merge_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		hidden function to merge the list of results into one</span>
+<span class="sd">		dictionary and &#39;normalize&#39; the time stamps</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">new_dict</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+			<span class="n">new_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+
+		<span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">new_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+			<span class="k">for</span> <span class="n">kk</span><span class="p">,</span> <span class="n">vv</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">time_stamps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+				<span class="k">for</span> <span class="n">kkk</span><span class="p">,</span><span class="n">vvv</span> <span class="ow">in</span> <span class="n">vv</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+					<span class="n">new_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">time_stamps</span><span class="p">[</span><span class="n">kk</span><span class="p">][</span><span class="n">kkk</span><span class="p">]</span> <span class="o">=</span> <span class="n">vvv</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">HB_config</span><span class="p">[</span><span class="s1">&#39;time_ref&#39;</span><span class="p">]</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">new_dict</span>
+
+<div class="viewcode-block" id="Result.num_iterations"><a class="viewcode-back" href="../../../core/result.html#hpbandster.core.result.Result.num_iterations">[docs]</a>	<span class="k">def</span> <span class="nf">num_iterations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span><span class="p">(</span><span class="nb">max</span><span class="p">([</span><span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span></div>
+		
+
+<div class="viewcode-block" id="Result.get_fANOVA_data"><a class="viewcode-back" href="../../../core/result.html#hpbandster.core.result.Result.get_fANOVA_data">[docs]</a>	<span class="k">def</span> <span class="nf">get_fANOVA_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_space</span><span class="p">,</span> <span class="n">budgets</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+		<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+		<span class="kn">import</span> <span class="nn">ConfigSpace</span> <span class="k">as</span> <span class="nn">CS</span>
+
+		<span class="n">id2conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_id2config_mapping</span><span class="p">()</span>
+
+		<span class="k">if</span> <span class="n">budgets</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">budgets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">HB_config</span><span class="p">[</span><span class="s1">&#39;budgets&#39;</span><span class="p">]</span>
+
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">budgets</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
+			<span class="n">config_space</span><span class="o">.</span><span class="n">add_hyperparameter</span><span class="p">(</span><span class="n">CS</span><span class="o">.</span><span class="n">UniformFloatHyperparameter</span><span class="p">(</span><span class="s1">&#39;budget&#39;</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">budgets</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">budgets</span><span class="p">),</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+		
+		<span class="n">hp_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">hp</span><span class="p">:</span> <span class="n">hp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">config_space</span><span class="o">.</span><span class="n">get_hyperparameters</span><span class="p">()))</span>
+
+		<span class="n">all_runs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_runs</span><span class="p">(</span><span class="n">only_largest_budget</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+
+		<span class="n">all_runs</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">budget</span> <span class="ow">in</span> <span class="n">budgets</span><span class="p">,</span> <span class="n">all_runs</span><span class="p">))</span>
+
+		<span class="n">X</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="n">y</span> <span class="o">=</span> <span class="p">[]</span>
+
+		<span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">all_runs</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">loss</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">continue</span>
+			<span class="n">config</span> <span class="o">=</span> <span class="n">id2conf</span><span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">config_id</span><span class="p">][</span><span class="s1">&#39;config&#39;</span><span class="p">]</span>
+			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">budgets</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
+				<span class="n">config</span><span class="p">[</span><span class="s1">&#39;budget&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">budget</span>
+
+			<span class="n">config</span> <span class="o">=</span> <span class="n">CS</span><span class="o">.</span><span class="n">Configuration</span><span class="p">(</span><span class="n">config_space</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
+			<span class="n">X</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">config</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">hp_names</span><span class="p">])</span>
+			<span class="n">y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">loss</span><span class="p">)</span>
+
+		<span class="k">return</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">config_space</span><span class="p">)</span></div></div>
+
+
+
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Stefan Falkner.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,510 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>hpbandster.core.base_iteration &mdash; hpbandster  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> hpbandster
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced_examples.html">Advanced examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/index.html">Examples - How to use HpBandSter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../best_practices.html">Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../optimizers.html">Optimizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../core_components.html">The core components in more detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">hpbandster</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>hpbandster.core.base_iteration</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for hpbandster.core.base_iteration</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sys</span>
+
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pdb</span>
+
+<span class="kn">from</span> <span class="nn">hpbandster.core.dispatcher</span> <span class="k">import</span> <span class="n">Job</span>
+
+
+<div class="viewcode-block" id="Datum"><a class="viewcode-back" href="../../../core/iteration.html#hpbandster.core.base_iteration.Datum">[docs]</a><span class="k">class</span> <span class="nc">Datum</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">config_info</span><span class="p">,</span> <span class="n">results</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time_stamps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s1">&#39;QUEUED&#39;</span><span class="p">,</span> <span class="n">budget</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">config</span>		<span class="o">=</span> <span class="n">config</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">config_info</span><span class="o">=</span> <span class="n">config_info</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">results</span>	<span class="o">=</span> <span class="n">results</span>		<span class="k">if</span> <span class="ow">not</span> <span class="n">results</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">time_stamps</span><span class="o">=</span> <span class="n">time_stamps</span>	<span class="k">if</span> <span class="ow">not</span> <span class="n">time_stamps</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">exceptions</span>	<span class="o">=</span> <span class="n">exceptions</span>	<span class="k">if</span> <span class="ow">not</span> <span class="n">exceptions</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">status</span>		<span class="o">=</span> <span class="n">status</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">budget</span>		<span class="o">=</span> <span class="n">budget</span>
+
+	<span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span><span class="p">(</span>\
+			<span class="s2">&quot;</span><span class="se">\n</span><span class="s2">config:</span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span> <span class="o">+</span> \
+			<span class="s2">&quot;config_info:</span><span class="se">\n</span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">config_info</span> <span class="o">+</span> \
+			<span class="s2">&quot;losses:</span><span class="se">\n</span><span class="s2">&quot;</span>
+			<span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;loss&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span> <span class="o">+</span> \
+			<span class="s2">&quot;time stamps: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_stamps</span><span class="p">)</span>
+		<span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="BaseIteration"><a class="viewcode-back" href="../../../core/iteration.html#hpbandster.core.base_iteration.BaseIteration">[docs]</a><span class="k">class</span> <span class="nc">BaseIteration</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Base class for various iteration possibilities. This decides what configuration should be run on what budget</span>
+<span class="sd">	next. Typical choices are e.g. successive halving. Results from runs are processed and (depending on the</span>
+<span class="sd">	implementations) determine the further development.</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">HPB_iter</span><span class="p">,</span> <span class="n">num_configs</span><span class="p">,</span> <span class="n">budgets</span><span class="p">,</span> <span class="n">config_sampler</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">result_logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+
+<span class="sd">		HPB_iter: int</span>
+<span class="sd">			The current HPBandSter iteration index.</span>
+<span class="sd">		num_configs: list of ints</span>
+<span class="sd">			the number of configurations in each stage of SH</span>
+<span class="sd">		budgets: list of floats</span>
+<span class="sd">			the budget associated with each stage</span>
+<span class="sd">		config_sample: callable</span>
+<span class="sd">			a function that returns a valid configuration. Its only</span>
+<span class="sd">			argument should be the budget that this config is first</span>
+<span class="sd">			scheduled for. This might be used to pick configurations</span>
+<span class="sd">			that perform best after this particular budget is exhausted</span>
+<span class="sd">			to build a better autoML system.</span>
+<span class="sd">		logger: a logger</span>
+<span class="sd">		result_logger: hpbandster.api.results.util.json_result_logger object</span>
+<span class="sd">			a result logger that writes live results to disk</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>					<span class="c1"># this holds all the configs and results of this iteration</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">is_finished</span> <span class="o">=</span> <span class="kc">False</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">HPB_iter</span> <span class="o">=</span> <span class="n">HPB_iter</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="mi">0</span>					<span class="c1"># internal iteration, but different name for clarity</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">budgets</span> <span class="o">=</span> <span class="n">budgets</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">num_configs</span> <span class="o">=</span> <span class="n">num_configs</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">actual_num_configs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">num_configs</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">config_sampler</span> <span class="o">=</span> <span class="n">config_sampler</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">num_running</span> <span class="o">=</span> <span class="mi">0</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">=</span><span class="n">logger</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">logger</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;hpbandster&#39;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">result_logger</span> <span class="o">=</span> <span class="n">result_logger</span>
+
+<div class="viewcode-block" id="BaseIteration.add_configuration"><a class="viewcode-back" href="../../../core/iteration.html#hpbandster.core.base_iteration.BaseIteration.add_configuration">[docs]</a>	<span class="k">def</span> <span class="nf">add_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">config_info</span><span class="o">=</span><span class="p">{}):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		function to add a new configuration to the current iteration</span>
+<span class="sd">		</span>
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		</span>
+<span class="sd">		config : valid configuration</span>
+<span class="sd">			The configuration to add. If None, a configuration is sampled from the config_sampler</span>
+<span class="sd">		config_info: dict</span>
+<span class="sd">			Some information about the configuration that will be stored in the results</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		
+		<span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">config</span><span class="p">,</span> <span class="n">config_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_sampler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">budgets</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">])</span>
+		
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_finished</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;This HPBandSter iteration is finished, you can&#39;t add more configurations!&quot;</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">actual_num_configs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_configs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">]:</span>
+			<span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Can&#39;t add another configuration to stage </span><span class="si">%i</span><span class="s2"> in HPBandSter iteration </span><span class="si">%i</span><span class="s2">.&quot;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">HPB_iter</span><span class="p">))</span>
+
+		<span class="n">config_id</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">HPB_iter</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">actual_num_configs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">])</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">config_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">Datum</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">config_info</span><span class="o">=</span><span class="n">config_info</span><span class="p">,</span> <span class="n">budget</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">budgets</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">])</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">actual_num_configs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+		
+		<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">result_logger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+		    <span class="bp">self</span><span class="o">.</span><span class="n">result_logger</span><span class="o">.</span><span class="n">new_config</span><span class="p">(</span><span class="n">config_id</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">config_info</span><span class="p">)</span>
+		
+		<span class="k">return</span><span class="p">(</span><span class="n">config_id</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BaseIteration.register_result"><a class="viewcode-back" href="../../../core/iteration.html#hpbandster.core.base_iteration.BaseIteration.register_result">[docs]</a>	<span class="k">def</span> <span class="nf">register_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job</span><span class="p">,</span> <span class="n">skip_sanity_checks</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		function to register the result of a job</span>
+
+<span class="sd">		This function is called from HB_master, don&#39;t call this from</span>
+<span class="sd">		your script.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_finished</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;This HB iteration is finished, you can&#39;t register more results!&quot;</span><span class="p">)</span>
+
+		<span class="n">config_id</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">id</span>
+		<span class="n">config</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;config&#39;</span><span class="p">]</span>
+		<span class="n">budget</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;budget&#39;</span><span class="p">]</span>
+		<span class="n">timestamps</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">timestamps</span>
+		<span class="n">result</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">result</span>
+		<span class="n">exception</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">exception</span>
+		
+		<span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">config_id</span><span class="p">]</span>
+		
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">skip_sanity_checks</span><span class="p">:</span>
+			<span class="k">assert</span> <span class="n">d</span><span class="o">.</span><span class="n">config</span> <span class="o">==</span> <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;Configurations differ!&#39;</span>
+			<span class="k">assert</span> <span class="n">d</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;RUNNING&#39;</span><span class="p">,</span> <span class="s2">&quot;Configuration wasn&#39;t scheduled for a run.&quot;</span>
+			<span class="k">assert</span> <span class="n">d</span><span class="o">.</span><span class="n">budget</span> <span class="o">==</span> <span class="n">budget</span><span class="p">,</span> <span class="s1">&#39;Budgets differ (</span><span class="si">%f</span><span class="s1"> != </span><span class="si">%f</span><span class="s1">)!&#39;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">config_id</span><span class="p">][</span><span class="s1">&#39;budget&#39;</span><span class="p">],</span> <span class="n">budget</span><span class="p">)</span>
+
+		<span class="n">d</span><span class="o">.</span><span class="n">time_stamps</span><span class="p">[</span><span class="n">budget</span><span class="p">]</span> <span class="o">=</span> <span class="n">timestamps</span>
+		<span class="n">d</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="n">budget</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span>
+
+		<span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">job</span><span class="o">.</span><span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;loss&#39;</span><span class="p">]):</span>
+			<span class="n">d</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;REVIEW&#39;</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">d</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;CRASHED&#39;</span>
+
+		<span class="n">d</span><span class="o">.</span><span class="n">exceptions</span><span class="p">[</span><span class="n">budget</span><span class="p">]</span> <span class="o">=</span> <span class="n">exception</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">num_running</span> <span class="o">-=</span> <span class="mi">1</span></div>
+		
+<div class="viewcode-block" id="BaseIteration.get_next_run"><a class="viewcode-back" href="../../../core/iteration.html#hpbandster.core.base_iteration.BaseIteration.get_next_run">[docs]</a>	<span class="k">def</span> <span class="nf">get_next_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		function to return the next configuration and budget to run.</span>
+
+<span class="sd">		This function is called from HB_master, don&#39;t call this from</span>
+<span class="sd">		your script.</span>
+
+<span class="sd">		It returns None if this run of SH is finished or there are</span>
+<span class="sd">		pending jobs that need to finish to progress to the next stage.</span>
+
+<span class="sd">		If there are empty slots to be filled in the current SH stage</span>
+<span class="sd">		(which never happens in the original SH version), a new</span>
+<span class="sd">		configuration will be sampled and scheduled to run next.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_finished</span><span class="p">:</span>
+			<span class="k">return</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+		
+		<span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+			<span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;QUEUED&#39;</span><span class="p">:</span>
+				<span class="k">assert</span> <span class="n">v</span><span class="o">.</span><span class="n">budget</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">budgets</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">],</span> <span class="s1">&#39;Configuration budget does not align with current stage!&#39;</span>
+				<span class="n">v</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;RUNNING&#39;</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">num_running</span> <span class="o">+=</span> <span class="mi">1</span>
+				<span class="k">return</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">budget</span><span class="p">)</span>
+
+		<span class="c1"># check if there are still slots to fill in the current stage and return that</span>
+		<span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">actual_num_configs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_configs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">]):</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">add_configuration</span><span class="p">()</span>
+			<span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_next_run</span><span class="p">())</span>
+
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_running</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="c1"># at this point a stage is completed</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">process_results</span><span class="p">()</span>
+			<span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_next_run</span><span class="p">())</span>
+
+		<span class="k">return</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span></div>
+
+	<span class="k">def</span> <span class="nf">_advance_to_next_stage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_ids</span><span class="p">,</span> <span class="n">losses</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Function that implements the strategy to advance configs within this iteration</span>
+<span class="sd">		</span>
+<span class="sd">		Overload this to implement different strategies, like</span>
+<span class="sd">		SuccessiveHalving, SuccessiveResampling.</span>
+<span class="sd">		</span>
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">			config_ids: list</span>
+<span class="sd">				all config ids to be considered</span>
+<span class="sd">			losses: list</span>
+<span class="sd">				losses of the run on the current budget</span>
+<span class="sd">				</span>
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">			list of bool</span>
+<span class="sd">				A boolean for each entry in config_ids indicating whether to advance it or not</span>
+<span class="sd">		</span>
+<span class="sd">		</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;_advance_to_next_stage not implemented for </span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BaseIteration.process_results"><a class="viewcode-back" href="../../../core/iteration.html#hpbandster.core.base_iteration.BaseIteration.process_results">[docs]</a>	<span class="k">def</span> <span class="nf">process_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		function that is called when a stage is completed and</span>
+<span class="sd">		needs to be analyzed befor further computations.</span>
+
+<span class="sd">		The code here implements the original SH algorithms by</span>
+<span class="sd">		advancing the k-best (lowest loss) configurations at the current</span>
+<span class="sd">		budget. k is defined by the num_configs list (see __init__)</span>
+<span class="sd">		and the current stage value.</span>
+
+<span class="sd">		For more advanced methods like resampling after each stage,</span>
+<span class="sd">		overload this function only.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">+=</span> <span class="mi">1</span>
+		
+		<span class="c1"># collect all config_ids that need to be compared</span>
+		<span class="n">config_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">cid</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">cid</span><span class="p">]</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;REVIEW&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+		<span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_configs</span><span class="p">)):</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">finish_up</span><span class="p">()</span>
+			<span class="k">return</span>
+
+		<span class="n">budgets</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">cid</span><span class="p">]</span><span class="o">.</span><span class="n">budget</span> <span class="k">for</span> <span class="n">cid</span> <span class="ow">in</span> <span class="n">config_ids</span><span class="p">]</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">budgets</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Not all configurations have the same budget!&#39;</span><span class="p">)</span>
+		<span class="n">budget</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">budgets</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+		<span class="n">losses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">cid</span><span class="p">]</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="n">budget</span><span class="p">][</span><span class="s1">&#39;loss&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">cid</span> <span class="ow">in</span> <span class="n">config_ids</span><span class="p">])</span>
+
+		<span class="n">advance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_advance_to_next_stage</span><span class="p">(</span><span class="n">config_ids</span><span class="p">,</span> <span class="n">losses</span><span class="p">)</span>
+
+		<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">advance</span><span class="p">):</span>
+			<span class="k">if</span> <span class="n">a</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;ITERATION: Advancing config </span><span class="si">%s</span><span class="s1"> to next budget </span><span class="si">%f</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">config_ids</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">budgets</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">]))</span>
+
+		<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">cid</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">config_ids</span><span class="p">):</span>
+			<span class="k">if</span> <span class="n">advance</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">cid</span><span class="p">]</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;QUEUED&#39;</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">cid</span><span class="p">]</span><span class="o">.</span><span class="n">budget</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">budgets</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">]</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">actual_num_configs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">cid</span><span class="p">]</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;TERMINATED&#39;</span></div>
+
+<div class="viewcode-block" id="BaseIteration.finish_up"><a class="viewcode-back" href="../../../core/iteration.html#hpbandster.core.base_iteration.BaseIteration.finish_up">[docs]</a>	<span class="k">def</span> <span class="nf">finish_up</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">is_finished</span> <span class="o">=</span> <span class="kc">True</span>
+
+		<span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+			<span class="k">assert</span> <span class="n">v</span><span class="o">.</span><span class="n">status</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;TERMINATED&#39;</span><span class="p">,</span> <span class="s1">&#39;REVIEW&#39;</span><span class="p">,</span> <span class="s1">&#39;CRASHED&#39;</span><span class="p">],</span> <span class="s1">&#39;Configuration has not finshed yet!&#39;</span>
+			<span class="n">v</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;COMPLETED&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="WarmStartIteration"><a class="viewcode-back" href="../../../core/iteration.html#hpbandster.core.base_iteration.WarmStartIteration">[docs]</a><span class="k">class</span> <span class="nc">WarmStartIteration</span><span class="p">(</span><span class="n">BaseIteration</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	iteration that imports a privious Result for warm starting</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Result</span><span class="p">,</span> <span class="n">config_generator</span><span class="p">):</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">is_finished</span><span class="o">=</span><span class="kc">False</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="mi">0</span>
+
+		
+		<span class="n">id2conf</span> <span class="o">=</span> <span class="n">Result</span><span class="o">.</span><span class="n">get_id2config_mapping</span><span class="p">()</span>
+		<span class="n">delta_t</span> <span class="o">=</span> <span class="o">-</span> <span class="nb">max</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">time_stamps</span><span class="p">[</span><span class="s1">&#39;finished&#39;</span><span class="p">],</span> <span class="n">Result</span><span class="o">.</span><span class="n">get_all_runs</span><span class="p">()))</span>
+
+		<span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">id2conf</span><span class="p">)]</span>	<span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span>
+		
+		
+		<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="nb">id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">id2conf</span><span class="p">):</span>
+			<span class="n">new_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_configuration</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">id2conf</span><span class="p">[</span><span class="nb">id</span><span class="p">][</span><span class="s1">&#39;config&#39;</span><span class="p">],</span> <span class="n">config_info</span><span class="o">=</span><span class="n">id2conf</span><span class="p">[</span><span class="nb">id</span><span class="p">][</span><span class="s1">&#39;config_info&#39;</span><span class="p">])</span>
+			
+			<span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">Result</span><span class="o">.</span><span class="n">get_runs_by_id</span><span class="p">(</span><span class="nb">id</span><span class="p">):</span>
+			
+				
+				<span class="n">j</span> <span class="o">=</span> <span class="n">Job</span><span class="p">(</span><span class="n">new_id</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">id2conf</span><span class="p">[</span><span class="nb">id</span><span class="p">][</span><span class="s1">&#39;config&#39;</span><span class="p">],</span> <span class="n">budget</span><span class="o">=</span><span class="n">r</span><span class="o">.</span><span class="n">budget</span><span class="p">)</span>
+				
+				<span class="n">j</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">loss</span><span class="p">,</span> <span class="s1">&#39;info&#39;</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">info</span><span class="p">}</span>
+				<span class="n">j</span><span class="o">.</span><span class="n">error_logs</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">error_logs</span>
+				
+				<span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">time_stamps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+					<span class="n">j</span><span class="o">.</span><span class="n">timestamps</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span> <span class="o">+</span> <span class="n">delta_t</span>
+				
+				<span class="bp">self</span><span class="o">.</span><span class="n">register_result</span><span class="p">(</span><span class="n">j</span> <span class="p">,</span> <span class="n">skip_sanity_checks</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+				
+				<span class="n">config_generator</span><span class="o">.</span><span class="n">new_result</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">update_model</span><span class="o">=</span><span class="p">(</span><span class="n">i</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="n">id2conf</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+				
+		<span class="c1"># mark as finished, as no more runs should be executed from these runs</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">is_finished</span> <span class="o">=</span> <span class="kc">True</span>
+		
+<div class="viewcode-block" id="WarmStartIteration.fix_timestamps"><a class="viewcode-back" href="../../../core/iteration.html#hpbandster.core.base_iteration.WarmStartIteration.fix_timestamps">[docs]</a>	<span class="k">def</span> <span class="nf">fix_timestamps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_ref</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">			manipulates internal time stamps such that the last run ends at time 0</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		
+		<span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+			<span class="k">for</span> <span class="n">kk</span><span class="p">,</span> <span class="n">vv</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">time_stamps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+				<span class="k">for</span> <span class="n">kkk</span><span class="p">,</span><span class="n">vvv</span> <span class="ow">in</span> <span class="n">vv</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">time_stamps</span><span class="p">[</span><span class="n">kk</span><span class="p">][</span><span class="n">kkk</span><span class="p">]</span> <span class="o">+=</span> <span class="n">time_ref</span></div></div>
+		
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Stefan Falkner.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

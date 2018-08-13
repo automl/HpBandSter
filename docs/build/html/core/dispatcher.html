@@ -1,0 +1,344 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>The dispatcher – running jobs remotely using Pyro4 &mdash; hpbandster  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Results of a run – how to access all the information" href="result.html" />
+    <link rel="prev" title="The Visualization submodule – Analyzing HpBandster Runs" href="visualization.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> hpbandster
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced_examples.html">Advanced examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/index.html">Examples - How to use HpBandSter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../best_practices.html">Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../optimizers.html">Optimizers</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../core_components.html">The core components in more detail</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="nameserver.html">The nameserver – establishing connections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="master.html">The Master – the brains of HpBandster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="worker.html">The Worker – the muscle of HpBandster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualization.html">The Visualization submodule – Analyzing HpBandster Runs</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">The dispatcher – running jobs remotely using Pyro4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="result.html">Results of a run – how to access all the information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iteration.html">Iterations – the job center of HpBandster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_generator.html">The ConfigGenerator – the strategy of HpBandster</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hpbandster</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../core_components.html">The core components in more detail</a> &raquo;</li>
+        
+      <li>The dispatcher – running jobs remotely using Pyro4</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/core/dispatcher.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-hpbandster.core.dispatcher">
+<span id="the-dispatcher-running-jobs-remotely-using-pyro4"></span><h1>The dispatcher – running jobs remotely using Pyro4<a class="headerlink" href="#module-hpbandster.core.dispatcher" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="hpbandster.core.dispatcher.Dispatcher">
+<em class="property">class </em><code class="descclassname">hpbandster.core.dispatcher.</code><code class="descname">Dispatcher</code><span class="sig-paren">(</span><em>new_result_callback</em>, <em>run_id='0'</em>, <em>ping_interval=10</em>, <em>nameserver='localhost'</em>, <em>nameserver_port=None</em>, <em>host=None</em>, <em>logger=None</em>, <em>queue_callback=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/dispatcher.html#Dispatcher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.dispatcher.Dispatcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>The dispatcher is responsible for assigning tasks to free workers, report results back to the master and
+communicate to the nameserver.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>new_result_callback</strong> (<em>function</em>) – function that will be called with a <a class="reference external" href="hpbandster.core.dispatcher.Job">Job instance</a> as argument.
+From the <cite>Job</cite> the result can be read and e.g. logged.</li>
+<li><strong>run_id</strong> (<em>str</em>) – unique run_id associated with the HPB run</li>
+<li><strong>ping_interval</strong> (<em>int</em>) – how often to ping for workers (in seconds)</li>
+<li><strong>nameserver</strong> (<em>str</em>) – address of the Pyro4 nameserver</li>
+<li><strong>nameserver_port</strong> (<em>int</em>) – port of Pyro4 nameserver</li>
+<li><strong>host</strong> (<em>str</em>) – ip (or name that resolves to that) of the network interface to use</li>
+<li><strong>logger</strong> (<em>logging.Logger</em>) – logger-instance for info and debug</li>
+<li><strong>queue_callback</strong> (<em>function</em>) – gets called with the number of workers in the pool on every update-cycle</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="hpbandster.core.dispatcher.Dispatcher.discover_workers">
+<code class="descname">discover_workers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/dispatcher.html#Dispatcher.discover_workers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.dispatcher.Dispatcher.discover_workers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.dispatcher.Dispatcher.job_runner">
+<code class="descname">job_runner</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/dispatcher.html#Dispatcher.job_runner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.dispatcher.Dispatcher.job_runner" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.dispatcher.Dispatcher.number_of_workers">
+<code class="descname">number_of_workers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/dispatcher.html#Dispatcher.number_of_workers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.dispatcher.Dispatcher.number_of_workers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.dispatcher.Dispatcher.register_result">
+<code class="descname">register_result</code><span class="sig-paren">(</span><em>id=None</em>, <em>result=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/dispatcher.html#Dispatcher.register_result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.dispatcher.Dispatcher.register_result" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.dispatcher.Dispatcher.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/dispatcher.html#Dispatcher.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.dispatcher.Dispatcher.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.dispatcher.Dispatcher.shutdown">
+<code class="descname">shutdown</code><span class="sig-paren">(</span><em>shutdown_workers=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/dispatcher.html#Dispatcher.shutdown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.dispatcher.Dispatcher.shutdown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.dispatcher.Dispatcher.shutdown_all_workers">
+<code class="descname">shutdown_all_workers</code><span class="sig-paren">(</span><em>rediscover=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/dispatcher.html#Dispatcher.shutdown_all_workers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.dispatcher.Dispatcher.shutdown_all_workers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.dispatcher.Dispatcher.submit_job">
+<code class="descname">submit_job</code><span class="sig-paren">(</span><em>id</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/dispatcher.html#Dispatcher.submit_job"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.dispatcher.Dispatcher.submit_job" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.dispatcher.Dispatcher.trigger_discover_worker">
+<code class="descname">trigger_discover_worker</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/dispatcher.html#Dispatcher.trigger_discover_worker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.dispatcher.Dispatcher.trigger_discover_worker" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="hpbandster.core.dispatcher.Job">
+<em class="property">class </em><code class="descclassname">hpbandster.core.dispatcher.</code><code class="descname">Job</code><span class="sig-paren">(</span><em>id</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/dispatcher.html#Job"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.dispatcher.Job" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="hpbandster.core.dispatcher.Job.recreate_from_run">
+<code class="descname">recreate_from_run</code><span class="sig-paren">(</span><em>run</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/dispatcher.html#Job.recreate_from_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.dispatcher.Job.recreate_from_run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.dispatcher.Job.time_it">
+<code class="descname">time_it</code><span class="sig-paren">(</span><em>which_time</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/dispatcher.html#Job.time_it"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.dispatcher.Job.time_it" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="hpbandster.core.dispatcher.Worker">
+<em class="property">class </em><code class="descclassname">hpbandster.core.dispatcher.</code><code class="descname">Worker</code><span class="sig-paren">(</span><em>name</em>, <em>uri</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/dispatcher.html#Worker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.dispatcher.Worker" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="hpbandster.core.dispatcher.Worker.is_alive">
+<code class="descname">is_alive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/dispatcher.html#Worker.is_alive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.dispatcher.Worker.is_alive" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.dispatcher.Worker.is_busy">
+<code class="descname">is_busy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/dispatcher.html#Worker.is_busy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.dispatcher.Worker.is_busy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.dispatcher.Worker.shutdown">
+<code class="descname">shutdown</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/dispatcher.html#Worker.shutdown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.dispatcher.Worker.shutdown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="result.html" class="btn btn-neutral float-right" title="Results of a run – how to access all the information" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="visualization.html" class="btn btn-neutral" title="The Visualization submodule – Analyzing HpBandster Runs" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Stefan Falkner.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

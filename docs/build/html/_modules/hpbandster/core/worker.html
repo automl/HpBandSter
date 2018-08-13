@@ -1,0 +1,443 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>hpbandster.core.worker &mdash; hpbandster  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> hpbandster
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced_examples.html">Advanced examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/index.html">Examples - How to use HpBandSter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../best_practices.html">Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../optimizers.html">Optimizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../core_components.html">The core components in more detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">hpbandster</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>hpbandster.core.worker</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for hpbandster.core.worker</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">socket</span>
+
+
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">Pyro4</span>
+
+
+
+<div class="viewcode-block" id="Worker"><a class="viewcode-back" href="../../../core/worker.html#hpbandster.core.worker.Worker">[docs]</a><span class="k">class</span> <span class="nc">Worker</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	The worker is responsible for evaluating a single configuration on a single budget at a time.</span>
+<span class="sd">	Communication to the individual workers goes via the nameserver, management of the worker-pool and job</span>
+<span class="sd">	scheduling is done by the Dispatcher and jobs are determined by the Master. In distributed systems, each</span>
+<span class="sd">	cluster-node runs a Worker-instance. To implement your own worker, overwrite the `compute`-method.</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_id</span><span class="p">,</span> <span class="n">nameserver</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nameserver_port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		</span>
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		run_id: anything with a __str__ method</span>
+<span class="sd">			unique id to identify individual HpBandSter run</span>
+<span class="sd">		nameserver: str</span>
+<span class="sd">			hostname or IP of the nameserver</span>
+<span class="sd">		nameserver_port: int</span>
+<span class="sd">			port of the nameserver</span>
+<span class="sd">		logger: logging.logger instance</span>
+<span class="sd">			logger used for debugging output</span>
+<span class="sd">		host: str</span>
+<span class="sd">			hostname for this worker process</span>
+<span class="sd">		id: anything with a __str__method</span>
+<span class="sd">			if multiple workers are started in the same process, you MUST provide a unique id for each one of them using the `id` argument.</span>
+<span class="sd">		timeout: int or float</span>
+<span class="sd">			specifies the timeout a worker will wait for a new after finishing a computation before shutting down.</span>
+<span class="sd">			Towards the end of a long run with multiple workers, this helps to shutdown idling workers. We recommend</span>
+<span class="sd">			a timeout that is roughly half the time it would take for the second largest budget to finish.</span>
+<span class="sd">			The default (None) means that the worker will wait indefinitely and never shutdown on its own.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">run_id</span> <span class="o">=</span> <span class="n">run_id</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">host</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">nameserver</span> <span class="o">=</span> <span class="n">nameserver</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">nameserver_port</span> <span class="o">=</span> <span class="n">nameserver_port</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">worker_id</span> <span class="o">=</span>  <span class="s2">&quot;hpbandster.run_</span><span class="si">%s</span><span class="s2">.worker.</span><span class="si">%s</span><span class="s2">.</span><span class="si">%i</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">(),</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">())</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="kc">None</span>
+		
+		
+		<span class="k">if</span> <span class="ow">not</span> <span class="nb">id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">worker_id</span> <span class="o">+=</span><span class="s1">&#39;.</span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">thread</span><span class="o">=</span><span class="kc">None</span>
+
+		<span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">,</span>  <span class="n">datefmt</span><span class="o">=</span><span class="s1">&#39;%H:%M:%S&#39;</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">worker_id</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">busy</span> <span class="o">=</span> <span class="kc">False</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">thread_cond</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Condition</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">())</span>
+
+
+<div class="viewcode-block" id="Worker.load_nameserver_credentials"><a class="viewcode-back" href="../../../core/worker.html#hpbandster.core.worker.Worker.load_nameserver_credentials">[docs]</a>	<span class="k">def</span> <span class="nf">load_nameserver_credentials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">working_directory</span><span class="p">,</span> <span class="n">num_tries</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		loads the nameserver credentials in cases where master and workers share a filesystem</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">			working_directory: str</span>
+<span class="sd">				the working directory for the HPB run (see master)</span>
+<span class="sd">			num_tries: int</span>
+<span class="sd">				number of attempts to find the file (default 60)</span>
+<span class="sd">			interval: float</span>
+<span class="sd">				waiting period between the attempts</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">fn</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">working_directory</span><span class="p">,</span> <span class="s1">&#39;HPB_run_</span><span class="si">%s</span><span class="s1">_pyro.pkl&#39;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
+		
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_tries</span><span class="p">):</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">nameserver</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nameserver_port</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
+				<span class="k">return</span>
+			<span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;config file </span><span class="si">%s</span><span class="s1"> not found (trail </span><span class="si">%i</span><span class="s1">/</span><span class="si">%i</span><span class="s1">)&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_tries</span><span class="p">))</span>
+				<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span>
+			<span class="k">except</span><span class="p">:</span>
+				<span class="k">raise</span>
+		<span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Could not find the nameserver information, aborting!&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worker.run"><a class="viewcode-back" href="../../../core/worker.html#hpbandster.core.worker.Worker.run">[docs]</a>	<span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Method to start the worker.</span>
+<span class="sd">		</span>
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">			background: bool</span>
+<span class="sd">				If set to False (Default). the worker is executed in the current thread.</span>
+<span class="sd">				If True, a new daemon thread is created that runs the worker. This is</span>
+<span class="sd">				useful in a single worker scenario/when the compute function only simulates</span>
+<span class="sd">				work.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="n">background</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">worker_id</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">get_ident</span><span class="p">())</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;worker </span><span class="si">%s</span><span class="s1"> thread&#39;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">worker_id</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">thread</span><span class="o">.</span><span class="n">daemon</span><span class="o">=</span><span class="kc">True</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">()</span></div>
+
+	<span class="k">def</span> <span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="c1"># initial ping to the dispatcher to register the worker</span>
+		
+		<span class="k">try</span><span class="p">:</span>
+			<span class="k">with</span> <span class="n">Pyro4</span><span class="o">.</span><span class="n">locateNS</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nameserver</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nameserver_port</span><span class="p">)</span> <span class="k">as</span> <span class="n">ns</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;WORKER: Connected to nameserver </span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">ns</span><span class="p">)))</span>
+				<span class="n">dispatchers</span> <span class="o">=</span> <span class="n">ns</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;hpbandster.run_</span><span class="si">%s</span><span class="s2">.dispatcher&quot;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
+		<span class="k">except</span> <span class="n">Pyro4</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">NamingError</span><span class="p">:</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">thread</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;No nameserver found. Make sure the nameserver is running at that the host (</span><span class="si">%s</span><span class="s1">) and port (</span><span class="si">%s</span><span class="s1">) are correct&#39;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nameserver</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nameserver_port</span><span class="p">))</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;No nameserver found. Make sure the nameserver is running at that the host (</span><span class="si">%s</span><span class="s1">) and port (</span><span class="si">%s</span><span class="s1">) are correct&#39;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nameserver</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nameserver_port</span><span class="p">))</span>
+				<span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+		<span class="k">except</span><span class="p">:</span>
+			<span class="k">raise</span>
+			
+			
+		<span class="k">for</span> <span class="n">dn</span><span class="p">,</span> <span class="n">uri</span> <span class="ow">in</span> <span class="n">dispatchers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;WORKER: found dispatcher </span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="n">dn</span><span class="p">)</span>
+				<span class="k">with</span> <span class="n">Pyro4</span><span class="o">.</span><span class="n">Proxy</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span> <span class="k">as</span> <span class="n">dispatcher_proxy</span><span class="p">:</span>
+					<span class="n">dispatcher_proxy</span><span class="o">.</span><span class="n">trigger_discover_worker</span><span class="p">()</span>
+
+			<span class="k">except</span> <span class="n">Pyro4</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">CommunicationError</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;WORKER: Dispatcher did not respond. Waiting for one to initiate contact.&#39;</span><span class="p">)</span>
+				<span class="k">pass</span>
+			<span class="k">except</span><span class="p">:</span>
+				<span class="k">raise</span>
+
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dispatchers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;WORKER: No dispatcher found. Waiting for one to initiate contact.&#39;</span><span class="p">)</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;WORKER: start listening for jobs&#39;</span><span class="p">)</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">pyro_daemon</span> <span class="o">=</span> <span class="n">Pyro4</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Daemon</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">)</span>
+
+		<span class="k">with</span> <span class="n">Pyro4</span><span class="o">.</span><span class="n">locateNS</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nameserver</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nameserver_port</span><span class="p">)</span> <span class="k">as</span> <span class="n">ns</span><span class="p">:</span>
+			<span class="n">uri</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pyro_daemon</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">worker_id</span><span class="p">)</span>
+			<span class="n">ns</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">worker_id</span><span class="p">,</span> <span class="n">uri</span><span class="p">)</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">pyro_daemon</span><span class="o">.</span><span class="n">requestLoop</span><span class="p">()</span>
+
+		<span class="k">with</span> <span class="n">Pyro4</span><span class="o">.</span><span class="n">locateNS</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nameserver</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nameserver_port</span><span class="p">)</span> <span class="k">as</span> <span class="n">ns</span><span class="p">:</span>
+			<span class="n">ns</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">worker_id</span><span class="p">)</span>
+		
+		
+
+<div class="viewcode-block" id="Worker.compute"><a class="viewcode-back" href="../../../core/worker.html#hpbandster.core.worker.Worker.compute">[docs]</a>	<span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_id</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">budget</span><span class="p">,</span> <span class="n">working_directory</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; The function you have to overload implementing your computation.</span>
+<span class="sd">		</span>
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		config_id: tuple</span>
+<span class="sd">			a triplet of ints that uniquely identifies a configuration. the convention is</span>
+<span class="sd">			id = (iteration, budget index, running index) with the following meaning:</span>
+<span class="sd">			- iteration: the iteration of the optimization algorithms. E.g, for Hyperband that is one round of Successive Halving</span>
+<span class="sd">			- budget index: the budget (of the current iteration) for which this configuration was sampled by the optimizer. This is only nonzero if the majority of the runs fail and Hyperband resamples to fill empty slots, or you use a more &#39;advanced&#39; optimizer.</span>
+<span class="sd">			- running index: this is simply an int &gt;= 0 that sort the configs into the order they where sampled, i.e. (x,x,0) was sampled before (x,x,1).</span>
+<span class="sd">		config: dict</span>
+<span class="sd">			the actual configuration to be evaluated.</span>
+<span class="sd">		budget: float</span>
+<span class="sd">			the budget for the evaluation</span>
+<span class="sd">		working_directory: str</span>
+<span class="sd">			a name of a directory that is unique to this configuration. Use this to store intermediate results on lower budgets that can be reused later for a larger budget (for iterative algorithms, for example).</span>
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		dict:</span>
+<span class="sd">			needs to return a dictionary with two mandatory entries:</span>
+<span class="sd">				- &#39;loss&#39;: a numerical value that is MINIMIZED</span>
+<span class="sd">				- &#39;info&#39;: This can be pretty much any build in python type, e.g. a dict with lists as value. Due to Pyro4 handling the remote function calls, 3rd party types like numpy arrays are not supported!</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		
+		<span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Subclass hpbandster.distributed.worker and overwrite the compute method in your worker script&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Worker.start_computation"><a class="viewcode-back" href="../../../core/worker.html#hpbandster.core.worker.Worker.start_computation">[docs]</a>	<span class="nd">@Pyro4</span><span class="o">.</span><span class="n">expose</span>
+	<span class="nd">@Pyro4</span><span class="o">.</span><span class="n">oneway</span>
+	<span class="k">def</span> <span class="nf">start_computation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+		<span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">thread_cond</span><span class="p">:</span>
+			<span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">busy</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">thread_cond</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">busy</span> <span class="o">=</span> <span class="kc">True</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;WORKER: start processing job </span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;WORKER: args: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="p">)))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;WORKER: kwargs: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)))</span>
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">config_id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span>
+						<span class="s1">&#39;exception&#39;</span> <span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+		<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+			<span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+						<span class="s1">&#39;exception&#39;</span> <span class="p">:</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()}</span>
+		<span class="k">finally</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;WORKER: done with job </span><span class="si">%s</span><span class="s1">, trying to register it.&#39;</span><span class="o">%</span><span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">))</span>
+			<span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">thread_cond</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">busy</span> <span class="o">=</span>  <span class="kc">False</span>
+				<span class="n">callback</span><span class="o">.</span><span class="n">register_result</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">thread_cond</span><span class="o">.</span><span class="n">notify</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;WORKER: registered result for job </span><span class="si">%s</span><span class="s1"> with dispatcher&#39;</span><span class="o">%</span><span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">))</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Timer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">shutdown</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">daemon</span><span class="o">=</span><span class="kc">True</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+		<span class="k">return</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Worker.is_busy"><a class="viewcode-back" href="../../../core/worker.html#hpbandster.core.worker.Worker.is_busy">[docs]</a>	<span class="nd">@Pyro4</span><span class="o">.</span><span class="n">expose</span>	
+	<span class="k">def</span> <span class="nf">is_busy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">busy</span><span class="p">)</span></div>
+	
+<div class="viewcode-block" id="Worker.shutdown"><a class="viewcode-back" href="../../../core/worker.html#hpbandster.core.worker.Worker.shutdown">[docs]</a>	<span class="nd">@Pyro4</span><span class="o">.</span><span class="n">expose</span>
+	<span class="nd">@Pyro4</span><span class="o">.</span><span class="n">oneway</span>
+	<span class="k">def</span> <span class="nf">shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;WORKER: shutting down now!&#39;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">pyro_daemon</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">thread</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">thread</span><span class="o">.</span><span class="n">join</span><span class="p">()</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Stefan Falkner.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

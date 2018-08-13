@@ -1,0 +1,521 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>hpbandster.core.master &mdash; hpbandster  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> hpbandster
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced_examples.html">Advanced examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/index.html">Examples - How to use HpBandSter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../best_practices.html">Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../optimizers.html">Optimizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../core_components.html">The core components in more detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">hpbandster</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>hpbandster.core.master</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for hpbandster.core.master</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">pdb</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<span class="kn">from</span> <span class="nn">hpbandster.core.dispatcher</span> <span class="k">import</span> <span class="n">Dispatcher</span>
+<span class="kn">from</span> <span class="nn">hpbandster.core.result</span> <span class="k">import</span> <span class="n">Result</span>
+<span class="kn">from</span> <span class="nn">hpbandster.core.base_iteration</span> <span class="k">import</span> <span class="n">WarmStartIteration</span>
+
+
+
+
+<div class="viewcode-block" id="Master"><a class="viewcode-back" href="../../../core/master.html#hpbandster.core.master.Master">[docs]</a><span class="k">class</span> <span class="nc">Master</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+			<span class="n">run_id</span><span class="p">,</span>
+			<span class="n">config_generator</span><span class="p">,</span>
+			<span class="n">working_directory</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">,</span>
+			<span class="n">ping_interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+			<span class="n">nameserver</span><span class="o">=</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span>
+			<span class="n">nameserver_port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+			<span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+			<span class="n">shutdown_workers</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+			<span class="n">job_queue_sizes</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+			<span class="n">dynamic_queue_size</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+			<span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+			<span class="n">result_logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+			<span class="n">previous_result</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+			<span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;The Master class is responsible for the book keeping and to decide what to run next. Optimizers are</span>
+<span class="sd">                instantiations of Master, that handle the important steps of deciding what configurations to run on what</span>
+<span class="sd">                budget when.</span>
+<span class="sd">		</span>
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		run_id : string</span>
+<span class="sd">			A unique identifier of that Hyperband run. Use, for example, the cluster&#39;s JobID when running multiple</span>
+<span class="sd">			concurrent runs to separate them</span>
+<span class="sd">		config_generator: hpbandster.config_generators object</span>
+<span class="sd">			An object that can generate new configurations and registers results of executed runs</span>
+<span class="sd">		working_directory: string</span>
+<span class="sd">			The top level working directory accessible to all compute nodes(shared filesystem).</span>
+<span class="sd">		eta : float</span>
+<span class="sd">			In each iteration, a complete run of sequential halving is executed. In it,</span>
+<span class="sd">			after evaluating each configuration on the same subset size, only a fraction of</span>
+<span class="sd">			1/eta of them &#39;advances&#39; to the next round.</span>
+<span class="sd">			Must be greater or equal to 2.</span>
+<span class="sd">		min_budget : float</span>
+<span class="sd">			The smallest budget to consider. Needs to be positive!</span>
+<span class="sd">		max_budget : float</span>
+<span class="sd">			the largest budget to consider. Needs to be larger than min_budget!</span>
+<span class="sd">			The budgets will be geometrically distributed :math:`\sim \eta^k` for</span>
+<span class="sd">			:math:`k\in [0, 1, ... , num\_subsets - 1]`.</span>
+<span class="sd">		ping_interval: int</span>
+<span class="sd">			number of seconds between pings to discover new nodes. Default is 60 seconds.</span>
+<span class="sd">		nameserver: str</span>
+<span class="sd">			address of the Pyro4 nameserver</span>
+<span class="sd">		nameserver_port: int</span>
+<span class="sd">			port of Pyro4 nameserver</span>
+<span class="sd">		host: str</span>
+<span class="sd">			ip (or name that resolves to that) of the network interface to use</span>
+<span class="sd">		shutdown_workers: bool</span>
+<span class="sd">			flag to control whether the workers are shutdown after the computation is done</span>
+<span class="sd">		job_queue_size: tuple of ints</span>
+<span class="sd">			min and max size of the job queue. During the run, when the number of jobs in the queue</span>
+<span class="sd">			reaches the min value, it will be filled up to the max size. Default: (0,1)</span>
+<span class="sd">		dynamic_queue_size: bool</span>
+<span class="sd">			Whether or not to change the queue size based on the number of workers available.</span>
+<span class="sd">			If true (default), the job_queue_sizes are relative to the current number of workers.</span>
+<span class="sd">		logger: logging.logger like object</span>
+<span class="sd">			the logger to output some (more or less meaningful) information</span>
+<span class="sd">		result_logger: hpbandster.api.results.util.json_result_logger object</span>
+<span class="sd">			a result logger that writes live results to disk</span>
+<span class="sd">		previous_result: hpbandster.core.result.Result object</span>
+<span class="sd">			previous run to warmstart the run</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">working_directory</span> <span class="o">=</span> <span class="n">working_directory</span>
+		<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">working_directory</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+		
+
+		<span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;hpbandster&#39;</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">result_logger</span> <span class="o">=</span> <span class="n">result_logger</span>
+
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">config_generator</span> <span class="o">=</span> <span class="n">config_generator</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">time_ref</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">iterations</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">jobs</span> <span class="o">=</span> <span class="p">[]</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">num_running_jobs</span> <span class="o">=</span> <span class="mi">0</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">job_queue_sizes</span> <span class="o">=</span> <span class="n">job_queue_sizes</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">user_job_queue_sizes</span> <span class="o">=</span> <span class="n">job_queue_sizes</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">dynamic_queue_size</span> <span class="o">=</span> <span class="n">dynamic_queue_size</span>
+
+		<span class="k">if</span> <span class="n">job_queue_sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">job_queue_sizes</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The queue size range needs to be (min, max) with min&lt;max!&quot;</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">previous_result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">warmstart_iteration</span> <span class="o">=</span> <span class="p">[]</span>
+
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">warmstart_iteration</span> <span class="o">=</span> <span class="p">[</span><span class="n">WarmStartIteration</span><span class="p">(</span><span class="n">previous_result</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_generator</span><span class="p">)]</span>
+
+		<span class="c1"># condition to synchronize the job_callback and the queue</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">thread_cond</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Condition</span><span class="p">()</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+						<span class="s1">&#39;time_ref&#39;</span>   <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_ref</span>
+					<span class="p">}</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">dispatcher</span> <span class="o">=</span> <span class="n">Dispatcher</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_callback</span><span class="p">,</span> <span class="n">queue_callback</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">adjust_queue_size</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">,</span> <span class="n">ping_interval</span><span class="o">=</span><span class="n">ping_interval</span><span class="p">,</span> <span class="n">nameserver</span><span class="o">=</span><span class="n">nameserver</span><span class="p">,</span> <span class="n">nameserver_port</span><span class="o">=</span><span class="n">nameserver_port</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">)</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">dispatcher_thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dispatcher</span><span class="o">.</span><span class="n">run</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">dispatcher_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="Master.shutdown"><a class="viewcode-back" href="../../../core/master.html#hpbandster.core.master.Master.shutdown">[docs]</a>	<span class="k">def</span> <span class="nf">shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shutdown_workers</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;HBMASTER: shutdown initiated, shutdown_workers = </span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">shutdown_workers</span><span class="p">)))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">dispatcher</span><span class="o">.</span><span class="n">shutdown</span><span class="p">(</span><span class="n">shutdown_workers</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">dispatcher_thread</span><span class="o">.</span><span class="n">join</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Master.wait_for_workers"><a class="viewcode-back" href="../../../core/master.html#hpbandster.core.master.Master.wait_for_workers">[docs]</a>	<span class="k">def</span> <span class="nf">wait_for_workers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_n_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		helper function to hold execution until some workers are active</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		min_n_workers: int</span>
+<span class="sd">			minimum number of workers present before the run starts		</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+	
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;wait_for_workers trying to get the condition&#39;</span><span class="p">)</span>
+		<span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">thread_cond</span><span class="p">:</span>
+			<span class="k">while</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dispatcher</span><span class="o">.</span><span class="n">number_of_workers</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">min_n_workers</span><span class="p">):</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;HBMASTER: only </span><span class="si">%i</span><span class="s1"> worker(s) available, waiting for at least </span><span class="si">%i</span><span class="s1">.&#39;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dispatcher</span><span class="o">.</span><span class="n">number_of_workers</span><span class="p">(),</span> <span class="n">min_n_workers</span><span class="p">))</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">thread_cond</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">dispatcher</span><span class="o">.</span><span class="n">trigger_discover_worker</span><span class="p">()</span>
+				
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Enough workers to start this run!&#39;</span><span class="p">)</span></div>
+			
+
+<div class="viewcode-block" id="Master.get_next_iteration"><a class="viewcode-back" href="../../../core/master.html#hpbandster.core.master.Master.get_next_iteration">[docs]</a>	<span class="k">def</span> <span class="nf">get_next_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">iteration_kwargs</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		instantiates the next iteration</span>
+
+<span class="sd">		Overwrite this to change the iterations for different optimizers</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">			iteration: int</span>
+<span class="sd">				the index of the iteration to be instantiated</span>
+<span class="sd">			iteration_kwargs: dict</span>
+<span class="sd">				additional kwargs for the iteration class</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">			HB_iteration: a valid HB iteration object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		
+		<span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;implement get_next_iteration for </span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Master.run"><a class="viewcode-back" href="../../../core/master.html#hpbandster.core.master.Master.run">[docs]</a>	<span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_iterations</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">min_n_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">iteration_kwargs</span> <span class="o">=</span> <span class="p">{},):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">			run n_iterations of SuccessiveHalving</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		n_iterations: int</span>
+<span class="sd">			number of iterations to be performed in this run</span>
+<span class="sd">		min_n_workers: int</span>
+<span class="sd">			minimum number of workers before starting the run</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">wait_for_workers</span><span class="p">(</span><span class="n">min_n_workers</span><span class="p">)</span>
+		
+		<span class="n">iteration_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;result_logger&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">result_logger</span><span class="p">})</span>
+
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_ref</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">time_ref</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;time_ref&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_ref</span>
+		
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;HBMASTER: starting run at </span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_ref</span><span class="p">)))</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">thread_cond</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+		<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+
+			<span class="bp">self</span><span class="o">.</span><span class="n">_queue_wait</span><span class="p">()</span>
+			
+			<span class="n">next_run</span> <span class="o">=</span> <span class="kc">None</span>
+			<span class="c1"># find a new run to schedule</span>
+			<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_iterations</span><span class="p">():</span>
+				<span class="n">next_run</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterations</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">get_next_run</span><span class="p">()</span>
+				<span class="k">if</span> <span class="ow">not</span> <span class="n">next_run</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">break</span>
+
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">next_run</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;HBMASTER: schedule new run for iteration </span><span class="si">%i</span><span class="s1">&#39;</span><span class="o">%</span><span class="n">i</span><span class="p">)</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">_submit_job</span><span class="p">(</span><span class="o">*</span><span class="n">next_run</span><span class="p">)</span>
+				<span class="k">continue</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="k">if</span> <span class="n">n_iterations</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>	<span class="c1">#we might be able to start the next iteration</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_next_iteration</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iterations</span><span class="p">),</span> <span class="n">iteration_kwargs</span><span class="p">))</span>
+					<span class="n">n_iterations</span> <span class="o">-=</span> <span class="mi">1</span>
+					<span class="k">continue</span>
+
+			<span class="c1"># at this point there is no imediate run that can be scheduled,</span>
+			<span class="c1"># so wait for some job to finish if there are active iterations</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_iterations</span><span class="p">():</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">thread_cond</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="k">break</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">thread_cond</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+		
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">warmstart_iteration</span><span class="p">:</span>
+			<span class="n">i</span><span class="o">.</span><span class="n">fix_timestamps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_ref</span><span class="p">)</span>
+			
+		<span class="n">ws_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">warmstart_iteration</span><span class="p">]</span>
+		
+		<span class="k">return</span> <span class="n">Result</span><span class="p">([</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterations</span><span class="p">]</span> <span class="o">+</span> <span class="n">ws_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Master.adjust_queue_size"><a class="viewcode-back" href="../../../core/master.html#hpbandster.core.master.Master.adjust_queue_size">[docs]</a>	<span class="k">def</span> <span class="nf">adjust_queue_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number_of_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;HBMASTER: number of workers changed to </span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="nb">str</span><span class="p">(</span><span class="n">number_of_workers</span><span class="p">))</span>
+		<span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">thread_cond</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;adjust_queue_size: lock accquired&#39;</span><span class="p">)</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_queue_size</span><span class="p">:</span>
+				<span class="n">nw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatcher</span><span class="o">.</span><span class="n">number_of_workers</span><span class="p">()</span> <span class="k">if</span> <span class="n">number_of_workers</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">number_of_workers</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">job_queue_sizes</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user_job_queue_sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">nw</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_job_queue_sizes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">nw</span><span class="p">)</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;HBMASTER: adjusted queue size to </span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_queue_sizes</span><span class="p">))</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">thread_cond</span><span class="o">.</span><span class="n">notify_all</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Master.job_callback"><a class="viewcode-back" href="../../../core/master.html#hpbandster.core.master.Master.job_callback">[docs]</a>	<span class="k">def</span> <span class="nf">job_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		method to be called when a job has finished</span>
+
+<span class="sd">		this will do some book keeping and call the user defined</span>
+<span class="sd">		new_result_callback if one was specified</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;job_callback for </span><span class="si">%s</span><span class="s1"> started&#39;</span><span class="o">%</span><span class="nb">str</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
+		<span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">thread_cond</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;job_callback for </span><span class="si">%s</span><span class="s1"> got condition&#39;</span><span class="o">%</span><span class="nb">str</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">num_running_jobs</span> <span class="o">-=</span> <span class="mi">1</span>
+
+			<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">result_logger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">result_logger</span><span class="p">(</span><span class="n">job</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">iterations</span><span class="p">[</span><span class="n">job</span><span class="o">.</span><span class="n">id</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">register_result</span><span class="p">(</span><span class="n">job</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">config_generator</span><span class="o">.</span><span class="n">new_result</span><span class="p">(</span><span class="n">job</span><span class="p">)</span>
+
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_running_jobs</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_queue_sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;HBMASTER: Trying to run another job!&quot;</span><span class="p">)</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">thread_cond</span><span class="o">.</span><span class="n">notify</span><span class="p">()</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;job_callback for </span><span class="si">%s</span><span class="s1"> finished&#39;</span><span class="o">%</span><span class="nb">str</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">id</span><span class="p">))</span></div>
+
+	<span class="k">def</span> <span class="nf">_queue_wait</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		helper function to wait for the queue to not overflow/underload it</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_running_jobs</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_queue_sizes</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+			<span class="k">while</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_running_jobs</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_queue_sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;HBMASTER: running jobs: </span><span class="si">%i</span><span class="s1">, queue sizes: </span><span class="si">%s</span><span class="s1"> -&gt; wait&#39;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_running_jobs</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_queue_sizes</span><span class="p">)))</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">thread_cond</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+
+	<span class="k">def</span> <span class="nf">_submit_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_id</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">budget</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		hidden function to submit a new job to the dispatcher</span>
+
+<span class="sd">		This function handles the actual submission in a</span>
+<span class="sd">		(hopefully) thread save way</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;HBMASTER: trying submitting job </span><span class="si">%s</span><span class="s1"> to dispatcher&#39;</span><span class="o">%</span><span class="nb">str</span><span class="p">(</span><span class="n">config_id</span><span class="p">))</span>
+		<span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">thread_cond</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;HBMASTER: submitting job </span><span class="si">%s</span><span class="s1"> to dispatcher&#39;</span><span class="o">%</span><span class="nb">str</span><span class="p">(</span><span class="n">config_id</span><span class="p">))</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">dispatcher</span><span class="o">.</span><span class="n">submit_job</span><span class="p">(</span><span class="n">config_id</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">budget</span><span class="o">=</span><span class="n">budget</span><span class="p">,</span> <span class="n">working_directory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">working_directory</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">num_running_jobs</span> <span class="o">+=</span> <span class="mi">1</span>
+
+		<span class="c1">#shouldn&#39;t the next line be executed while holding the condition?</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;HBMASTER: job </span><span class="si">%s</span><span class="s2"> submitted to dispatcher&quot;</span><span class="o">%</span><span class="nb">str</span><span class="p">(</span><span class="n">config_id</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Master.active_iterations"><a class="viewcode-back" href="../../../core/master.html#hpbandster.core.master.Master.active_iterations">[docs]</a>	<span class="k">def</span> <span class="nf">active_iterations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		function to find active (not marked as finished) iterations </span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">			list: all active iteration objects (empty if there are none)</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="n">l</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">idx</span><span class="p">:</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterations</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">is_finished</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iterations</span><span class="p">))))</span>
+		<span class="k">return</span><span class="p">(</span><span class="n">l</span><span class="p">)</span></div>
+
+	<span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">pass</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Stefan Falkner.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

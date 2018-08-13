@@ -1,0 +1,450 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Results of a run – how to access all the information &mdash; hpbandster  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Iterations – the job center of HpBandster" href="iteration.html" />
+    <link rel="prev" title="The dispatcher – running jobs remotely using Pyro4" href="dispatcher.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> hpbandster
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced_examples.html">Advanced examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/index.html">Examples - How to use HpBandSter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../best_practices.html">Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../optimizers.html">Optimizers</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../core_components.html">The core components in more detail</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="nameserver.html">The nameserver – establishing connections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="master.html">The Master – the brains of HpBandster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="worker.html">The Worker – the muscle of HpBandster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualization.html">The Visualization submodule – Analyzing HpBandster Runs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dispatcher.html">The dispatcher – running jobs remotely using Pyro4</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Results of a run – how to access all the information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iteration.html">Iterations – the job center of HpBandster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_generator.html">The ConfigGenerator – the strategy of HpBandster</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hpbandster</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../core_components.html">The core components in more detail</a> &raquo;</li>
+        
+      <li>Results of a run – how to access all the information</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/core/result.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-hpbandster.core.result">
+<span id="results-of-a-run-how-to-access-all-the-information"></span><h1>Results of a run – how to access all the information<a class="headerlink" href="#module-hpbandster.core.result" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="hpbandster.core.result.Result">
+<em class="property">class </em><code class="descclassname">hpbandster.core.result.</code><code class="descname">Result</code><span class="sig-paren">(</span><em>HB_iteration_data</em>, <em>HB_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/result.html#Result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.result.Result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Object returned by the HB_master.run function</p>
+<p>This class offers a simple API to access the information from
+a Hyperband run.</p>
+<dl class="method">
+<dt id="hpbandster.core.result.Result.get_all_runs">
+<code class="descname">get_all_runs</code><span class="sig-paren">(</span><em>only_largest_budget=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/result.html#Result.get_all_runs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.result.Result.get_all_runs" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns all runs performed</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>only_largest_budget</strong> (<em>boolean</em>) – if True, only the largest budget for each configuration
+is returned. This makes sense if the runs are continued
+across budgets and the info field contains the information
+you care about. If False, all runs of a configuration
+are returned</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.result.Result.get_fANOVA_data">
+<code class="descname">get_fANOVA_data</code><span class="sig-paren">(</span><em>config_space</em>, <em>budgets=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/result.html#Result.get_fANOVA_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.result.Result.get_fANOVA_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.result.Result.get_id2config_mapping">
+<code class="descname">get_id2config_mapping</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/result.html#Result.get_id2config_mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.result.Result.get_id2config_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns a dict where the keys are the config_ids and the values
+are the actual configurations</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.result.Result.get_incumbent_id">
+<code class="descname">get_incumbent_id</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/result.html#Result.get_incumbent_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.result.Result.get_incumbent_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the config_id of the incumbent.</p>
+<p>The incumbent here is the configuration with the smallest loss
+among all runs on the maximum budget! If no run finishes on the
+maximum budget, None is returned!</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.result.Result.get_incumbent_trajectory">
+<code class="descname">get_incumbent_trajectory</code><span class="sig-paren">(</span><em>all_budgets=True</em>, <em>bigger_is_better=True</em>, <em>non_decreasing_budget=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/result.html#Result.get_incumbent_trajectory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.result.Result.get_incumbent_trajectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the best configurations over time</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>all_budgets</strong> (<em>bool</em>) – If set to true all runs (even those not with the largest budget) can be the incumbent.
+Otherwise, only full budget runs are considered</li>
+<li><strong>bigger_is_better</strong> (<em>bool</em>) – flag whether an evaluation on a larger budget is always considered better.
+If True, the incumbent might increase for the first evaluations on a bigger budget</li>
+<li><strong>non_decreasing_budget</strong> (<em>bool</em>) – flag whether the budget of a new incumbent should be at least as big as the one for
+the current incumbent.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">dictionary with all the config IDs, the times the runs
+finished, their respective budgets, and corresponding losses</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.result.Result.get_learning_curves">
+<code class="descname">get_learning_curves</code><span class="sig-paren">(</span><em>lc_extractor=&lt;function extract_HBS_learning_curves&gt;</em>, <em>config_ids=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/result.html#Result.get_learning_curves"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.result.Result.get_learning_curves" title="Permalink to this definition">¶</a></dt>
+<dd><p>extracts all learning curves from all run configurations</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>lc_extractor</strong> (<em>callable</em>) – a function to return a list of learning_curves.
+defaults to hpbanster.HB_result.extract_HP_learning_curves</li>
+<li><strong>config_ids</strong> (<em>list of valid config ids</em>) – if only a subset of the config ids is wanted</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a dictionary with the config_ids as keys and the
+learning curves as values</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.result.Result.get_runs_by_id">
+<code class="descname">get_runs_by_id</code><span class="sig-paren">(</span><em>config_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/result.html#Result.get_runs_by_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.result.Result.get_runs_by_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns a list of runs for a given config id</p>
+<p>The runs are sorted by ascending budget, so ‘-1’ will give
+the longest run for this config.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.result.Result.num_iterations">
+<code class="descname">num_iterations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/result.html#Result.num_iterations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.result.Result.num_iterations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="hpbandster.core.result.Run">
+<em class="property">class </em><code class="descclassname">hpbandster.core.result.</code><code class="descname">Run</code><span class="sig-paren">(</span><em>config_id</em>, <em>budget</em>, <em>loss</em>, <em>info</em>, <em>time_stamps</em>, <em>error_logs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/result.html#Run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.result.Run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Not a proper class, more a ‘struct’ to bundle important
+information about a particular run</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="hpbandster.core.result.extract_HBS_learning_curves">
+<code class="descclassname">hpbandster.core.result.</code><code class="descname">extract_HBS_learning_curves</code><span class="sig-paren">(</span><em>runs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/result.html#extract_HBS_learning_curves"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.result.extract_HBS_learning_curves" title="Permalink to this definition">¶</a></dt>
+<dd><p>function to get the hyperband learning curves</p>
+<p>This is an example function showing the interface to use the
+HB_result.get_learning_curves method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>runs</strong> (<em>list of HB_result.run objects</em>) – the performed runs for an unspecified config</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>list of learning curves</strong> – An individual learning curve is a list of (t, x_t) tuples.
+This function must return a list of these. One could think
+of cases where one could extract multiple learning curves
+from these runs, e.g. if each run is an independent training
+run of a neural network on the data.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list of lists of tuples</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="hpbandster.core.result.json_result_logger">
+<em class="property">class </em><code class="descclassname">hpbandster.core.result.</code><code class="descname">json_result_logger</code><span class="sig-paren">(</span><em>directory</em>, <em>overwrite=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/result.html#json_result_logger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.result.json_result_logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>convenience logger for ‘semi-live-results’</p>
+<p>Logger that writes job results into two files (configs.json and results.json).
+Both files contain propper json objects in each line.</p>
+<p>This version opens and closes the files for each result.
+This might be very slow if individual runs are fast and the
+filesystem is rather slow (e.g. a NFS).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>directory</strong> (<em>string</em>) – the directory where the two files ‘configs.json’ and
+‘results.json’ are stored</li>
+<li><strong>overwrite</strong> (<em>bool</em>) – <p>In case the files already exist, this flag controls the
+behavior:</p>
+<blockquote>
+<div><ul>
+<li>True:   The existing files will be overwritten. Potential risk of deleting previous results</li>
+<li>False:  A FileExistsError is raised and the files are not modified.</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="hpbandster.core.result.json_result_logger.new_config">
+<code class="descname">new_config</code><span class="sig-paren">(</span><em>config_id</em>, <em>config</em>, <em>config_info</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/result.html#json_result_logger.new_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.result.json_result_logger.new_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="hpbandster.core.result.logged_results_to_HBS_result">
+<code class="descclassname">hpbandster.core.result.</code><code class="descname">logged_results_to_HBS_result</code><span class="sig-paren">(</span><em>directory</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/result.html#logged_results_to_HBS_result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.result.logged_results_to_HBS_result" title="Permalink to this definition">¶</a></dt>
+<dd><p>function to import logged ‘live-results’ and return a HB_result object</p>
+<p>You can load live run results with this function and the returned
+HB_result object gives you access to the results the same way
+a finished run would.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>directory</strong> (<em>str</em>) – the directory containing the results.json and config.json files</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>hpbandster.core.result.Result</strong> – TODO</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">object:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="iteration.html" class="btn btn-neutral float-right" title="Iterations – the job center of HpBandster" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="dispatcher.html" class="btn btn-neutral" title="The dispatcher – running jobs remotely using Pyro4" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Stefan Falkner.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

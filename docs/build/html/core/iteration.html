@@ -1,0 +1,340 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Iterations – the job center of HpBandster &mdash; hpbandster  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="The ConfigGenerator – the strategy of HpBandster" href="config_generator.html" />
+    <link rel="prev" title="Results of a run – how to access all the information" href="result.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> hpbandster
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced_examples.html">Advanced examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/index.html">Examples - How to use HpBandSter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../best_practices.html">Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../optimizers.html">Optimizers</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../core_components.html">The core components in more detail</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="nameserver.html">The nameserver – establishing connections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="master.html">The Master – the brains of HpBandster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="worker.html">The Worker – the muscle of HpBandster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualization.html">The Visualization submodule – Analyzing HpBandster Runs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dispatcher.html">The dispatcher – running jobs remotely using Pyro4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="result.html">Results of a run – how to access all the information</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Iterations – the job center of HpBandster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_generator.html">The ConfigGenerator – the strategy of HpBandster</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hpbandster</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../core_components.html">The core components in more detail</a> &raquo;</li>
+        
+      <li>Iterations – the job center of HpBandster</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/core/iteration.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-hpbandster.core.base_iteration">
+<span id="iterations-the-job-center-of-hpbandster"></span><h1>Iterations – the job center of HpBandster<a class="headerlink" href="#module-hpbandster.core.base_iteration" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="hpbandster.core.base_iteration.BaseIteration">
+<em class="property">class </em><code class="descclassname">hpbandster.core.base_iteration.</code><code class="descname">BaseIteration</code><span class="sig-paren">(</span><em>HPB_iter</em>, <em>num_configs</em>, <em>budgets</em>, <em>config_sampler</em>, <em>logger=None</em>, <em>result_logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/base_iteration.html#BaseIteration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.base_iteration.BaseIteration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for various iteration possibilities. This decides what configuration should be run on what budget
+next. Typical choices are e.g. successive halving. Results from runs are processed and (depending on the
+implementations) determine the further development.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>HPB_iter</strong> (<em>int</em>) – The current HPBandSter iteration index.</li>
+<li><strong>num_configs</strong> (<em>list of ints</em>) – the number of configurations in each stage of SH</li>
+<li><strong>budgets</strong> (<em>list of floats</em>) – the budget associated with each stage</li>
+<li><strong>config_sample</strong> (<em>callable</em>) – a function that returns a valid configuration. Its only
+argument should be the budget that this config is first
+scheduled for. This might be used to pick configurations
+that perform best after this particular budget is exhausted
+to build a better autoML system.</li>
+<li><strong>logger</strong> (<em>a logger</em>) – </li>
+<li><strong>result_logger</strong> (<em>hpbandster.api.results.util.json_result_logger object</em>) – a result logger that writes live results to disk</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="hpbandster.core.base_iteration.BaseIteration.add_configuration">
+<code class="descname">add_configuration</code><span class="sig-paren">(</span><em>config=None</em>, <em>config_info={}</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/base_iteration.html#BaseIteration.add_configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.base_iteration.BaseIteration.add_configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>function to add a new configuration to the current iteration</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>config</strong> (<em>valid configuration</em>) – The configuration to add. If None, a configuration is sampled from the config_sampler</li>
+<li><strong>config_info</strong> (<em>dict</em>) – Some information about the configuration that will be stored in the results</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.base_iteration.BaseIteration.finish_up">
+<code class="descname">finish_up</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/base_iteration.html#BaseIteration.finish_up"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.base_iteration.BaseIteration.finish_up" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.base_iteration.BaseIteration.get_next_run">
+<code class="descname">get_next_run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/base_iteration.html#BaseIteration.get_next_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.base_iteration.BaseIteration.get_next_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>function to return the next configuration and budget to run.</p>
+<p>This function is called from HB_master, don’t call this from
+your script.</p>
+<p>It returns None if this run of SH is finished or there are
+pending jobs that need to finish to progress to the next stage.</p>
+<p>If there are empty slots to be filled in the current SH stage
+(which never happens in the original SH version), a new
+configuration will be sampled and scheduled to run next.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.base_iteration.BaseIteration.process_results">
+<code class="descname">process_results</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/base_iteration.html#BaseIteration.process_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.base_iteration.BaseIteration.process_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>function that is called when a stage is completed and
+needs to be analyzed befor further computations.</p>
+<p>The code here implements the original SH algorithms by
+advancing the k-best (lowest loss) configurations at the current
+budget. k is defined by the num_configs list (see __init__)
+and the current stage value.</p>
+<p>For more advanced methods like resampling after each stage,
+overload this function only.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.base_iteration.BaseIteration.register_result">
+<code class="descname">register_result</code><span class="sig-paren">(</span><em>job</em>, <em>skip_sanity_checks=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/base_iteration.html#BaseIteration.register_result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.base_iteration.BaseIteration.register_result" title="Permalink to this definition">¶</a></dt>
+<dd><p>function to register the result of a job</p>
+<p>This function is called from HB_master, don’t call this from
+your script.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="hpbandster.core.base_iteration.Datum">
+<em class="property">class </em><code class="descclassname">hpbandster.core.base_iteration.</code><code class="descname">Datum</code><span class="sig-paren">(</span><em>config</em>, <em>config_info</em>, <em>results=None</em>, <em>time_stamps=None</em>, <em>exceptions=None</em>, <em>status='QUEUED'</em>, <em>budget=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/base_iteration.html#Datum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.base_iteration.Datum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="hpbandster.core.base_iteration.WarmStartIteration">
+<em class="property">class </em><code class="descclassname">hpbandster.core.base_iteration.</code><code class="descname">WarmStartIteration</code><span class="sig-paren">(</span><em>Result</em>, <em>config_generator</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/base_iteration.html#WarmStartIteration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.base_iteration.WarmStartIteration" title="Permalink to this definition">¶</a></dt>
+<dd><p>iteration that imports a privious Result for warm starting</p>
+<dl class="method">
+<dt id="hpbandster.core.base_iteration.WarmStartIteration.fix_timestamps">
+<code class="descname">fix_timestamps</code><span class="sig-paren">(</span><em>time_ref</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/base_iteration.html#WarmStartIteration.fix_timestamps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.base_iteration.WarmStartIteration.fix_timestamps" title="Permalink to this definition">¶</a></dt>
+<dd><p>manipulates internal time stamps such that the last run ends at time 0</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="config_generator.html" class="btn btn-neutral float-right" title="The ConfigGenerator – the strategy of HpBandster" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="result.html" class="btn btn-neutral" title="Results of a run – how to access all the information" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Stefan Falkner.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

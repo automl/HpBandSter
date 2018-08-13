@@ -1,0 +1,352 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>hpbandster.optimizers.bohb &mdash; hpbandster  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> hpbandster
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced_examples.html">Advanced examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/index.html">Examples - How to use HpBandSter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../best_practices.html">Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../optimizers.html">Optimizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../core_components.html">The core components in more detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">hpbandster</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>hpbandster.optimizers.bohb</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for hpbandster.optimizers.bohb</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<span class="kn">import</span> <span class="nn">ConfigSpace</span> <span class="k">as</span> <span class="nn">CS</span>
+
+<span class="kn">from</span> <span class="nn">hpbandster.core.master</span> <span class="k">import</span> <span class="n">Master</span>
+<span class="kn">from</span> <span class="nn">hpbandster.optimizers.iterations</span> <span class="k">import</span> <span class="n">SuccessiveHalving</span>
+<span class="kn">from</span> <span class="nn">hpbandster.optimizers.config_generators.bohb</span> <span class="k">import</span> <span class="n">BOHB</span> <span class="k">as</span> <span class="n">CG_BOHB</span>
+
+<div class="viewcode-block" id="BOHB"><a class="viewcode-back" href="../../../optimizers/bohb.html#hpbandster.optimizers.bohb.BOHB">[docs]</a><span class="k">class</span> <span class="nc">BOHB</span><span class="p">(</span><span class="n">Master</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configspace</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+					<span class="n">eta</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">min_budget</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">max_budget</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+					<span class="n">min_points_in_model</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>	<span class="n">top_n_percent</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+					<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">64</span><span class="p">,</span> <span class="n">random_fraction</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">,</span> <span class="n">bandwidth_factor</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+					<span class="n">min_bandwidth</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+					<span class="o">**</span><span class="n">kwargs</span> <span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                BOHB performs robust and efficient hyperparameter optimization</span>
+<span class="sd">                at scale by combining the speed of Hyperband searches with the</span>
+<span class="sd">                guidance and guarantees of convergence of Bayesian</span>
+<span class="sd">                Optimization. Instead of sampling new configurations at random,</span>
+<span class="sd">                BOHB uses kernel density estimators to select promising candidates.</span>
+
+<span class="sd">                .. highlight:: none</span>
+
+<span class="sd">                For reference: ::</span>
+
+<span class="sd">			@InProceedings{falkner-icml-18,</span>
+<span class="sd">			  title =        {{BOHB}: Robust and Efficient Hyperparameter Optimization at Scale},</span>
+<span class="sd">			  author =       {Falkner, Stefan and Klein, Aaron and Hutter, Frank},</span>
+<span class="sd">			  booktitle =    {Proceedings of the 35th International Conference on Machine Learning},</span>
+<span class="sd">			  pages =        {1436--1445},</span>
+<span class="sd">			  year =         {2018},</span>
+<span class="sd">			}</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		configspace: ConfigSpace object</span>
+<span class="sd">			valid representation of the search space</span>
+<span class="sd">		eta : float</span>
+<span class="sd">			In each iteration, a complete run of sequential halving is executed. In it,</span>
+<span class="sd">			after evaluating each configuration on the same subset size, only a fraction of</span>
+<span class="sd">			1/eta of them &#39;advances&#39; to the next round.</span>
+<span class="sd">			Must be greater or equal to 2.</span>
+<span class="sd">		min_budget : float</span>
+<span class="sd">			The smallest budget to consider. Needs to be positive!</span>
+<span class="sd">		max_budget : float</span>
+<span class="sd">			The largest budget to consider. Needs to be larger than min_budget!</span>
+<span class="sd">			The budgets will be geometrically distributed</span>
+<span class="sd">                        :math:`a^2 + b^2 = c^2 \sim \eta^k` for :math:`k\in [0, 1, ... , num\_subsets - 1]`.</span>
+<span class="sd">		min_points_in_model: int</span>
+<span class="sd">			number of observations to start building a KDE. Default &#39;None&#39; means</span>
+<span class="sd">			dim+1, the bare minimum.</span>
+<span class="sd">		top_n_percent: int</span>
+<span class="sd">			percentage ( between 1 and 99, default 15) of the observations that are considered good.</span>
+<span class="sd">		num_samples: int</span>
+<span class="sd">			number of samples to optimize EI (default 64)</span>
+<span class="sd">		random_fraction: float</span>
+<span class="sd">			fraction of purely random configurations that are sampled from the</span>
+<span class="sd">			prior without the model.</span>
+<span class="sd">		bandwidth_factor: float</span>
+<span class="sd">			to encourage diversity, the points proposed to optimize EI, are sampled</span>
+<span class="sd">			from a &#39;widened&#39; KDE where the bandwidth is multiplied by this factor (default: 3)</span>
+<span class="sd">		min_bandwidth: float</span>
+<span class="sd">			to keep diversity, even when all (good) samples have the same value for one of the parameters,</span>
+<span class="sd">			a minimum bandwidth (Default: 1e-3) is used instead of zero.</span>
+<span class="sd">		iteration_kwargs: dict</span>
+<span class="sd">			kwargs to be added to the instantiation of each iteration</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+
+
+		<span class="c1"># TODO: Propper check for ConfigSpace object!</span>
+		<span class="k">if</span> <span class="n">configspace</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;You have to provide a valid CofigSpace object&quot;</span><span class="p">)</span>
+
+
+
+		<span class="n">cg</span> <span class="o">=</span> <span class="n">CG_BOHB</span><span class="p">(</span> <span class="n">configspace</span> <span class="o">=</span> <span class="n">configspace</span><span class="p">,</span>
+					<span class="n">min_points_in_model</span> <span class="o">=</span> <span class="n">min_points_in_model</span><span class="p">,</span>
+					<span class="n">top_n_percent</span><span class="o">=</span><span class="n">top_n_percent</span><span class="p">,</span>
+					<span class="n">num_samples</span> <span class="o">=</span> <span class="n">num_samples</span><span class="p">,</span>
+					<span class="n">random_fraction</span><span class="o">=</span><span class="n">random_fraction</span><span class="p">,</span>
+					<span class="n">bandwidth_factor</span><span class="o">=</span><span class="n">bandwidth_factor</span><span class="p">,</span>
+					<span class="n">min_bandwidth</span> <span class="o">=</span> <span class="n">min_bandwidth</span>
+					<span class="p">)</span>
+
+		<span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config_generator</span><span class="o">=</span><span class="n">cg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+		<span class="c1"># Hyperband related stuff</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">eta</span> <span class="o">=</span> <span class="n">eta</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">min_budget</span> <span class="o">=</span> <span class="n">min_budget</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">max_budget</span> <span class="o">=</span> <span class="n">max_budget</span>
+
+		<span class="c1"># precompute some HB stuff</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">max_SH_iter</span> <span class="o">=</span> <span class="o">-</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">min_budget</span><span class="o">/</span><span class="n">max_budget</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">eta</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">budgets</span> <span class="o">=</span> <span class="n">max_budget</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">eta</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_SH_iter</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_SH_iter</span><span class="p">))</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+						<span class="s1">&#39;eta&#39;</span>        <span class="p">:</span> <span class="n">eta</span><span class="p">,</span>
+						<span class="s1">&#39;min_budget&#39;</span> <span class="p">:</span> <span class="n">min_budget</span><span class="p">,</span>
+						<span class="s1">&#39;max_budget&#39;</span> <span class="p">:</span> <span class="n">max_budget</span><span class="p">,</span>
+						<span class="s1">&#39;budgets&#39;</span>    <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">budgets</span><span class="p">,</span>
+						<span class="s1">&#39;max_SH_iter&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_SH_iter</span><span class="p">,</span>
+						<span class="s1">&#39;min_points_in_model&#39;</span> <span class="p">:</span> <span class="n">min_points_in_model</span><span class="p">,</span>
+						<span class="s1">&#39;top_n_percent&#39;</span> <span class="p">:</span> <span class="n">top_n_percent</span><span class="p">,</span>
+						<span class="s1">&#39;num_samples&#39;</span> <span class="p">:</span> <span class="n">num_samples</span><span class="p">,</span>
+						<span class="s1">&#39;random_fraction&#39;</span> <span class="p">:</span> <span class="n">random_fraction</span><span class="p">,</span>
+						<span class="s1">&#39;bandwidth_factor&#39;</span> <span class="p">:</span> <span class="n">bandwidth_factor</span><span class="p">,</span>
+						<span class="s1">&#39;min_bandwidth&#39;</span><span class="p">:</span> <span class="n">min_bandwidth</span>
+					<span class="p">})</span>
+
+<div class="viewcode-block" id="BOHB.get_next_iteration"><a class="viewcode-back" href="../../../optimizers/bohb.html#hpbandster.optimizers.bohb.BOHB.get_next_iteration">[docs]</a>	<span class="k">def</span> <span class="nf">get_next_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">iteration_kwargs</span><span class="o">=</span><span class="p">{}):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		BO-HB uses (just like Hyperband) SuccessiveHalving for each iteration.</span>
+<span class="sd">		See Li et al. (2016) for reference.</span>
+<span class="sd">		</span>
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">			iteration: int</span>
+<span class="sd">				the index of the iteration to be instantiated</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">			SuccessiveHalving: the SuccessiveHalving iteration with the</span>
+<span class="sd">				corresponding number of configurations</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		
+		<span class="c1"># number of &#39;SH rungs&#39;</span>
+		<span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_SH_iter</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">iteration</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">max_SH_iter</span><span class="p">)</span>
+		<span class="c1"># number of configurations in that bracket</span>
+		<span class="n">n0</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">max_SH_iter</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">eta</span><span class="o">**</span><span class="n">s</span><span class="p">)</span>
+		<span class="n">ns</span> <span class="o">=</span> <span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n0</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eta</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="n">i</span><span class="p">))),</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span>
+
+		<span class="k">return</span><span class="p">(</span><span class="n">SuccessiveHalving</span><span class="p">(</span><span class="n">HPB_iter</span><span class="o">=</span><span class="n">iteration</span><span class="p">,</span> <span class="n">num_configs</span><span class="o">=</span><span class="n">ns</span><span class="p">,</span> <span class="n">budgets</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">budgets</span><span class="p">[(</span><span class="o">-</span><span class="n">s</span><span class="o">-</span><span class="mi">1</span><span class="p">):],</span> <span class="n">config_sampler</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config_generator</span><span class="o">.</span><span class="n">get_config</span><span class="p">,</span> <span class="o">**</span><span class="n">iteration_kwargs</span><span class="p">))</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Stefan Falkner.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,310 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Example 7 - Interactive Exploration of the Results &mdash; hpbandster  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Example 8 - Warmstarting for MNIST" href="example_8_mnist_continued.html" />
+    <link rel="prev" title="Example 6 - Analysis of a Run" href="plot_example_6_analysis.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> hpbandster
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced_examples.html">Advanced examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Examples - How to use HpBandSter</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="example_1_local_sequential.html">Example 1 - Local and Sequential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_2_local_parallel_threads.html">Example 2 - Local and Parallel (using threads)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_3_warmstarting_visualization.html">Example 3 - Warmstarting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_3_local_parallel_processes.html">Example 3 - Local and Parallel (using processes)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_4_cluster.html">Example 4 - on the cluster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_5_mnist.html">Example 5 - MNIST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_example_6_analysis.html">Example 6 -  Analysis of a Run</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Example 7 - Interactive Exploration of the Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_8_mnist_continued.html">Example 8 - Warmstarting for MNIST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_5_keras_worker.html">Worker for Example 5 - Keras</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_5_pytorch_worker.html">Worker for Example 5 - PyTorch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commons.html">example Worker</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../best_practices.html">Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../optimizers.html">Optimizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core_components.html">The core components in more detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hpbandster</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Examples - How to use HpBandSter</a> &raquo;</li>
+        
+      <li>Example 7 - Interactive Exploration of the Results</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/auto_examples/plot_example_7_interactive_plot.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Click <a class="reference internal" href="#sphx-glr-download-auto-examples-plot-example-7-interactive-plot-py"><span class="std std-ref">here</span></a> to download the full example code</p>
+</div>
+<div class="sphx-glr-example-title section" id="example-7-interactive-exploration-of-the-results">
+<span id="sphx-glr-auto-examples-plot-example-7-interactive-plot-py"></span><h1>Example 7 - Interactive Exploration of the Results<a class="headerlink" href="#example-7-interactive-exploration-of-the-results" title="Permalink to this headline">¶</a></h1>
+<p>This example takes a run from example 5 and allows you to interactively look at
+all runs performed and the associated loss.
+The plot allows you to only include certain iterations (selected by the checkboxes on the left).
+By hovering over the learning curves (all runs of a single configuration on all respective budets)
+you see some information about the configuration and its performance.
+Clicking on it will make the tool tip persistent.Clicking on the curve again, will remove it again.</p>
+<p>This tool is not very mature, but maybe it can help you to explore the structure hidden in your
+results.  Please refer to the documentation of the visualization submodule to see all
+options.</p>
+<ul class="sphx-glr-horizontal">
+<li><img alt="../_images/sphx_glr_plot_example_7_interactive_plot_001.png" class="sphx-glr-multi-img first" src="../_images/sphx_glr_plot_example_7_interactive_plot_001.png" />
+</li>
+<li><img alt="../_images/sphx_glr_plot_example_7_interactive_plot_002.png" class="sphx-glr-multi-img first" src="../_images/sphx_glr_plot_example_7_interactive_plot_002.png" />
+</li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">hpbandster.core.result</span> <span class="kn">as</span> <span class="nn">hpres</span>
+<span class="kn">import</span> <span class="nn">hpbandster.visualization</span> <span class="kn">as</span> <span class="nn">hpvis</span>
+
+
+
+<span class="c1"># load the example run from the log files</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">hpres</span><span class="o">.</span><span class="n">logged_results_to_HBS_result</span><span class="p">(</span><span class="s1">&#39;example_5_run/&#39;</span><span class="p">)</span>
+
+<span class="c1"># get all executed runs</span>
+<span class="n">all_runs</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get_all_runs</span><span class="p">()</span>
+
+<span class="c1"># get the &#39;dict&#39; that translates config ids to the actual configurations</span>
+<span class="n">id2conf</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get_id2config_mapping</span><span class="p">()</span>
+
+<span class="n">lcs</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get_learning_curves</span><span class="p">()</span>
+
+<span class="n">hpvis</span><span class="o">.</span><span class="n">interactive_HBS_plot</span><span class="p">(</span><span class="n">lcs</span><span class="p">,</span> <span class="n">tool_tip_strings</span><span class="o">=</span><span class="n">hpvis</span><span class="o">.</span><span class="n">default_tool_tips</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">lcs</span><span class="p">))</span>
+
+
+
+
+<span class="k">def</span> <span class="nf">realtime_learning_curves</span><span class="p">(</span><span class="n">runs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    example how to extract a different kind of learning curve.</span>
+
+<span class="sd">    The x values are now the time the runs finished, not the budget anymore.</span>
+<span class="sd">    We no longer plot the validation loss on the y axis, but now the test accuracy.</span>
+
+<span class="sd">    This is just to show how to get different information into the interactive plot.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sr</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">runs</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">budget</span><span class="p">)</span>
+    <span class="n">lc</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="ow">not</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">,</span> <span class="p">[(</span><span class="n">r</span><span class="o">.</span><span class="n">time_stamps</span><span class="p">[</span><span class="s1">&#39;finished&#39;</span><span class="p">],</span> <span class="n">r</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;test accuracy&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">sr</span><span class="p">]))</span>
+    <span class="k">return</span><span class="p">([</span><span class="n">lc</span><span class="p">,])</span>
+
+<span class="n">lcs</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get_learning_curves</span><span class="p">(</span><span class="n">lc_extractor</span><span class="o">=</span><span class="n">realtime_learning_curves</span><span class="p">)</span>
+
+<span class="n">hpvis</span><span class="o">.</span><span class="n">interactive_HBS_plot</span><span class="p">(</span><span class="n">lcs</span><span class="p">,</span> <span class="n">tool_tip_strings</span><span class="o">=</span><span class="n">hpvis</span><span class="o">.</span><span class="n">default_tool_tips</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">lcs</span><span class="p">))</span>
+</pre></div>
+</div>
+<p><strong>Total running time of the script:</strong> ( 0 minutes  0.375 seconds)</p>
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-plot-example-7-interactive-plot-py">
+<div class="sphx-glr-download docutils container">
+<a class="reference download internal" href="../_downloads/plot_example_7_interactive_plot.py" download=""><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_example_7_interactive_plot.py</span></code></a></div>
+<div class="sphx-glr-download docutils container">
+<a class="reference download internal" href="../_downloads/plot_example_7_interactive_plot.ipynb" download=""><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_example_7_interactive_plot.ipynb</span></code></a></div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.readthedocs.io">Gallery generated by Sphinx-Gallery</a></p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="example_8_mnist_continued.html" class="btn btn-neutral float-right" title="Example 8 - Warmstarting for MNIST" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="plot_example_6_analysis.html" class="btn btn-neutral" title="Example 6 - Analysis of a Run" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Stefan Falkner.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

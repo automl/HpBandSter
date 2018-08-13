@@ -1,0 +1,372 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>The Master – the brains of HpBandster &mdash; hpbandster  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="The Worker – the muscle of HpBandster" href="worker.html" />
+    <link rel="prev" title="The nameserver – establishing connections" href="nameserver.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> hpbandster
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced_examples.html">Advanced examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/index.html">Examples - How to use HpBandSter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../best_practices.html">Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../optimizers.html">Optimizers</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../core_components.html">The core components in more detail</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="nameserver.html">The nameserver – establishing connections</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">The Master – the brains of HpBandster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="worker.html">The Worker – the muscle of HpBandster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualization.html">The Visualization submodule – Analyzing HpBandster Runs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dispatcher.html">The dispatcher – running jobs remotely using Pyro4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="result.html">Results of a run – how to access all the information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iteration.html">Iterations – the job center of HpBandster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_generator.html">The ConfigGenerator – the strategy of HpBandster</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hpbandster</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../core_components.html">The core components in more detail</a> &raquo;</li>
+        
+      <li>The Master – the brains of HpBandster</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/core/master.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-hpbandster.core.master">
+<span id="the-master-the-brains-of-hpbandster"></span><h1>The Master – the brains of HpBandster<a class="headerlink" href="#module-hpbandster.core.master" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="hpbandster.core.master.Master">
+<em class="property">class </em><code class="descclassname">hpbandster.core.master.</code><code class="descname">Master</code><span class="sig-paren">(</span><em>run_id</em>, <em>config_generator</em>, <em>working_directory='.'</em>, <em>ping_interval=60</em>, <em>nameserver='127.0.0.1'</em>, <em>nameserver_port=None</em>, <em>host=None</em>, <em>shutdown_workers=True</em>, <em>job_queue_sizes=(-1</em>, <em>0)</em>, <em>dynamic_queue_size=True</em>, <em>logger=None</em>, <em>result_logger=None</em>, <em>previous_result=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/master.html#Master"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.master.Master" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Master class is responsible for the book keeping and to decide what to run next. Optimizers are
+instantiations of Master, that handle the important steps of deciding what configurations to run on what
+budget when.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>run_id</strong> (<em>string</em>) – A unique identifier of that Hyperband run. Use, for example, the cluster’s JobID when running multiple
+concurrent runs to separate them</li>
+<li><strong>config_generator</strong> (<em>hpbandster.config_generators object</em>) – An object that can generate new configurations and registers results of executed runs</li>
+<li><strong>working_directory</strong> (<em>string</em>) – The top level working directory accessible to all compute nodes(shared filesystem).</li>
+<li><strong>eta</strong> (<em>float</em>) – In each iteration, a complete run of sequential halving is executed. In it,
+after evaluating each configuration on the same subset size, only a fraction of
+1/eta of them ‘advances’ to the next round.
+Must be greater or equal to 2.</li>
+<li><strong>min_budget</strong> (<em>float</em>) – The smallest budget to consider. Needs to be positive!</li>
+<li><strong>max_budget</strong> (<em>float</em>) – the largest budget to consider. Needs to be larger than min_budget!
+The budgets will be geometrically distributed <span class="math notranslate nohighlight">\(\sim \eta^k\)</span> for
+<span class="math notranslate nohighlight">\(k\in [0, 1, ... , num\_subsets - 1]\)</span>.</li>
+<li><strong>ping_interval</strong> (<em>int</em>) – number of seconds between pings to discover new nodes. Default is 60 seconds.</li>
+<li><strong>nameserver</strong> (<em>str</em>) – address of the Pyro4 nameserver</li>
+<li><strong>nameserver_port</strong> (<em>int</em>) – port of Pyro4 nameserver</li>
+<li><strong>host</strong> (<em>str</em>) – ip (or name that resolves to that) of the network interface to use</li>
+<li><strong>shutdown_workers</strong> (<em>bool</em>) – flag to control whether the workers are shutdown after the computation is done</li>
+<li><strong>job_queue_size</strong> (<em>tuple of ints</em>) – min and max size of the job queue. During the run, when the number of jobs in the queue
+reaches the min value, it will be filled up to the max size. Default: (0,1)</li>
+<li><strong>dynamic_queue_size</strong> (<em>bool</em>) – Whether or not to change the queue size based on the number of workers available.
+If true (default), the job_queue_sizes are relative to the current number of workers.</li>
+<li><strong>logger</strong> (<em>logging.logger like object</em>) – the logger to output some (more or less meaningful) information</li>
+<li><strong>result_logger</strong> (<em>hpbandster.api.results.util.json_result_logger object</em>) – a result logger that writes live results to disk</li>
+<li><strong>previous_result</strong> (<em>hpbandster.core.result.Result object</em>) – previous run to warmstart the run</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="hpbandster.core.master.Master.active_iterations">
+<code class="descname">active_iterations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/master.html#Master.active_iterations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.master.Master.active_iterations" title="Permalink to this definition">¶</a></dt>
+<dd><p>function to find active (not marked as finished) iterations</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>list</strong></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">all active iteration objects (empty if there are none)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.master.Master.adjust_queue_size">
+<code class="descname">adjust_queue_size</code><span class="sig-paren">(</span><em>number_of_workers=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/master.html#Master.adjust_queue_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.master.Master.adjust_queue_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.master.Master.get_next_iteration">
+<code class="descname">get_next_iteration</code><span class="sig-paren">(</span><em>iteration</em>, <em>iteration_kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/master.html#Master.get_next_iteration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.master.Master.get_next_iteration" title="Permalink to this definition">¶</a></dt>
+<dd><p>instantiates the next iteration</p>
+<p>Overwrite this to change the iterations for different optimizers</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>iteration</strong> (<em>int</em>) – the index of the iteration to be instantiated</li>
+<li><strong>iteration_kwargs</strong> (<em>dict</em>) – additional kwargs for the iteration class</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>HB_iteration</strong></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">a valid HB iteration object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.master.Master.job_callback">
+<code class="descname">job_callback</code><span class="sig-paren">(</span><em>job</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/master.html#Master.job_callback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.master.Master.job_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>method to be called when a job has finished</p>
+<p>this will do some book keeping and call the user defined
+new_result_callback if one was specified</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.master.Master.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>n_iterations=1</em>, <em>min_n_workers=1</em>, <em>iteration_kwargs={}</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/master.html#Master.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.master.Master.run" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>run n_iterations of SuccessiveHalving</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>n_iterations</strong> (<em>int</em>) – number of iterations to be performed in this run</li>
+<li><strong>min_n_workers</strong> (<em>int</em>) – minimum number of workers before starting the run</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.master.Master.shutdown">
+<code class="descname">shutdown</code><span class="sig-paren">(</span><em>shutdown_workers=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/master.html#Master.shutdown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.master.Master.shutdown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hpbandster.core.master.Master.wait_for_workers">
+<code class="descname">wait_for_workers</code><span class="sig-paren">(</span><em>min_n_workers=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/core/master.html#Master.wait_for_workers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.core.master.Master.wait_for_workers" title="Permalink to this definition">¶</a></dt>
+<dd><p>helper function to hold execution until some workers are active</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>min_n_workers</strong> (<em>int</em>) – minimum number of workers present before the run starts</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="worker.html" class="btn btn-neutral float-right" title="The Worker – the muscle of HpBandster" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="nameserver.html" class="btn btn-neutral" title="The nameserver – establishing connections" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Stefan Falkner.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

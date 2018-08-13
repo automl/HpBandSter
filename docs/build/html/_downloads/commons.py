@@ -1,8 +1,8 @@
 """
-Worker for Examples 1-4
-=======================
+example Worker
+==============
 
-This class implements a very simple worker used in the firt examples.
+This class implements a very simple worker used in some examples. 
 """
 
 import numpy

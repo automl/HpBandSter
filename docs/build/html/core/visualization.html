@@ -1,0 +1,273 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>The Visualization submodule – Analyzing HpBandster Runs &mdash; hpbandster  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="The dispatcher – running jobs remotely using Pyro4" href="dispatcher.html" />
+    <link rel="prev" title="The Worker – the muscle of HpBandster" href="worker.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> hpbandster
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced_examples.html">Advanced examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/index.html">Examples - How to use HpBandSter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../best_practices.html">Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../optimizers.html">Optimizers</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../core_components.html">The core components in more detail</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="nameserver.html">The nameserver – establishing connections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="master.html">The Master – the brains of HpBandster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="worker.html">The Worker – the muscle of HpBandster</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">The Visualization submodule – Analyzing HpBandster Runs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dispatcher.html">The dispatcher – running jobs remotely using Pyro4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="result.html">Results of a run – how to access all the information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iteration.html">Iterations – the job center of HpBandster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_generator.html">The ConfigGenerator – the strategy of HpBandster</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hpbandster</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../core_components.html">The core components in more detail</a> &raquo;</li>
+        
+      <li>The Visualization submodule – Analyzing HpBandster Runs</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/core/visualization.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-hpbandster.visualization">
+<span id="the-visualization-submodule-analyzing-hpbandster-runs"></span><h1>The Visualization submodule – Analyzing HpBandster Runs<a class="headerlink" href="#module-hpbandster.visualization" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="hpbandster.visualization.concurrent_runs_over_time">
+<code class="descclassname">hpbandster.visualization.</code><code class="descname">concurrent_runs_over_time</code><span class="sig-paren">(</span><em>runs</em>, <em>num_points=512</em>, <em>show=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/visualization.html#concurrent_runs_over_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.visualization.concurrent_runs_over_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="hpbandster.visualization.correlation_across_budgets">
+<code class="descclassname">hpbandster.visualization.</code><code class="descname">correlation_across_budgets</code><span class="sig-paren">(</span><em>results_object</em>, <em>show=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/visualization.html#correlation_across_budgets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.visualization.correlation_across_budgets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="hpbandster.visualization.default_tool_tips">
+<code class="descclassname">hpbandster.visualization.</code><code class="descname">default_tool_tips</code><span class="sig-paren">(</span><em>result_object</em>, <em>learning_curves</em>, <em>include_run_info=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/visualization.html#default_tool_tips"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.visualization.default_tool_tips" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="hpbandster.visualization.finished_runs_over_time">
+<code class="descclassname">hpbandster.visualization.</code><code class="descname">finished_runs_over_time</code><span class="sig-paren">(</span><em>runs</em>, <em>show=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/visualization.html#finished_runs_over_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.visualization.finished_runs_over_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="hpbandster.visualization.interactive_HBS_plot">
+<code class="descclassname">hpbandster.visualization.</code><code class="descname">interactive_HBS_plot</code><span class="sig-paren">(</span><em>learning_curves</em>, <em>tool_tip_strings=None</em>, <em>log_y=False</em>, <em>log_x=False</em>, <em>reset_times=False</em>, <em>color_map='Set3'</em>, <em>colors_floats=None</em>, <em>title=''</em>, <em>show=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/visualization.html#interactive_HBS_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.visualization.interactive_HBS_plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="hpbandster.visualization.losses_over_time">
+<code class="descclassname">hpbandster.visualization.</code><code class="descname">losses_over_time</code><span class="sig-paren">(</span><em>runs</em>, <em>get_loss_from_run_fn=&lt;function &lt;lambda&gt;&gt;</em>, <em>cmap=&lt;matplotlib.colors.ListedColormap object&gt;</em>, <em>show=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/visualization.html#losses_over_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.visualization.losses_over_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="hpbandster.visualization.performance_histogram_model_vs_random">
+<code class="descclassname">hpbandster.visualization.</code><code class="descname">performance_histogram_model_vs_random</code><span class="sig-paren">(</span><em>runs</em>, <em>id2conf</em>, <em>show=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/visualization.html#performance_histogram_model_vs_random"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.visualization.performance_histogram_model_vs_random" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="dispatcher.html" class="btn btn-neutral float-right" title="The dispatcher – running jobs remotely using Pyro4" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="worker.html" class="btn btn-neutral" title="The Worker – the muscle of HpBandster" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Stefan Falkner.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,568 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Worker for Example 5 - PyTorch &mdash; hpbandster  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="example Worker" href="commons.html" />
+    <link rel="prev" title="Worker for Example 5 - Keras" href="example_5_keras_worker.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> hpbandster
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced_examples.html">Advanced examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Examples - How to use HpBandSter</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="example_1_local_sequential.html">Example 1 - Local and Sequential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_2_local_parallel_threads.html">Example 2 - Local and Parallel (using threads)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_3_warmstarting_visualization.html">Example 3 - Warmstarting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_3_local_parallel_processes.html">Example 3 - Local and Parallel (using processes)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_4_cluster.html">Example 4 - on the cluster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_5_mnist.html">Example 5 - MNIST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_example_6_analysis.html">Example 6 -  Analysis of a Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_example_7_interactive_plot.html">Example 7 - Interactive Exploration of the Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_8_mnist_continued.html">Example 8 - Warmstarting for MNIST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_5_keras_worker.html">Worker for Example 5 - Keras</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Worker for Example 5 - PyTorch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commons.html">example Worker</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../best_practices.html">Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../optimizers.html">Optimizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core_components.html">The core components in more detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hpbandster</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Examples - How to use HpBandSter</a> &raquo;</li>
+        
+      <li>Worker for Example 5 - PyTorch</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/auto_examples/example_5_pytorch_worker.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Click <a class="reference internal" href="#sphx-glr-download-auto-examples-example-5-pytorch-worker-py"><span class="std std-ref">here</span></a> to download the full example code</p>
+</div>
+<div class="sphx-glr-example-title section" id="worker-for-example-5-pytorch">
+<span id="sphx-glr-auto-examples-example-5-pytorch-worker-py"></span><h1>Worker for Example 5 - PyTorch<a class="headerlink" href="#worker-for-example-5-pytorch" title="Permalink to this headline">¶</a></h1>
+<p>In this example implements a small CNN in PyTorch to train it on MNIST.
+The configuration space shows the most common types of hyperparameters and
+even contains conditional dependencies.
+In this example implements a small CNN in Keras to train it on MNIST.
+The configuration space shows the most common types of hyperparameters and
+even contains conditional dependencies.</p>
+<p>We’ll optimise the following hyperparameters:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="20%" />
+<col width="21%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Parameter type</th>
+<th class="head">Range/Choices</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Learning rate</td>
+<td>float</td>
+<td>[1e-6, 1e-2]</td>
+<td>varied logarithmically</td>
+</tr>
+<tr class="row-odd"><td>Optimizer</td>
+<td>categorical</td>
+<td>{Adam, SGD }</td>
+<td>discrete choice</td>
+</tr>
+<tr class="row-even"><td>SGD momentum</td>
+<td>float</td>
+<td>[0, 0.99]</td>
+<td>only active if
+optimizer == SGD</td>
+</tr>
+<tr class="row-odd"><td>Number of conv layers</td>
+<td>integer</td>
+<td>[1,3]</td>
+<td>can only take integer
+values 1, 2, or 3</td>
+</tr>
+<tr class="row-even"><td>Number of filters in
+the first conf layer</td>
+<td>integer</td>
+<td>[4, 64]</td>
+<td>logarithmically varied
+integer values</td>
+</tr>
+<tr class="row-odd"><td>Number of filters in
+the second conf layer</td>
+<td>integer</td>
+<td>[4, 64]</td>
+<td>only active if number
+of layers &gt;= 2</td>
+</tr>
+<tr class="row-even"><td>Number of filters in
+the third conf layer</td>
+<td>integer</td>
+<td>[4, 64]</td>
+<td>only active if number
+of layers == 3</td>
+</tr>
+<tr class="row-odd"><td>Dropout rate</td>
+<td>float</td>
+<td>[0, 0.9]</td>
+<td>standard continuous
+parameter</td>
+</tr>
+<tr class="row-even"><td>Number of hidden units
+in fully connected layer</td>
+<td>integer</td>
+<td>[8,256]</td>
+<td>logarithmically varied
+integer values</td>
+</tr>
+</tbody>
+</table>
+<p>Please refer to the compute method below to see how those are defined using the
+ConfigSpace package.</p>
+<p>The network does not achieve stellar performance when a random configuration is samples,
+but a few iterations should yield an accuracy of &gt;90%. To speed up training, only
+8192 images are used for training, 1024 for validation.
+The purpose is not to achieve state of the art on MNIST, but to show how to use
+PyTorch inside HpBandSter, and to demonstrate a more complicated search space.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">torch</span>
+    <span class="kn">import</span> <span class="nn">torch.utils.data</span>
+    <span class="kn">import</span> <span class="nn">torch.nn</span> <span class="kn">as</span> <span class="nn">nn</span>
+    <span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="kn">as</span> <span class="nn">F</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;For this example you need to install pytorch.&quot;</span><span class="p">)</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">torchvision</span>
+    <span class="kn">import</span> <span class="nn">torchvision.transforms</span> <span class="kn">as</span> <span class="nn">transforms</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;For this example you need to install pytorch-vision.&quot;</span><span class="p">)</span>
+
+
+
+<span class="kn">import</span> <span class="nn">ConfigSpace</span> <span class="kn">as</span> <span class="nn">CS</span>
+<span class="kn">import</span> <span class="nn">ConfigSpace.hyperparameters</span> <span class="kn">as</span> <span class="nn">CSH</span>
+
+<span class="kn">from</span> <span class="nn">hpbandster.core.worker</span> <span class="kn">import</span> <span class="n">Worker</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+
+
+
+<span class="k">class</span> <span class="nc">PyTorchWorker</span><span class="p">(</span><span class="n">Worker</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N_train</span> <span class="o">=</span> <span class="mi">8192</span><span class="p">,</span> <span class="n">N_valid</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">64</span>
+
+            <span class="c1"># Load the MNIST Data here</span>
+            <span class="n">train_dataset</span> <span class="o">=</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">MNIST</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s1">&#39;../../data&#39;</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span> <span class="n">download</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">test_dataset</span> <span class="o">=</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">MNIST</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s1">&#39;../../data&#39;</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">())</span>
+
+            <span class="n">train_sampler</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">SubsetRandomSampler</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">N_train</span><span class="p">))</span>
+            <span class="n">validation_sampler</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">SubsetRandomSampler</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">N_train</span><span class="p">,</span> <span class="n">N_train</span><span class="o">+</span><span class="n">N_valid</span><span class="p">))</span>
+
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">train_loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">train_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">sampler</span><span class="o">=</span><span class="n">train_sampler</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">validation_loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">train_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">sampler</span><span class="o">=</span><span class="n">validation_sampler</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">test_loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">test_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">budget</span><span class="p">,</span> <span class="n">working_directory</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Simple example for a compute function using a feed forward network.</span>
+<span class="sd">            It is trained on the MNIST dataset.</span>
+<span class="sd">            The input parameter &quot;config&quot; (dictionary) contains the sampled configurations passed by the bohb optimizer</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="c1"># device = torch.device(&#39;cpu&#39;)</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">MNISTConvNet</span><span class="p">(</span><span class="n">num_conv_layers</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;num_conv_layers&#39;</span><span class="p">],</span>
+                                                    <span class="n">num_filters_1</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;num_filters_1&#39;</span><span class="p">],</span>
+                                                    <span class="n">num_filters_2</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;num_filters_2&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;num_filters_2&#39;</span> <span class="ow">in</span> <span class="n">config</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
+                                                    <span class="n">num_filters_3</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;num_filters_3&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;num_filters_3&#39;</span> <span class="ow">in</span> <span class="n">config</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
+                                                    <span class="n">dropout_rate</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;dropout_rate&#39;</span><span class="p">],</span>
+                                                    <span class="n">num_fc_units</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;num_fc_units&#39;</span><span class="p">],</span>
+                                                    <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span>
+            <span class="p">)</span>
+
+            <span class="n">criterion</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;optimizer&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Adam&#39;</span><span class="p">:</span>
+                    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;lr&#39;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;lr&#39;</span><span class="p">],</span> <span class="n">momentum</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;sgd_momentum&#39;</span><span class="p">])</span>
+
+            <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">budget</span><span class="p">)):</span>
+                    <span class="n">loss</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+                    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">train_loader</span><span class="p">):</span>
+                            <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+                            <span class="n">output</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                            <span class="n">loss</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">nll_loss</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+                            <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+                            <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+            <span class="n">train_accuracy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_accuracy</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_loader</span><span class="p">)</span>
+            <span class="n">validation_accuracy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_accuracy</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_loader</span><span class="p">)</span>
+            <span class="n">test_accuracy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_accuracy</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_loader</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="p">({</span>
+                    <span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="o">-</span><span class="n">validation_accuracy</span><span class="p">,</span> <span class="c1"># remember: HpBandSter always minimizes!</span>
+                    <span class="s1">&#39;info&#39;</span><span class="p">:</span> <span class="p">{</span>       <span class="s1">&#39;test accuracy&#39;</span><span class="p">:</span> <span class="n">test_accuracy</span><span class="p">,</span>
+                                            <span class="s1">&#39;train accuracy&#39;</span><span class="p">:</span> <span class="n">train_accuracy</span><span class="p">,</span>
+                                            <span class="s1">&#39;validation accuracy&#39;</span><span class="p">:</span> <span class="n">validation_accuracy</span><span class="p">,</span>
+                                            <span class="s1">&#39;number of parameters&#39;</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">number_of_parameters</span><span class="p">(),</span>
+                                    <span class="p">}</span>
+
+            <span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">evaluate_accuracy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">data_loader</span><span class="p">):</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+            <span class="n">correct</span><span class="o">=</span><span class="mi">0</span>
+            <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+                    <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">data_loader</span><span class="p">:</span>
+                            <span class="n">output</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                            <span class="c1">#test_loss += F.nll_loss(output, target, reduction=&#39;sum&#39;).item() # sum up batch loss</span>
+                            <span class="n">pred</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="bp">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># get the index of the max log-probability</span>
+                            <span class="n">correct</span> <span class="o">+=</span> <span class="n">pred</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">view_as</span><span class="p">(</span><span class="n">pred</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="c1">#import pdb; pdb.set_trace()</span>
+            <span class="n">accuracy</span> <span class="o">=</span> <span class="n">correct</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">data_loader</span><span class="o">.</span><span class="n">sampler</span><span class="p">)</span>
+            <span class="k">return</span><span class="p">(</span><span class="n">accuracy</span><span class="p">)</span>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_configspace</span><span class="p">():</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            It builds the configuration space with the needed hyperparameters.</span>
+<span class="sd">            It is easily possible to implement different types of hyperparameters.</span>
+<span class="sd">            Beside float-hyperparameters on a log scale, it is also able to handle categorical input parameter.</span>
+<span class="sd">            :return: ConfigurationsSpace-Object</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">cs</span> <span class="o">=</span> <span class="n">CS</span><span class="o">.</span><span class="n">ConfigurationSpace</span><span class="p">()</span>
+
+            <span class="n">lr</span> <span class="o">=</span> <span class="n">CSH</span><span class="o">.</span><span class="n">UniformFloatHyperparameter</span><span class="p">(</span><span class="s1">&#39;lr&#39;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mf">1e-1</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="s1">&#39;1e-2&#39;</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+            <span class="c1"># For demonstration purposes, we add different optimizers as categorical hyperparameters.</span>
+            <span class="c1"># To show how to use conditional hyperparameters with ConfigSpace, we&#39;ll add the optimizers &#39;Adam&#39; and &#39;SGD&#39;.</span>
+            <span class="c1"># SGD has a different parameter &#39;momentum&#39;.</span>
+            <span class="n">optimizer</span> <span class="o">=</span> <span class="n">CSH</span><span class="o">.</span><span class="n">CategoricalHyperparameter</span><span class="p">(</span><span class="s1">&#39;optimizer&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Adam&#39;</span><span class="p">,</span> <span class="s1">&#39;SGD&#39;</span><span class="p">])</span>
+
+            <span class="n">sgd_momentum</span> <span class="o">=</span> <span class="n">CSH</span><span class="o">.</span><span class="n">UniformFloatHyperparameter</span><span class="p">(</span><span class="s1">&#39;sgd_momentum&#39;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+            <span class="n">cs</span><span class="o">.</span><span class="n">add_hyperparameters</span><span class="p">([</span><span class="n">lr</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">sgd_momentum</span><span class="p">])</span>
+
+            <span class="c1"># The hyperparameter sgd_momentum will be used,if the configuration</span>
+            <span class="c1"># contains &#39;SGD&#39; as optimizer.</span>
+            <span class="n">cond</span> <span class="o">=</span> <span class="n">CS</span><span class="o">.</span><span class="n">EqualsCondition</span><span class="p">(</span><span class="n">sgd_momentum</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="s1">&#39;SGD&#39;</span><span class="p">)</span>
+            <span class="n">cs</span><span class="o">.</span><span class="n">add_condition</span><span class="p">(</span><span class="n">cond</span><span class="p">)</span>
+
+            <span class="n">num_conv_layers</span> <span class="o">=</span>  <span class="n">CSH</span><span class="o">.</span><span class="n">UniformIntegerHyperparameter</span><span class="p">(</span><span class="s1">&#39;num_conv_layers&#39;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+            <span class="n">num_filters_1</span> <span class="o">=</span> <span class="n">CSH</span><span class="o">.</span><span class="n">UniformIntegerHyperparameter</span><span class="p">(</span><span class="s1">&#39;num_filters_1&#39;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">num_filters_2</span> <span class="o">=</span> <span class="n">CSH</span><span class="o">.</span><span class="n">UniformIntegerHyperparameter</span><span class="p">(</span><span class="s1">&#39;num_filters_2&#39;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">num_filters_3</span> <span class="o">=</span> <span class="n">CSH</span><span class="o">.</span><span class="n">UniformIntegerHyperparameter</span><span class="p">(</span><span class="s1">&#39;num_filters_3&#39;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+
+            <span class="n">cs</span><span class="o">.</span><span class="n">add_hyperparameters</span><span class="p">([</span><span class="n">num_conv_layers</span><span class="p">,</span> <span class="n">num_filters_1</span><span class="p">,</span> <span class="n">num_filters_2</span><span class="p">,</span> <span class="n">num_filters_3</span><span class="p">])</span>
+
+            <span class="c1"># You can also use inequality conditions:</span>
+            <span class="n">cond</span> <span class="o">=</span> <span class="n">CS</span><span class="o">.</span><span class="n">GreaterThanCondition</span><span class="p">(</span><span class="n">num_filters_2</span><span class="p">,</span> <span class="n">num_conv_layers</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">cs</span><span class="o">.</span><span class="n">add_condition</span><span class="p">(</span><span class="n">cond</span><span class="p">)</span>
+
+            <span class="n">cond</span> <span class="o">=</span> <span class="n">CS</span><span class="o">.</span><span class="n">GreaterThanCondition</span><span class="p">(</span><span class="n">num_filters_3</span><span class="p">,</span> <span class="n">num_conv_layers</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">cs</span><span class="o">.</span><span class="n">add_condition</span><span class="p">(</span><span class="n">cond</span><span class="p">)</span>
+
+
+            <span class="n">dropout_rate</span> <span class="o">=</span> <span class="n">CSH</span><span class="o">.</span><span class="n">UniformFloatHyperparameter</span><span class="p">(</span><span class="s1">&#39;dropout_rate&#39;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="n">num_fc_units</span> <span class="o">=</span> <span class="n">CSH</span><span class="o">.</span><span class="n">UniformIntegerHyperparameter</span><span class="p">(</span><span class="s1">&#39;num_fc_units&#39;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+            <span class="n">cs</span><span class="o">.</span><span class="n">add_hyperparameters</span><span class="p">([</span><span class="n">dropout_rate</span><span class="p">,</span> <span class="n">num_fc_units</span><span class="p">])</span>
+
+            <span class="k">return</span> <span class="n">cs</span>
+
+
+
+
+<span class="k">class</span> <span class="nc">MNISTConvNet</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_conv_layers</span><span class="p">,</span> <span class="n">num_filters_1</span><span class="p">,</span> <span class="n">num_filters_2</span><span class="p">,</span> <span class="n">num_filters_3</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="p">,</span> <span class="n">num_fc_units</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">):</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">conv1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_filters_1</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="n">kernel_size</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conv2</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conv3</span> <span class="o">=</span> <span class="bp">None</span>
+
+            <span class="n">output_size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">28</span><span class="o">-</span><span class="n">kernel_size</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span>
+            <span class="n">num_output_filters</span> <span class="o">=</span> <span class="n">num_filters_1</span>
+
+            <span class="k">if</span> <span class="n">num_conv_layers</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">conv2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">num_filters_1</span><span class="p">,</span> <span class="n">num_filters_2</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="n">kernel_size</span><span class="p">)</span>
+                    <span class="n">num_output_filters</span> <span class="o">=</span> <span class="n">num_filters_2</span>
+                    <span class="n">output_size</span> <span class="o">=</span> <span class="p">(</span><span class="n">output_size</span> <span class="o">-</span> <span class="n">kernel_size</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span>
+
+            <span class="k">if</span> <span class="n">num_conv_layers</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">conv3</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">num_filters_2</span><span class="p">,</span> <span class="n">num_filters_3</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="n">kernel_size</span><span class="p">)</span>
+                    <span class="n">num_output_filters</span> <span class="o">=</span> <span class="n">num_filters_3</span>
+                    <span class="n">output_size</span> <span class="o">=</span> <span class="p">(</span><span class="n">output_size</span> <span class="o">-</span> <span class="n">kernel_size</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">p</span> <span class="o">=</span> <span class="n">dropout_rate</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">conv_output_size</span> <span class="o">=</span> <span class="n">num_output_filters</span><span class="o">*</span><span class="n">output_size</span><span class="o">*</span><span class="n">output_size</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">fc1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv_output_size</span><span class="p">,</span> <span class="n">num_fc_units</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fc2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_fc_units</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+
+            <span class="c1"># switched order of pooling and relu compared to the original example</span>
+            <span class="c1"># to make it identical to the keras worker</span>
+            <span class="c1"># seems to also give better accuracies</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">max_pool2d</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv1</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span> <span class="mi">2</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv2</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">max_pool2d</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv2</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span> <span class="mi">2</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv3</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">max_pool2d</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv3</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span> <span class="mi">2</span><span class="p">)</span>
+
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv_output_size</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fc1</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">log_softmax</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">number_of_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">))</span>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">worker</span> <span class="o">=</span> <span class="n">KerasWorker</span><span class="p">(</span><span class="n">run_id</span><span class="o">=</span><span class="s1">&#39;0&#39;</span><span class="p">)</span>
+    <span class="n">cs</span> <span class="o">=</span> <span class="n">worker</span><span class="o">.</span><span class="n">get_configspace</span><span class="p">()</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="n">cs</span><span class="o">.</span><span class="n">sample_configuration</span><span class="p">()</span><span class="o">.</span><span class="n">get_dictionary</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">worker</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">budget</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">working_directory</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Total running time of the script:</strong> ( 0 minutes  0.000 seconds)</p>
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-example-5-pytorch-worker-py">
+<div class="sphx-glr-download docutils container">
+<a class="reference download internal" href="../_downloads/example_5_pytorch_worker.py" download=""><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">example_5_pytorch_worker.py</span></code></a></div>
+<div class="sphx-glr-download docutils container">
+<a class="reference download internal" href="../_downloads/example_5_pytorch_worker.ipynb" download=""><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">example_5_pytorch_worker.ipynb</span></code></a></div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.readthedocs.io">Gallery generated by Sphinx-Gallery</a></p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="commons.html" class="btn btn-neutral float-right" title="example Worker" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="example_5_keras_worker.html" class="btn btn-neutral" title="Worker for Example 5 - Keras" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Stefan Falkner.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,365 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Example 4 - on the cluster &mdash; hpbandster  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Example 5 - MNIST" href="example_5_mnist.html" />
+    <link rel="prev" title="Example 3 - Local and Parallel (using processes)" href="example_3_local_parallel_processes.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> hpbandster
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced_examples.html">Advanced examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Examples - How to use HpBandSter</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="example_1_local_sequential.html">Example 1 - Local and Sequential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_2_local_parallel_threads.html">Example 2 - Local and Parallel (using threads)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_3_warmstarting_visualization.html">Example 3 - Warmstarting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_3_local_parallel_processes.html">Example 3 - Local and Parallel (using processes)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Example 4 - on the cluster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_5_mnist.html">Example 5 - MNIST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_example_6_analysis.html">Example 6 -  Analysis of a Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_example_7_interactive_plot.html">Example 7 - Interactive Exploration of the Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_8_mnist_continued.html">Example 8 - Warmstarting for MNIST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_5_keras_worker.html">Worker for Example 5 - Keras</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_5_pytorch_worker.html">Worker for Example 5 - PyTorch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commons.html">example Worker</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../best_practices.html">Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../optimizers.html">Optimizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core_components.html">The core components in more detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hpbandster</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Examples - How to use HpBandSter</a> &raquo;</li>
+        
+      <li>Example 4 - on the cluster</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/auto_examples/example_4_cluster.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Click <a class="reference internal" href="#sphx-glr-download-auto-examples-example-4-cluster-py"><span class="std std-ref">here</span></a> to download the full example code</p>
+</div>
+<div class="sphx-glr-example-title section" id="example-4-on-the-cluster">
+<span id="sphx-glr-auto-examples-example-4-cluster-py"></span><h1>Example 4 - on the cluster<a class="headerlink" href="#example-4-on-the-cluster" title="Permalink to this headline">¶</a></h1>
+<p>This example shows how to run HpBandster in a cluster environment.
+The actual python code does differ substantially from example 3, except for a
+shared directory that is used to communicate the location of the nameserver to
+every worker, and the fact that the communication is done over the network instead
+of just the loop back interface.</p>
+<p>To actually run it as a batch job, usually a shell script is required.
+Those differer slightly from scheduler to scheduler.
+Here we provide an example script for the Sun Grid Engine (SGE), but adapting that to
+any other scheduler should be easy.
+The script simply specifies the logging files for output (<cite>-o</cite>) and error <cite>-e</cite>),
+loads a virtual environment, and then executes the master for the first array task
+and a worker otherwise.
+Array jobs execute the same source multiple times and are bundled together into one job,
+where each task gets a unique task ID.
+For SGE those IDs are positive integers and we simply say the first task is the master.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># submit via qsub -t 1-4 -q test_core.q example_4_cluster_submit_me.sh</span>
+
+<span class="c1">#$ -cwd</span>
+<span class="c1">#$ -o $JOB_ID-$TASK_ID.o</span>
+<span class="c1">#$ -e $JOB_ID-$TASK_ID.e</span>
+
+<span class="c1"># enter the virtual environment</span>
+<span class="nb">source</span> ~sfalkner/virtualenvs/HpBandSter_tests/bin/activate
+
+
+<span class="k">if</span> <span class="o">[</span> <span class="nv">$SGE_TASK_ID</span> -eq <span class="m">1</span><span class="o">]</span>
+   <span class="k">then</span> python3 example_4_cluster.py --run_id <span class="nv">$JOB_ID</span> --nic_name eth0 --working_dir .
+<span class="k">else</span>
+   python3 example_4_cluster.py --run_id <span class="nv">$JOB_ID</span> --nic_name eth0  --working_dir . --worker
+<span class="k">fi</span>
+</pre></div>
+</div>
+<p>You can simply copy the above code into a file, say submit_me.sh, and tell SGE to run it via:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>qsub -t <span class="m">1</span>-4 -q your_queue_name submit_me.sh
+</pre></div>
+</div>
+<p>Now to the actual python source:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">hpbandster.core.nameserver</span> <span class="kn">as</span> <span class="nn">hpns</span>
+<span class="kn">import</span> <span class="nn">hpbandster.core.result</span> <span class="kn">as</span> <span class="nn">hpres</span>
+
+<span class="kn">from</span> <span class="nn">hpbandster.optimizers</span> <span class="kn">import</span> <span class="n">BOHB</span> <span class="k">as</span> <span class="n">BOHB</span>
+<span class="kn">from</span> <span class="nn">hpbandster.examples.commons</span> <span class="kn">import</span> <span class="n">MyWorker</span>
+
+
+
+<span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Example 1 - sequential and local execution.&#39;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--min_budget&#39;</span><span class="p">,</span>   <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Minimum budget used during the optimization.&#39;</span><span class="p">,</span>    <span class="n">default</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--max_budget&#39;</span><span class="p">,</span>   <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Maximum budget used during the optimization.&#39;</span><span class="p">,</span>    <span class="n">default</span><span class="o">=</span><span class="mi">243</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--n_iterations&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>   <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Number of iterations performed by the optimizer&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--n_workers&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>   <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Number of workers to run in parallel.&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--worker&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Flag to turn this into a worker process&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--run_id&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;A unique run id for this optimization run. An easy option is to use the job id of the clusters scheduler.&#39;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--nic_name&#39;</span><span class="p">,</span><span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Which network interface to use for communication.&#39;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--shared_directory&#39;</span><span class="p">,</span><span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;A directory that is accessible for all processes, e.g. a NFS share.&#39;</span><span class="p">)</span>
+
+
+<span class="n">args</span><span class="o">=</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+<span class="c1"># Every process has to lookup the hostname</span>
+<span class="n">host</span> <span class="o">=</span> <span class="n">hpns</span><span class="o">.</span><span class="n">nic_name_to_host</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">nic_name</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">worker</span><span class="p">:</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>   <span class="c1"># short artificial delay to make sure the nameserver is already running</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">MyWorker</span><span class="p">(</span><span class="n">sleep_interval</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span><span class="n">run_id</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">)</span>
+    <span class="n">w</span><span class="o">.</span><span class="n">load_nameserver_credentials</span><span class="p">(</span><span class="n">working_directory</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">shared_directory</span><span class="p">)</span>
+    <span class="n">w</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">background</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="nb">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Start a nameserver:</span>
+<span class="c1"># We now start the nameserver with the host name from above and a random open port (by setting the port to 0)</span>
+<span class="n">NS</span> <span class="o">=</span> <span class="n">hpns</span><span class="o">.</span><span class="n">NameServer</span><span class="p">(</span><span class="n">run_id</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">working_directory</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">shared_directory</span><span class="p">)</span>
+<span class="n">ns_host</span><span class="p">,</span> <span class="n">ns_port</span> <span class="o">=</span> <span class="n">NS</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="c1"># Most optimizers are so computationally inexpensive that we can affort to run a</span>
+<span class="c1"># worker in parallel to it. Note that this one has to run in the background to</span>
+<span class="c1"># not plock!</span>
+<span class="n">w</span> <span class="o">=</span> <span class="n">MyWorker</span><span class="p">(</span><span class="n">sleep_interval</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span><span class="n">run_id</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">nameserver</span><span class="o">=</span><span class="n">ns_host</span><span class="p">,</span> <span class="n">nameserver_port</span><span class="o">=</span><span class="n">ns_port</span><span class="p">)</span>
+<span class="n">w</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">background</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Run an optimizer</span>
+<span class="c1"># We now have to specify the host, and the nameserver information</span>
+<span class="n">bohb</span> <span class="o">=</span> <span class="n">BOHB</span><span class="p">(</span>  <span class="n">configspace</span> <span class="o">=</span> <span class="n">MyWorker</span><span class="o">.</span><span class="n">get_configspace</span><span class="p">(),</span>
+                      <span class="n">run_id</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span>
+                      <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span>
+                      <span class="n">nameserver</span><span class="o">=</span><span class="n">ns_host</span><span class="p">,</span>
+                      <span class="n">nameserver_port</span><span class="o">=</span><span class="n">ns_port</span><span class="p">,</span>
+                      <span class="n">min_budget</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">min_budget</span><span class="p">,</span> <span class="n">max_budget</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">max_budget</span>
+               <span class="p">)</span>
+<span class="n">res</span> <span class="o">=</span> <span class="n">bohb</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">n_iterations</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">n_iterations</span><span class="p">,</span> <span class="n">min_n_workers</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">n_workers</span><span class="p">)</span>
+
+
+<span class="c1"># In a cluster environment, you usually want to store the results for later analysis.</span>
+<span class="c1"># One option is to simply pickle the Result object</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">shared_directory</span><span class="p">,</span> <span class="s1">&#39;results.pkl&#39;</span><span class="p">),</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+    <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">fh</span><span class="p">)</span>
+
+
+<span class="c1"># Step 4: Shutdown</span>
+<span class="c1"># After the optimizer run, we must shutdown the master and the nameserver.</span>
+<span class="n">bohb</span><span class="o">.</span><span class="n">shutdown</span><span class="p">(</span><span class="n">shutdown_workers</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">NS</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Total running time of the script:</strong> ( 0 minutes  0.000 seconds)</p>
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-example-4-cluster-py">
+<div class="sphx-glr-download docutils container">
+<a class="reference download internal" href="../_downloads/example_4_cluster.py" download=""><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">example_4_cluster.py</span></code></a></div>
+<div class="sphx-glr-download docutils container">
+<a class="reference download internal" href="../_downloads/example_4_cluster.ipynb" download=""><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">example_4_cluster.ipynb</span></code></a></div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.readthedocs.io">Gallery generated by Sphinx-Gallery</a></p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="example_5_mnist.html" class="btn btn-neutral float-right" title="Example 5 - MNIST" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="example_3_local_parallel_processes.html" class="btn btn-neutral" title="Example 3 - Local and Parallel (using processes)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Stefan Falkner.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,284 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Hyperband &mdash; hpbandster  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BOHB - Bayesian Optimization and Hyperband" href="bohb.html" />
+    <link rel="prev" title="Random Search" href="randomsearch.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> hpbandster
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced_examples.html">Advanced examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/index.html">Examples - How to use HpBandSter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../best_practices.html">Best Practices</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../optimizers.html">Optimizers</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="randomsearch.html">Random Search</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Hyperband</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bohb.html">BOHB - Bayesian Optimization and Hyperband</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how_to_extend.html">How to extend HpBandSter with your optimizer</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../core_components.html">The core components in more detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hpbandster</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../optimizers.html">Optimizers</a> &raquo;</li>
+        
+      <li>Hyperband</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/optimizers/hyperband.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-hpbandster.optimizers.hyperband">
+<span id="hyperband"></span><h1>Hyperband<a class="headerlink" href="#module-hpbandster.optimizers.hyperband" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="hpbandster.optimizers.hyperband.HyperBand">
+<em class="property">class </em><code class="descclassname">hpbandster.optimizers.hyperband.</code><code class="descname">HyperBand</code><span class="sig-paren">(</span><em>configspace=None</em>, <em>eta=3</em>, <em>min_budget=0.01</em>, <em>max_budget=1</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/optimizers/hyperband.html#HyperBand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.optimizers.hyperband.HyperBand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hyperband implements hyperparameter optimization by sampling
+candidates at random and “trying” them first, running them for
+a specific budget. The approach is iterative, promising
+candidates are run for a longer time, increasing the fidelity
+for their performance. While this is a very efficient racing
+approach, random sampling makes no use of the knowledge gained
+about the candidates during optimization.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>configspace</strong> (<em>ConfigSpace object</em>) – valid representation of the search space</li>
+<li><strong>eta</strong> (<em>float</em>) – In each iteration, a complete run of sequential halving is executed. In it,
+after evaluating each configuration on the same subset size, only a fraction of
+1/eta of them ‘advances’ to the next round.
+Must be greater or equal to 2.</li>
+<li><strong>min_budget</strong> (<em>float</em>) – The smallest budget to consider. Needs to be positive!</li>
+<li><strong>max_budget</strong> (<em>float</em>) – the largest budget to consider. Needs to be larger than min_budget!
+The budgets will be geometrically distributed $sim eta^k$ for
+$kin [0, 1, … , num_subsets - 1]$.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="hpbandster.optimizers.hyperband.HyperBand.get_next_iteration">
+<code class="descname">get_next_iteration</code><span class="sig-paren">(</span><em>iteration</em>, <em>iteration_kwargs={}</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hpbandster/optimizers/hyperband.html#HyperBand.get_next_iteration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hpbandster.optimizers.hyperband.HyperBand.get_next_iteration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hyperband uses SuccessiveHalving for each iteration.
+See Li et al. (2016) for reference.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>iteration</strong> (<em>int</em>) – the index of the iteration to be instantiated</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>SuccessiveHalving</strong> – corresponding number of configurations</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">the SuccessiveHalving iteration with the</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="bohb.html" class="btn btn-neutral float-right" title="BOHB - Bayesian Optimization and Hyperband" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="randomsearch.html" class="btn btn-neutral" title="Random Search" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Stefan Falkner.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

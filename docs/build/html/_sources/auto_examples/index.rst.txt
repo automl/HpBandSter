@@ -1,0 +1,278 @@
+:orphan:
+
+Examples - How to use HpBandSter
+================================
+
+This is a collection of examples of how to use the HpBandster Module.
+
+
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Example 1">
+
+.. only:: html
+
+    .. figure:: /auto_examples/images/thumb/sphx_glr_example_1_local_sequential_thumb.png
+
+        :ref:`sphx_glr_auto_examples_example_1_local_sequential.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/example_1_local_sequential
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example extends example 1 to multiple parallel workers. For demonstrational purposes, the ...">
+
+.. only:: html
+
+    .. figure:: /auto_examples/images/thumb/sphx_glr_example_2_local_parallel_threads_thumb.png
+
+        :ref:`sphx_glr_auto_examples_example_2_local_parallel_threads.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/example_2_local_parallel_threads
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This examples covers the warmstart functionality We will start an optimizer run with a small bu...">
+
+.. only:: html
+
+    .. figure:: /auto_examples/images/thumb/sphx_glr_example_3_warmstarting_visualization_thumb.png
+
+        :ref:`sphx_glr_auto_examples_example_3_warmstarting_visualization.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/example_3_warmstarting_visualization
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Getting closer to a distributed setup, this examples shows how to connect a nameserver, an opti...">
+
+.. only:: html
+
+    .. figure:: /auto_examples/images/thumb/sphx_glr_example_3_local_parallel_processes_thumb.png
+
+        :ref:`sphx_glr_auto_examples_example_3_local_parallel_processes.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/example_3_local_parallel_processes
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example shows how to run HpBandster in a cluster environment. The actual python code does ...">
+
+.. only:: html
+
+    .. figure:: /auto_examples/images/thumb/sphx_glr_example_4_cluster_thumb.png
+
+        :ref:`sphx_glr_auto_examples_example_4_cluster.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/example_4_cluster
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Small CNN for MNIST implementet in both Keras and PyTorch. This example also shows how to log r...">
+
+.. only:: html
+
+    .. figure:: /auto_examples/images/thumb/sphx_glr_example_5_mnist_thumb.png
+
+        :ref:`sphx_glr_auto_examples_example_5_mnist.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/example_5_mnist
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example takes a run from example 5 and performs some analysis of it. It shows how to get t...">
+
+.. only:: html
+
+    .. figure:: /auto_examples/images/thumb/sphx_glr_plot_example_6_analysis_thumb.png
+
+        :ref:`sphx_glr_auto_examples_plot_example_6_analysis.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/plot_example_6_analysis
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example takes a run from example 5 and allows you to interactively look at all runs perfor...">
+
+.. only:: html
+
+    .. figure:: /auto_examples/images/thumb/sphx_glr_plot_example_7_interactive_plot_thumb.png
+
+        :ref:`sphx_glr_auto_examples_plot_example_7_interactive_plot.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/plot_example_7_interactive_plot
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Sometimes it is desired to continue an already finished run because the optimization requires m...">
+
+.. only:: html
+
+    .. figure:: /auto_examples/images/thumb/sphx_glr_example_8_mnist_continued_thumb.png
+
+        :ref:`sphx_glr_auto_examples_example_8_mnist_continued.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/example_8_mnist_continued
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="In this example implements a small CNN in Keras to train it on MNIST. The configuration space s...">
+
+.. only:: html
+
+    .. figure:: /auto_examples/images/thumb/sphx_glr_example_5_keras_worker_thumb.png
+
+        :ref:`sphx_glr_auto_examples_example_5_keras_worker.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/example_5_keras_worker
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="In this example implements a small CNN in PyTorch to train it on MNIST. The configuration space...">
+
+.. only:: html
+
+    .. figure:: /auto_examples/images/thumb/sphx_glr_example_5_pytorch_worker_thumb.png
+
+        :ref:`sphx_glr_auto_examples_example_5_pytorch_worker.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/example_5_pytorch_worker
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This class implements a very simple worker used in some examples.  ">
+
+.. only:: html
+
+    .. figure:: /auto_examples/images/thumb/sphx_glr_commons_thumb.png
+
+        :ref:`sphx_glr_auto_examples_commons.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/commons
+.. raw:: html
+
+    <div style='clear:both'></div>
+
+
+
+.. only :: html
+
+ .. container:: sphx-glr-footer
+    :class: sphx-glr-footer-gallery
+
+
+  .. container:: sphx-glr-download
+
+    :download:`Download all examples in Python source code: auto_examples_python.zip <//home/sfalkner/repositories/github/HpBandSter/docs/source/auto_examples/auto_examples_python.zip>`
+
+
+
+  .. container:: sphx-glr-download
+
+    :download:`Download all examples in Jupyter notebooks: auto_examples_jupyter.zip <//home/sfalkner/repositories/github/HpBandSter/docs/source/auto_examples/auto_examples_jupyter.zip>`
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.readthedocs.io>`_

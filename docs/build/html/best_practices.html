@@ -1,0 +1,314 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Best Practices &mdash; hpbandster  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Optimizers" href="optimizers.html" />
+    <link rel="prev" title="example Worker" href="auto_examples/commons.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> hpbandster
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_examples.html">Advanced examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auto_examples/index.html">Examples - How to use HpBandSter</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="optimizers.html">Optimizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core_components.html">The core components in more detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">hpbandster</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Best Practices</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/best_practices.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="best-practices">
+<h1>Best Practices<a class="headerlink" href="#best-practices" title="Permalink to this headline">¶</a></h1>
+<p>This page contains some (hopefully) helpful tips on how to use HpBandSter.
+It is a mixture of how to go about implementing your worker, picking your budgets, and running the optimizers with the right parameters.</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><a class="reference internal" href="#implement-worker"><span class="std std-ref">Implement your Worker</span></a></li>
+<li><a class="reference internal" href="#pick-optimizer"><span class="std std-ref">Pick and Configure the optimizer</span></a></li>
+</ol>
+</div></blockquote>
+<div class="section" id="implement-your-worker">
+<span id="implement-worker"></span><h2>Implement your Worker<a class="headerlink" href="#implement-your-worker" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="a-attach-the-configspace-to-the-worker">
+<h3>a. Attach the ConfigSpace to the worker<a class="headerlink" href="#a-attach-the-configspace-to-the-worker" title="Permalink to this headline">¶</a></h3>
+<p>As those two are usually tightly interlinked, it only makes sense to include the definition of the search space into the worker.
+We usually add a static method called <cite>get_configspace</cite> to it that returns the corresponding ConfigSpace object.
+This way you can make sure that you use the same search space in all scripts using this worker.</p>
+</div>
+<div class="section" id="b-run-your-worker-locally-with-a-tiny-budget">
+<h3>b. Run your Worker locally with a tiny Budget<a class="headerlink" href="#b-run-your-worker-locally-with-a-tiny-budget" title="Permalink to this headline">¶</a></h3>
+<p>This might sound stupid, but we think it is worth pointing out the obvious sometimes.
+When implementing your worker, you can simply include the following lines at the end of the script to make it runnable and execute the worker’s compute function with a random configuration.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+	<span class="n">worker</span> <span class="o">=</span> <span class="n">KerasWorker</span><span class="p">(</span><span class="n">run_id</span><span class="o">=</span><span class="s1">&#39;0&#39;</span><span class="p">)</span>
+	<span class="n">cs</span> <span class="o">=</span> <span class="n">worker</span><span class="o">.</span><span class="n">get_configspace</span><span class="p">()</span>
+	
+	<span class="n">config</span> <span class="o">=</span> <span class="n">cs</span><span class="o">.</span><span class="n">sample_configuration</span><span class="p">()</span><span class="o">.</span><span class="n">get_dictionary</span><span class="p">()</span>
+	<span class="nb">print</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+	<span class="n">res</span> <span class="o">=</span> <span class="n">worker</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">budget</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">working_directory</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+	<span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Simply change the name of the worker class to your class name, and pick a tiny budget.
+This will allow you to quickly try a random configuration quickly and catch simple mistakes early.</p>
+</div>
+<div class="section" id="c-run-a-short-run-locally-with-debug-output">
+<h3>c. Run a short Run locally with Debug Output<a class="headerlink" href="#c-run-a-short-run-locally-with-debug-output" title="Permalink to this headline">¶</a></h3>
+<p>Most of the times, when HpBandSter seems to stall and do nothing, it is due to a minor mistake in either the worker, its return values or the setup.
+To eliminate the first two, change <a class="reference internal" href="auto_examples/example_1_local_sequential.html"><span class="doc">example 1</span></a> to use your worker and run it with tiny budgets for one iteration.
+By setting the logging level to <code class="docutils literal notranslate"><span class="pre">DEBUG</span></code> you will see every exception thrown on the worker side that might get lost otherwise.</p>
+<p>Once this is working, you can bootstrap from the other examples to run HpBandSter in the suitable setting.
+The examples can serve as a starting point, but are by no means, the only way to set things up.
+They are meant to alleviate the burden of some boilerplate code necessary due to the flexibility of HpBandSter.</p>
+</div>
+</div>
+<div class="section" id="pick-and-configure-the-optimizer">
+<span id="pick-optimizer"></span><h2>Pick and Configure the optimizer<a class="headerlink" href="#pick-and-configure-the-optimizer" title="Permalink to this headline">¶</a></h2>
+<p>Once you have your worker implemented it is time to think about the actual optimization run.
+There are several things to consider:</p>
+<div class="section" id="a-how-many-iterations-should-i-use">
+<h3>a. How many iterations should I use?<a class="headerlink" href="#a-how-many-iterations-should-i-use" title="Permalink to this headline">¶</a></h3>
+<p>The short answer is: As much as you can afford.</p>
+<p>But reality is a bit more nuanced than that. It depends on which optimizer you are using, how many workers you have and how much resources you are willing to spend.</p>
+<p>For optimizers that rely on random sampling, there is no interaction between the number of workers and the number of iterations you do, but for the model based ones there are some things to keep in mind.
+First, the more workers you have, the more concurrent runs there are. This means that initially (when there is no model) more random configurations are drawn.
+Consequently, the model is potentially build later if more workers are in the pool, which could negatively impact the optimization especially for few iterations.
+Second, the more workers are present, the more queries to the model are made before new results come in.
+This might lead to the procedure being stuck in a local optimum for a longer period compared to a sequential run.</p>
+</div>
+<div class="section" id="b-how-do-i-pick-the-budgets">
+<h3>b. How do I pick the budgets?<a class="headerlink" href="#b-how-do-i-pick-the-budgets" title="Permalink to this headline">¶</a></h3>
+<p>That is a tough question to answer in general, and completely problem dependent.
+What we usually do when applying BOHB to a new problem is the following:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>We simplify the config space if necessary/possible, to be at most 10 dimensional to make the problem easier.</li>
+<li>We do a short optimization run on what we think are <cite>reasonable</cite> budgets. The <cite>max_budget</cite> does not have to be the one we actually aim for in the end, but should be big enough that we are confident it is representative of the full problem.</li>
+<li>We analyze the run, in particular we look at the rank correlations across budgets. If those are really small (&lt;0.2, or so) from one budget to the next bigger one we don’t expect Hyperband or BOHB to perform very well.
+In that case, we either increase the minimum budget, or we lower the <cite>eta</cite> parameter, which will shrink the steps between the budgets.</li>
+<li>We repeat steps 2 and 3 until we find the optimization to progress satisfactorily.</li>
+</ol>
+</div></blockquote>
+<p>Ideally, the optimizer would adjust the budgets online, but none of the implement ones does that right now.
+We are working on extensions that automate this procedure and incorporate that into the optimization run itself.</p>
+</div>
+<div class="section" id="c-when-should-i-change-the-parameters-of-the-optimizer">
+<h3>c. When should I change the parameters of the optimizer?<a class="headerlink" href="#c-when-should-i-change-the-parameters-of-the-optimizer" title="Permalink to this headline">¶</a></h3>
+<p>Hopefully never, but that is probably not true. We know of cases where we had to tweak the default parameters of BOHB to achieve the best performance.
+It’s all a bit problem depend, so there is no general advice, but a few rules of thumb</p>
+<dl class="docutils">
+<dt>If BOHB does not find better solutions for a while, but you know/expect better performance is possible, you can try to make it explore more by</dt>
+<dd><ol class="first last arabic simple">
+<li>decreasing <code class="docutils literal notranslate"><span class="pre">num_samples</span></code></li>
+<li>increasing <code class="docutils literal notranslate"><span class="pre">top_n_percent</span></code></li>
+<li>increasing <code class="docutils literal notranslate"><span class="pre">min_bandwidth</span></code> and/or <code class="docutils literal notranslate"><span class="pre">bandwidth_factor</span></code></li>
+</ol>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="optimizers.html" class="btn btn-neutral float-right" title="Optimizers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="auto_examples/commons.html" class="btn btn-neutral" title="example Worker" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Stefan Falkner.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
