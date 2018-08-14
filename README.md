@@ -1,4 +1,4 @@
-# HpBandSter
+# HpBandSter [![Build Status](https://travis-ci.org/automl/HpBandSter.svg?branch=master)](https://travis-ci.org/automl/HpBandSter)
 a distributed Hyperband implementation on Steroids
 
 This python 3 package is a framework for distributed hyperparameter optimization.
