@@ -168,7 +168,7 @@ Step 2: Start a :py:class:`Worker <hpbandster.core.worker.Worker>`
 Step 3: Run an :py:class:`Optimizer <hpbandster.core.master.Master>`
 
 | The optimizer decides which configurations are evaluated, and how the budgets are distributed.
-  Besides :py:class:`Random Search <hpbandster.optimizers.randomsearch.RandomSearch>`, and :py:class:`Random Search <hpbandster.optimizers.hyperband.HyperBand>`, there is :py:class:`Random Search <hpbandster.optimizers.bohb.BOHB>` our own combination of Hyperband and Bayesian Optimization that we will use here.
+  Besides :py:class:`Random Search <hpbandster.optimizers.randomsearch.RandomSearch>`, and :py:class:`HyperBand <hpbandster.optimizers.hyperband.HyperBand>`, there is :py:class:`BOHB <hpbandster.optimizers.bohb.BOHB>` our own combination of Hyperband and Bayesian Optimization that we will use here.
   Checkout out the :doc:`list of available optimizers <optimizers>` for more info.
 
 | At least, we have to provide the description of the search space, the `run_id`, the nameserver and the budgets.
