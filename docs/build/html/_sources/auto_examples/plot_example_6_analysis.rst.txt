@@ -120,7 +120,7 @@ More advanced analysis plots provide some insights into a run and the problem.
 
     plt.show()
 
-**Total running time of the script:** ( 0 minutes  0.264 seconds)
+**Total running time of the script:** ( 0 minutes  0.277 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_example_6_analysis.py:

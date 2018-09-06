@@ -51,26 +51,6 @@ This is a collection of examples of how to use the HpBandster Module.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This examples covers the warmstart functionality We will start an optimizer run with a small bu...">
-
-.. only:: html
-
-    .. figure:: /auto_examples/images/thumb/sphx_glr_example_3_warmstarting_visualization_thumb.png
-
-        :ref:`sphx_glr_auto_examples_example_3_warmstarting_visualization.py`
-
-.. raw:: html
-
-    </div>
-
-
-.. toctree::
-   :hidden:
-
-   /auto_examples/example_3_warmstarting_visualization
-
-.. raw:: html
-
     <div class="sphx-glr-thumbcontainer" tooltip="Getting closer to a distributed setup, this examples shows how to connect a nameserver, an opti...">
 
 .. only:: html
@@ -231,7 +211,7 @@ This is a collection of examples of how to use the HpBandster Module.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This class implements a very simple worker used in some examples.  ">
+    <div class="sphx-glr-thumbcontainer" tooltip="This class implements a very simple worker used in the firt examples. ">
 
 .. only:: html
 
