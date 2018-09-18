@@ -63,7 +63,6 @@ class H2BO(base_config_generator):
 		self.num_samples = num_samples
 		self.random_fraction = random_fraction
 
-
 		self.configs = dict()
 		self.losses = dict()
 		self.good_config_rankings = dict()
@@ -122,7 +121,7 @@ class H2BO(base_config_generator):
 			except Exception as e:
 				self.logger.warning(("="*50 + "\n")*3 +\
 						"Error sampling a configuration!\n"+\
-						"Models for budgets: %s"%(self.kde_models.keys())
+						"Models for budgets: %s"%(self.kde_models.keys()) +\
 						"\n here is a traceback:" +\
 						traceback.format_exc())
 
