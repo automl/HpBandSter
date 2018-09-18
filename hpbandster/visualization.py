@@ -208,6 +208,8 @@ def losses_over_time(runs, get_loss_from_run_fn = lambda r: r.loss, cmap = plt.g
 		data[b] = []
 
 	for r in runs:
+		if r.loss is None:
+			continue
 		b = r.budget
 		t = r.time_stamps['finished']
 		l = get_loss_from_run_fn(r)

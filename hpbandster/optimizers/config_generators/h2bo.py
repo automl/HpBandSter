@@ -102,16 +102,17 @@ class H2BO(base_config_generator):
 
 
 		if sample is None:
-			#import pdb; pdb.set_trace()
-			samples = self.kde_models[budget]['good'].sample(self.num_samples)
-			ei = self.kde_models[budget]['good'].pdf(samples)/self.kde_models[budget]['bad'].pdf(samples)
-			
-			best_idx = np.argmax(ei)
-			best_vector = samples[best_idx]
-
-			sample = ConfigSpace.Configuration(self.configspace, vector=best_vector)
-
 			try:
+				#import pdb; pdb.set_trace()
+				samples = self.kde_models[budget]['good'].sample(self.num_samples)
+				ei = self.kde_models[budget]['good'].pdf(samples)/self.kde_models[budget]['bad'].pdf(samples)
+				
+				best_idx = np.argmax(ei)
+				best_vector = samples[best_idx]
+
+				sample = ConfigSpace.Configuration(self.configspace, vector=best_vector)
+
+
 				sample = ConfigSpace.util.deactivate_inactive_hyperparameters(
 							configuration_space=self.configspace,
 							configuration=sample.get_dictionary()
@@ -120,9 +121,13 @@ class H2BO(base_config_generator):
 
 			except Exception as e:
 				self.logger.warning(("="*50 + "\n")*3 +\
-						"Error converting configuration:\n%s"%sample+\
+						"Error sampling a configuration!\n"+\
+						"Models for budgets: %s"%(self.kde_models.keys())
 						"\n here is a traceback:" +\
 						traceback.format_exc())
+
+				for b,l in self.losses.items():
+					self.logger.debug("budget: {}\nlosses:{}".format(b,l))
 				
 				sample =  self.configspace.sample_configuration()
 				info_dict['model_based_pick'] = False
@@ -222,8 +227,9 @@ class H2BO(base_config_generator):
 		
 		# skip model building:
 		#		a) if not enough points are available
-		if len(self.configs[budget]) < min_num_points:
-			self.logger.debug("Only %i run(s) for budget %f available, need more than %s -> can't build model!"%(len(self.configs[budget]), budget, min_num_points))
+		
+		if np.sum(np.isfinite(self.losses[budget])) < min_num_points:
+			self.logger.debug("Only %i successful run(s) for budget %f available, need more than %s -> can't build model!"%(np.sum(np.isfinite(self.losses[budget])), budget, min_num_points))
 			return
 
 		#		b) during warnm starting when we feed previous results in and only update once
