@@ -40,4 +40,4 @@ c. If your search space is restricted by several forbidden clauses sampling from
 
 .. rubric:: How can I improve performance in the presence of forbidden clauses?
 
-While the ConfigSpace allows to define forbidden clauses, this way of incorporating constraints is suboptimal for model-based optimizers, because they cannot learn about these constraints. See part c. above for a solution.
+While the ConfigSpace allows to define forbidden clauses, this way of incorporating constraints is suboptimal for model-based optimizers, because they cannot learn about these constraints. See part c. in the question above for a solution.

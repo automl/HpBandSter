@@ -238,8 +238,8 @@
 	<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 	
 	<span class="k">if</span> <span class="n">show</span><span class="p">:</span>
-		<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
-	
+		<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+	<span class="k">return</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span><span class="n">ax</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="performance_histogram_model_vs_random"><a class="viewcode-back" href="../../core/visualization.html#hpbandster.visualization.performance_histogram_model_vs_random">[docs]</a><span class="k">def</span> <span class="nf">performance_histogram_model_vs_random</span><span class="p">(</span><span class="n">runs</span><span class="p">,</span> <span class="n">id2conf</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 	<span class="n">model_based_runs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">id2conf</span><span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">config_id</span><span class="p">][</span><span class="s1">&#39;config_info&#39;</span><span class="p">][</span><span class="s1">&#39;model_based_pick&#39;</span><span class="p">],</span> <span class="n">runs</span><span class="p">))</span>
@@ -347,7 +347,8 @@
 						<span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
 
 	<span class="k">if</span> <span class="n">show</span><span class="p">:</span>
-		<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+		<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+	<span class="k">return</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span><span class="n">ax</span><span class="p">)</span></div>
 
 
 
@@ -360,6 +361,8 @@
 		<span class="n">data</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
 	<span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">runs</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">loss</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="k">continue</span>
 		<span class="n">b</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">budget</span>
 		<span class="n">t</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">time_stamps</span><span class="p">[</span><span class="s1">&#39;finished&#39;</span><span class="p">]</span>
 		<span class="n">l</span> <span class="o">=</span> <span class="n">get_loss_from_run_fn</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
@@ -382,8 +385,8 @@
 	<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;loss&#39;</span><span class="p">)</span>
 	<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 	<span class="k">if</span> <span class="n">show</span><span class="p">:</span>
-		<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
-
+		<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+	<span class="k">return</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span><span class="n">ax</span><span class="p">)</span></div>
 
 
 
