@@ -432,7 +432,7 @@ class Result(object):
 		return(max([k[0] for k in self.data.keys()]) + 1)
 		
 
-	def get_fANOVA_data(self, config_space, budgets=None):
+	def get_fANOVA_data(self, config_space, budgets=None, loss_fn=lambda r: r.loss, failed_loss=None):
 
 		import numpy as np
 		import ConfigSpace as CS
@@ -445,7 +445,9 @@ class Result(object):
 		if len(budgets)>1:
 			config_space.add_hyperparameter(CS.UniformFloatHyperparameter('budget', min(budgets), max(budgets), log=True))
 		
-		hp_names = list(map( lambda hp: hp.name, config_space.get_hyperparameters()))
+		hp_names = config_space.get_hyperparameter_names()
+		hps = config_space.get_hyperparameters()
+		needs_transform = list(map(lambda h: isinstance(h, CS.CategoricalHyperparameter), hps))
 
 		all_runs = self.get_all_runs(only_largest_budget=False)
 
@@ -456,18 +458,66 @@ class Result(object):
 		y = []
 
 		for r in all_runs:
-			if r.loss is None: continue
+			if r.loss is None:
+				if failed_loss is None: continue
+				else: y.append(failed_loss)
+			else:
+				y.append(loss_fn(r))
+				
 			config = id2conf[r.config_id]['config']
 			if len(budgets)>1:
 				config['budget'] = r.budget
 
 			config = CS.Configuration(config_space, config)
-
-			X.append([config[n] for n in hp_names])
-			y.append(r.loss)
+			
+			x = []
+			for (name, hp, transform) in zip(hp_names, hps, needs_transform):
+				if transform:
+					x.append(hp._inverse_transform(config[name]))
+				else:
+					x.append(config[name])
+			
+			X.append(x)
 
 		return(np.array(X), np.array(y), config_space)
 
 
+	def get_pandas_dataframe(self, budgets=None, loss_fn=lambda r: r.loss):
 
+		import numpy as np
+		import pandas as pd
+
+		id2conf = self.get_id2config_mapping()
+
+		df_x = pd.DataFrame()
+		df_y = pd.DataFrame()
+
+
+		if budgets is None:
+			budgets = self.HB_config['budgets']
+
+		all_runs = self.get_all_runs(only_largest_budget=False)
+		all_runs=list(filter( lambda r: r.budget in budgets, all_runs))
+
+
+
+		all_configs = []
+		all_losses = []
+
+		for r in all_runs:
+			if r.loss is None: continue
+			config = id2conf[r.config_id]['config']
+			if len(budgets)>1:
+				config['budget'] = r.budget
+
+			all_configs.append(config)
+			all_losses.append({'loss': r.loss})
+			
+			#df_x = df_x.append(config, ignore_index=True)
+			#df_y = df_y.append({'loss': r.loss}, ignore_index=True)
+		
+		df_X = pd.DataFrame(all_configs)
+		df_y = pd.DataFrame(all_losses)
+
+		return(df_X, df_y)
 
