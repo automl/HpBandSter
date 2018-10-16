@@ -167,7 +167,9 @@
 <span class="sd">	The worker is responsible for evaluating a single configuration on a single budget at a time.</span>
 <span class="sd">	Communication to the individual workers goes via the nameserver, management of the worker-pool and job</span>
 <span class="sd">	scheduling is done by the Dispatcher and jobs are determined by the Master. In distributed systems, each</span>
-<span class="sd">	cluster-node runs a Worker-instance. To implement your own worker, overwrite the `compute`-method.</span>
+<span class="sd">	cluster-node runs a Worker-instance. To implement your own worker, overwrite the `__init__`- and the `compute`-method.</span>
+<span class="sd">	The first allows to perform inital computations, e.g. loading the dataset, when the worker is started, while the</span>
+<span class="sd">	latter is repeatedly called during the optimization and evaluates a given configuration yielding the associated loss.</span>
 <span class="sd">	&quot;&quot;&quot;</span>
 	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_id</span><span class="p">,</span> <span class="n">nameserver</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nameserver_port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>

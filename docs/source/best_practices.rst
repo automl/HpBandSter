@@ -39,7 +39,7 @@ To eliminate the first two, change :doc:`example 1 <auto_examples/example_1_loca
 By setting the logging level to ``DEBUG`` you will see every exception thrown on the worker side that might get lost otherwise.
 
 Once this is working, you can bootstrap from the other examples to run HpBandSter in the suitable setting.
-The examples can serve as a starting point, but are by no means, the only way to set things up.
+The examples can serve as a starting point, but are, by no means, the only way to set things up.
 They are meant to alleviate the burden of some boilerplate code necessary due to the flexibility of HpBandSter.
 
 

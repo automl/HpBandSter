@@ -15,7 +15,9 @@ class Worker(object):
 	The worker is responsible for evaluating a single configuration on a single budget at a time.
 	Communication to the individual workers goes via the nameserver, management of the worker-pool and job
 	scheduling is done by the Dispatcher and jobs are determined by the Master. In distributed systems, each
-	cluster-node runs a Worker-instance. To implement your own worker, overwrite the `compute`-method.
+	cluster-node runs a Worker-instance. To implement your own worker, overwrite the `__init__`- and the `compute`-method.
+	The first allows to perform inital computations, e.g. loading the dataset, when the worker is started, while the
+	latter is repeatedly called during the optimization and evaluates a given configuration yielding the associated loss.
 	"""
 	def __init__(self, run_id, nameserver=None, nameserver_port=None, logger=None, host=None, id=None, timeout=None):
 		"""

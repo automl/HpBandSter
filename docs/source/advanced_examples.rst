@@ -72,6 +72,8 @@ There is also a small interactive plot tool shown in :doc:`example 7 <auto_examp
 It allows to better explore the performance of the runs by plotting various iterations and allowing to show more information on selected configurations.
 It is not the most elaborate tool, but maybe it can help to find patterns in the results.
 
+.. _warmstarting:
+
 Continuing a Run or Warmstarting the Optimization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
