@@ -289,7 +289,7 @@ class BOHB(base_config_generator):
 		else:
 			# same for non numeric losses.
 			# Note that this means losses of minus infinity will count as bad!
-			loss = job.result["loss"] if np.isfinite(job.result["loss"] else np.inf
+			loss = job.result["loss"] if np.isfinite(job.result["loss"]) else np.inf
 
 		budget = job.kwargs["budget"]
 
