@@ -283,11 +283,13 @@ class BOHB(base_config_generator):
 		super().new_result(job)
 
 		if job.result is None:
-			# One could skip crashed results, but we decided 
+			# One could skip crashed results, but we decided to
 			# assign a +inf loss and count them as bad configurations
 			loss = np.inf
 		else:
-			loss = job.result["loss"]
+			# same for non numeric losses.
+			# Note that this means losses of minus infinity will count as bad!
+			loss = job.result["loss"] if np.isfinite(job.result["loss"] else np.inf
 
 		budget = job.kwargs["budget"]
 
