@@ -227,7 +227,8 @@ class H2BO(base_config_generator):
 		# skip model building:
 		#		a) if not enough points are available
 		
-		if np.sum(np.isfinite(self.losses[budget])) < min_num_points:
+		tmp = np.array([np.mean(r) for r in self.losses[budget]])
+		if np.sum(np.isfinite(tmp)) < min_num_points:
 			self.logger.debug("Only %i successful run(s) for budget %f available, need more than %s -> can't build model!"%(np.sum(np.isfinite(self.losses[budget])), budget, min_num_points))
 			return
 
