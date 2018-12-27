@@ -16,4 +16,5 @@ setup(
 		'docu': ['sphinx', 'sphinx_rtd_theme', 'sphinx_gallery'],
 	},
 	keywords=['distributed', 'optimization', 'multifidelity'],
+    	test_suite="tests"
 )
