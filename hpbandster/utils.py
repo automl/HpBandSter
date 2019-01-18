@@ -52,19 +52,19 @@ def start_local_nameserver(host=None, port=0, nic_name=None):
     return (host, int(port))
 
 
-def predict_bobh_run(min_budget, max_budget, eta, n_iterations):
+def predict_bohb_run(min_budget, max_budget, eta, n_iterations):
     """
-    Prints the expected numbers of configurations, runs and budgets given BOBH's hyperparameters.
+    Prints the expected numbers of configurations, runs and budgets given BOHB's hyperparameters.
 
     Parameters
     ----------
-    min_budget
+    min_budget : float
         The smallest budget to consider.
-    max_budget
+    max_budget : float
         The largest budget to consider.
-    eta
+    eta : int
         The eta parameter. Determines how many configurations advance to the next round.
-    n_iterations
+    n_iterations : int
         How many iterations of SuccessiveHalving to perform.
     """
     s_max = -int(np.log(min_budget / max_budget) / np.log(eta)) + 1
@@ -83,7 +83,7 @@ def predict_bobh_run(min_budget, max_budget, eta, n_iterations):
         ns = [max(int(n0 * (eta ** (-i))), 1) for i in range(s + 1)]
         n_runs += sum(ns)
 
-    print('Running BOBH with these parameters will proceed as follows:')
+    print('Running BOHB with these parameters will proceed as follows:')
     print('  {} iterations of SuccessiveHalving will be executed.'.format(n_iterations))
     print('  The iterations will start with a number of configurations as {}.'.format(n_configurations))
     print('  With the initial budgets as {}.'.format(initial_budgets))
