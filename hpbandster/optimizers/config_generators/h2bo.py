@@ -229,7 +229,7 @@ class H2BO(base_config_generator):
 		
 		tmp = np.array([np.mean(r) for r in self.losses[budget]])
 		if np.sum(np.isfinite(tmp)) < min_num_points:
-			self.logger.debug("Only %i successful run(s) for budget %f available, need more than %s -> can't build model!"%(np.sum(np.isfinite(self.losses[budget])), budget, min_num_points))
+			self.logger.debug("Only %i successful run(s) for budget %f available, need more than %s -> can't build model!"%(np.sum(np.isfinite(tmp)), budget, min_num_points))
 			return
 
 		#		b) during warnm starting when we feed previous results in and only update once
@@ -267,15 +267,6 @@ class H2BO(base_config_generator):
 		
 		if self.bw_estimator in ['mlcv'] and n_good < 3:
 			self.kde_models[budget]['good'].bandwidths[:] = self.kde_models[budget]['bad'].bandwidths
-		
-		print('='*50)
-		print(self.kde_models[budget]['good'].bandwidths)
-		#print('best:\n',self.kde_models[budget]['good'].data[0])
-		print(self.kde_models[budget]['good'].data.mean(axis=0))
-		print(self.kde_models[budget]['good'].data.std(axis=0))
-		print((train_losses[idx])[:n_good])
-		
-		print(self.kde_models[budget]['bad'].bandwidths)
 
 		# update probs for the categorical parameters for later sampling
 		self.logger.debug('done building a new model for budget %f based on %i/%i split\nBest loss for this budget:%f\n\n\n\n\n'%(budget, n_good, n_bad, np.min(train_losses)))
