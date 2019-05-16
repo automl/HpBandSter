@@ -21,8 +21,8 @@ class SuccessiveResampling(BaseIteration):
 					stage regardless of the fraction.
 		
 		"""
-			self.resampling_rate = resampling_rate
-			self.min_samples_advance = min_samples_advance
+		self.resampling_rate = resampling_rate
+		self.min_samples_advance = min_samples_advance
 
 
 	def _advance_to_next_stage(self, config_ids, losses):

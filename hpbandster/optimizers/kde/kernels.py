@@ -169,7 +169,7 @@ class WangRyzinOrdinal(BaseKernel):
 		"""
 		if sample_indices is None:
 			sample_indices = np.random.choice(self.data.shape[0], size=num_samples)
-			samples = self.data[sample_indices]
+		samples = self.data[sample_indices]
 
 		possible_steps = np.arange(-self.num_values+1,self.num_values)
 		idx = (np.abs(possible_steps) < 1e-2)

@@ -268,7 +268,7 @@ class MNISTConvNet(torch.nn.Module):
 
 
 if __name__ == "__main__":
-	worker = KerasWorker(run_id='0')
+	worker = PyTorchWorker(run_id='0')
 	cs = worker.get_configspace()
 	
 	config = cs.sample_configuration().get_dictionary()
