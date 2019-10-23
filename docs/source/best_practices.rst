@@ -80,7 +80,7 @@ We are working on extensions that automate this procedure and incorporate that i
 c. When should I change the parameters of the optimizer?
 --------------------------------------------------------
 Hopefully never, but that is probably not true. We know of cases where we had to tweak the default parameters of BOHB to achieve the best performance.
-It's all a bit problem depend, so there is no general advice, but a few rules of thumb
+It's all a bit problem dependent, so there is no general advice, but a few rules of thumb.
 
 If BOHB does not find better solutions for a while, but you know/expect better performance is possible, you can try to make it explore more by
   1. decreasing ``num_samples``
