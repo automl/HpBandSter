@@ -2,7 +2,7 @@
 Worker for Examples 1-4
 =======================
 
-This class implements a very simple worker used in the firt examples.
+This class implements a very simple worker used in the first examples.
 """
 
 import numpy
@@ -41,7 +41,7 @@ class MyWorker(Worker):
         time.sleep(self.sleep_interval)
 
         return({
-                    'loss': float(res),  # this is the a mandatory field to run hyperband
+                    'loss': float(res),  # this is a mandatory field to run hyperband
                     'info': res  # can be used for any user-defined information - also mandatory
                 })
     
