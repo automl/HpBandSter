@@ -19,10 +19,10 @@ class Worker(object):
 	The first allows to perform inital computations, e.g. loading the dataset, when the worker is started, while the
 	latter is repeatedly called during the optimization and evaluates a given configuration yielding the associated loss.
 	"""
-	def __init__(self, run_id, nameserver=None, nameserver_port=None, logger=None, host=None, nathost=None,
+	def __init__(self, run_id, nameserver=None, nameserver_port=None, logger=None, host=None, port=0, nathost=None,
 							 natport=None, id=None, timeout=None):
 		"""
-		
+
 		Parameters
 		----------
 		run_id: anything with a __str__ method
@@ -35,6 +35,8 @@ class Worker(object):
 			logger used for debugging output
 		host: str
 			hostname for this worker process
+		port: int
+		  port for this worker process
 		nathost: str
 		  external hostname for this worker process
 		natport: int
@@ -49,16 +51,17 @@ class Worker(object):
 		"""
 		self.run_id = run_id
 		self.host = host
+		self.port = port
 		self.nathost = nathost
 		self.natport = natport
 		self.nameserver = nameserver
 		self.nameserver_port = nameserver_port
 		self.worker_id =  "hpbandster.run_%s.worker.%s.%i"%(self.run_id, socket.gethostname(), os.getpid())
-		
+
 		self.timeout = timeout
 		self.timer = None
-		
-		
+
+
 		if not id is None:
 			self.worker_id +='.%s'%str(id)
 
@@ -88,7 +91,7 @@ class Worker(object):
 				waiting period between the attempts
 		"""
 		fn = os.path.join(working_directory, 'HPB_run_%s_pyro.pkl'%self.run_id)
-		
+
 		for i in range(num_tries):
 			try:
 				with open(fn, 'rb') as fh:
@@ -105,7 +108,7 @@ class Worker(object):
 	def run(self, background=False):
 		"""
 		Method to start the worker.
-		
+
 		Parameters
 		----------
 			background: bool
@@ -124,7 +127,7 @@ class Worker(object):
 
 	def _run(self):
 		# initial ping to the dispatcher to register the worker
-		
+
 		try:
 			with Pyro4.locateNS(host=self.nameserver, port=self.nameserver_port) as ns:
 				self.logger.debug('WORKER: Connected to nameserver %s'%(str(ns)))
@@ -137,8 +140,8 @@ class Worker(object):
 				exit(1)
 		except:
 			raise
-			
-			
+
+
 		for dn, uri in dispatchers.items():
 			try:
 				self.logger.debug('WORKER: found dispatcher %s'%dn)
@@ -156,22 +159,22 @@ class Worker(object):
 
 		self.logger.info('WORKER: start listening for jobs')
 
-		self.pyro_daemon = Pyro4.core.Daemon(host=self.host, nathost=self.nathost, natport=self.natport)
+		self.pyro_daemon = Pyro4.core.Daemon(host=self.host, port=self.port, nathost=self.nathost, natport=self.natport)
 
 		with Pyro4.locateNS(self.nameserver, port=self.nameserver_port) as ns:
 			uri = self.pyro_daemon.register(self, self.worker_id)
 			ns.register(self.worker_id, uri)
-		
+
 		self.pyro_daemon.requestLoop()
 
 		with Pyro4.locateNS(self.nameserver, port=self.nameserver_port) as ns:
 			ns.remove(self.worker_id)
-		
-		
+
+
 
 	def compute(self, config_id, config, budget, working_directory):
 		""" The function you have to overload implementing your computation.
-		
+
 		Parameters
 		----------
 		config_id: tuple
@@ -193,7 +196,7 @@ class Worker(object):
 				- 'loss': a numerical value that is MINIMIZED
 				- 'info': This can be pretty much any build in python type, e.g. a dict with lists as value. Due to Pyro4 handling the remote function calls, 3rd party types like numpy arrays are not supported!
 		"""
-		
+
 		raise NotImplementedError("Subclass hpbandster.distributed.worker and overwrite the compute method in your worker script")
 
 	@Pyro4.expose
@@ -228,10 +231,10 @@ class Worker(object):
 			self.timer.start()
 		return(result)
 
-	@Pyro4.expose	
+	@Pyro4.expose
 	def is_busy(self):
 		return(self.busy)
-	
+
 	@Pyro4.expose
 	@Pyro4.oneway
 	def shutdown(self):
