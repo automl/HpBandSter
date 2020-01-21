@@ -19,7 +19,8 @@ class Worker(object):
 	The first allows to perform inital computations, e.g. loading the dataset, when the worker is started, while the
 	latter is repeatedly called during the optimization and evaluates a given configuration yielding the associated loss.
 	"""
-	def __init__(self, run_id, nameserver=None, nameserver_port=None, logger=None, host=None, id=None, timeout=None):
+	def __init__(self, run_id, nameserver=None, nameserver_port=None, logger=None, host=None, nathost=None,
+							 natport=None, id=None, timeout=None):
 		"""
 		
 		Parameters
@@ -34,6 +35,10 @@ class Worker(object):
 			logger used for debugging output
 		host: str
 			hostname for this worker process
+		nathost: str
+		  external hostname for this worker process
+		natport: int
+		  external port for this worker process
 		id: anything with a __str__method
 			if multiple workers are started in the same process, you MUST provide a unique id for each one of them using the `id` argument.
 		timeout: int or float
@@ -44,6 +49,8 @@ class Worker(object):
 		"""
 		self.run_id = run_id
 		self.host = host
+		self.nathost = nathost
+		self.natport = natport
 		self.nameserver = nameserver
 		self.nameserver_port = nameserver_port
 		self.worker_id =  "hpbandster.run_%s.worker.%s.%i"%(self.run_id, socket.gethostname(), os.getpid())
@@ -149,7 +156,7 @@ class Worker(object):
 
 		self.logger.info('WORKER: start listening for jobs')
 
-		self.pyro_daemon = Pyro4.core.Daemon(host=self.host)
+		self.pyro_daemon = Pyro4.core.Daemon(host=self.host, nathost=self.nathost, natport=self.natport)
 
 		with Pyro4.locateNS(self.nameserver, port=self.nameserver_port) as ns:
 			uri = self.pyro_daemon.register(self, self.worker_id)
