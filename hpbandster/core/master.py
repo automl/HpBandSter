@@ -25,6 +25,9 @@ class Master(object):
 			nameserver='127.0.0.1',
 			nameserver_port=None,
 			host=None,
+			port=None,
+			nathost=None,
+			natport=None,
 			shutdown_workers=True,
 			job_queue_sizes=(-1,0),
 			dynamic_queue_size=True,
@@ -64,6 +67,12 @@ class Master(object):
 			port of Pyro4 nameserver
 		host: str
 			ip (or name that resolves to that) of the network interface to use
+		port: int
+		  port for this master process
+		nathost: str
+		  external hostname for this master process
+		natport: int
+		  external port for this master process
 		shutdown_workers: bool
 			flag to control whether the workers are shutdown after the computation is done
 		job_queue_size: tuple of ints
@@ -120,7 +129,10 @@ class Master(object):
 						'time_ref'   : self.time_ref
 					}
 
-		self.dispatcher = Dispatcher( self.job_callback, queue_callback=self.adjust_queue_size, run_id=run_id, ping_interval=ping_interval, nameserver=nameserver, nameserver_port=nameserver_port, host=host)
+		self.dispatcher = Dispatcher( self.job_callback, queue_callback=self.adjust_queue_size, run_id=run_id,
+																	ping_interval=ping_interval, nameserver=nameserver,
+																	nameserver_port=nameserver_port, host=host, port=port, nathost=nathost,
+																	natport=natport)
 
 		self.dispatcher_thread = threading.Thread(target=self.dispatcher.run)
 		self.dispatcher_thread.start()
