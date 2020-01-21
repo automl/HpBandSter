@@ -19,7 +19,7 @@ class NameServer(object):
 	can work in parallel and register their results without creating racing conditions. The implementation uses
 	`PYRO4 <https://pythonhosted.org/Pyro4/nameserver.html>`_ as a backend and this class is basically a wrapper.
 	"""
-	def __init__(self, run_id, working_directory=None, host=None, port=0, nic_name=None):
+	def __init__(self, run_id, working_directory=None, host=None, port=0, nic_name=None, nathost=None, natport=None):
 		"""
 		Parameters
 		----------
@@ -34,11 +34,17 @@ class NameServer(object):
 				the port to be used. Default (=0) means a random port
 			nic_name: str
 				name of the network interface to use (only used if host is not given)
+			nathost: str
+		  	external hostname for this worker process
+			natport: int
+		  	external port for this worker process
 		"""
 		self.run_id = run_id
 		self.host = host
 		self.nic_name = nic_name
 		self.port = port
+		self.nathost = nathost
+		self.natport = natport
 		self.dir = working_directory
 		self.conf_fn = None
 		self.pyro_ns = None
@@ -61,7 +67,7 @@ class NameServer(object):
 			else:
 				self.host = nic_name_to_host(self.nic_name)
 
-		uri, self.pyro_ns, _ = Pyro4.naming.startNS(host=self.host, port=self.port)
+		uri, self.pyro_ns, _ = Pyro4.naming.startNS(host=self.host, port=self.port, nathost=self.nathost, natport=self.natport)
 
 		self.host, self.port = self.pyro_ns.locationStr.split(':')
 		self.port = int(self.port)
