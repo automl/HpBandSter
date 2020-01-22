@@ -68,11 +68,11 @@ class Master(object):
 		host: str
 			ip (or name that resolves to that) of the network interface to use
 		port: int
-		  port for this master process
+		  port for the job dispatcher process
 		nathost: str
-		  external hostname for this master process
+		  external hostname for the job dispatcher process
 		natport: int
-		  external port for this master process
+		  external port for the job dispatcher process
 		shutdown_workers: bool
 			flag to control whether the workers are shutdown after the computation is done
 		job_queue_size: tuple of ints
