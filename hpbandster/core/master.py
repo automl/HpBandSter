@@ -34,6 +34,7 @@ class Master(object):
 			logger=None,
 			result_logger=None,
 			previous_result = None,
+		  register_results_from_died_workers=True
 			):
 		"""The Master class is responsible for the book keeping and to decide what to run next. Optimizers are
                 instantiations of Master, that handle the important steps of deciding what configurations to run on what
@@ -87,6 +88,9 @@ class Master(object):
 			a result logger that writes live results to disk
 		previous_result: hpbandster.core.result.Result object
 			previous run to warmstart the run
+		register_results_from_died_workers: bool
+        register results from died workers. If false, then the job processed by the died worker will be submitted to
+        next idle worker.
 		"""
 
 		self.working_directory = working_directory
@@ -132,7 +136,7 @@ class Master(object):
 		self.dispatcher = Dispatcher( self.job_callback, queue_callback=self.adjust_queue_size, run_id=run_id,
 																	ping_interval=ping_interval, nameserver=nameserver,
 																	nameserver_port=nameserver_port, host=host, port=port, nathost=nathost,
-																	natport=natport)
+																	natport=natport, register_results_from_died_workers=register_results_from_died_workers)
 
 		self.dispatcher_thread = threading.Thread(target=self.dispatcher.run)
 		self.dispatcher_thread.start()
