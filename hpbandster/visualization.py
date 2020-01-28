@@ -170,14 +170,13 @@ def correlation_across_budgets(results_object, show=False):
 
 	for i in range(len(budgets)-1):
 		for j in range(i+1,len(budgets)):
-			if loss_pairs[budgets[i]][budgets[j]]:
-				try:
-					spr = sps.spearmanr(loss_pairs[budgets[i]][budgets[j]])
-					rhos[i][j-1] = spr.correlation
-					ps[i][j-1] = spr.pvalue
-				except ValueError:
-					# ignore `spearmanr` needs at least 2 variables to compare
-					pass
+			try:
+				spr = sps.spearmanr(loss_pairs[budgets[i]][budgets[j]])
+				rhos[i][j-1] = spr.correlation
+				ps[i][j-1] = spr.pvalue
+			except ValueError:
+				# ignore `spearmanr` needs at least 2 variables to compare
+				pass
 
 
 	fig, ax = plt.subplots()
