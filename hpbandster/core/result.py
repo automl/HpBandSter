@@ -511,7 +511,7 @@ class Result(object):
 				config['budget'] = r.budget
 
 			all_configs.append(config)
-			all_losses.append({'loss': r.loss})
+			all_losses.append(loss_fn(r))
 			
 			#df_x = df_x.append(config, ignore_index=True)
 			#df_y = df_y.append({'loss': r.loss}, ignore_index=True)
