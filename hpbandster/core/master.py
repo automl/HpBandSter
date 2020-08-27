@@ -111,7 +111,11 @@ class Master(object):
 			self.warmstart_iteration = []
 
 		else:
-			self.warmstart_iteration = [WarmStartIteration(previous_result, self.config_generator)]
+			self.warmstart_iteration = [
+								WarmStartIteration(previous_result,
+																	self.config_generator,
+																	result_logger=self.result_logger)
+						]
 
 		# condition to synchronize the job_callback and the queue
 		self.thread_cond = threading.Condition()
