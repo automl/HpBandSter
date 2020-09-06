@@ -254,7 +254,7 @@ class WarmStartIteration(BaseIteration):
 	iteration that imports a privious Result for warm starting
 	"""
 
-	def __init__(self, Result, config_generator):
+	def __init__(self, Result, config_generator, result_logger=None):
 		
 		self.is_finished=False
 		self.stage = 0
@@ -263,11 +263,14 @@ class WarmStartIteration(BaseIteration):
 		id2conf = Result.get_id2config_mapping()
 		delta_t = - max(map(lambda r: r.time_stamps['finished'], Result.get_all_runs()))
 
-		super().__init__(-1, [len(id2conf)]	, [None], None)
+		super().__init__(-1, [len(id2conf)], [None],
+										 None,
+										 result_logger=result_logger)
 		
 		
 		for i, id in enumerate(id2conf):
 			new_id = self.add_configuration(config=id2conf[id]['config'], config_info=id2conf[id]['config_info'])
+			# if result_logger exists, add this config to configs.json
 			
 			for r in Result.get_runs_by_id(id):
 			
@@ -281,6 +284,9 @@ class WarmStartIteration(BaseIteration):
 					j.timestamps[k] = v + delta_t
 				
 				self.register_result(j , skip_sanity_checks=True)
+
+				if self.result_logger:
+					self.result_logger(j)  # add prev jobs to results.json
 				
 				config_generator.new_result(j, update_model=(i==len(id2conf)-1))
 				
