@@ -59,7 +59,7 @@ def extract_HBS_learning_curves(runs):
 	sr = sorted(runs, key=lambda r: r.budget)
 	lc = list(filter(lambda t: not t[1] is None, [(r.budget, r.loss) for r in sr]))
 	return([lc,])
-		
+
 
 class json_result_logger(object):
 	def __init__(self, directory, overwrite=False):
@@ -89,7 +89,7 @@ class json_result_logger(object):
 
 		os.makedirs(directory, exist_ok=True)
 
-		
+
 		self.config_fn  = os.path.join(directory, 'configs.json')
 		self.results_fn = os.path.join(directory, 'results.json')
 
@@ -158,12 +158,12 @@ def logged_results_to_HBS_result(directory):
 	data = {}
 	time_ref = float('inf')
 	budget_set = set()
-	
+
 	with open(os.path.join(directory, 'configs.json')) as fh:
 		for line in fh:
-			
+
 			line = json.loads(line)
-			
+
 			if len(line) == 3:
 				config_id, config, config_info = line
 			if len(line) == 2:
@@ -177,7 +177,7 @@ def logged_results_to_HBS_result(directory):
 			config_id, budget,time_stamps, result, exception = json.loads(line)
 
 			id = tuple(config_id)
-			
+
 			data[id].time_stamps[budget] = time_stamps
 			data[id].results[budget] = result
 			data[id].exceptions[budget] = exception
@@ -188,7 +188,7 @@ def logged_results_to_HBS_result(directory):
 
 	# infer the hyperband configuration from the data
 	budget_list = sorted(list(budget_set))
-	
+
 	HB_config = {
 						'eta'        : None if len(budget_list) < 2 else budget_list[1]/budget_list[0],
 						'min_budget' : min(budget_set),
@@ -265,40 +265,40 @@ class Result(object):
 				finished, their respective budgets, and corresponding losses
 		"""
 		all_runs = self.get_all_runs(only_largest_budget = not all_budgets)
-		
+
 		if not all_budgets:
 			all_runs = list(filter(lambda r: r.budget==res.HB_config['max_budget'], all_runs))
-		
+
 		all_runs.sort(key=lambda r: r.time_stamps['finished'])
-		
+
 		return_dict = { 'config_ids' : [],
 						'times_finished': [],
 						'budgets'    : [],
 						'losses'     : [],
 		}
-	
+
 		current_incumbent = float('inf')
 		incumbent_budget = self.HB_config['min_budget']
-		
+
 		for r in all_runs:
 			if r.loss is None: continue
-			
+
 			new_incumbent = False
-			
+
 			if bigger_is_better and r.budget > incumbent_budget:
 				new_incumbent = True
-			
-			
+
+
 			if r.loss < current_incumbent:
 				new_incumbent = True
-			
+
 			if non_decreasing_budget and r.budget < incumbent_budget:
 				new_incumbent = False
-			
+
 			if new_incumbent:
 				current_incumbent = r.loss
 				incumbent_budget  = r.budget
-				
+
 				return_dict['config_ids'].append(r.config_id)
 				return_dict['times_finished'].append(r.time_stamps['finished'])
 				return_dict['budgets'].append(r.budget)
@@ -306,13 +306,13 @@ class Result(object):
 
 		if current_incumbent != r.loss:
 			r = all_runs[-1]
-		
+
 			return_dict['config_ids'].append(return_dict['config_ids'][-1])
 			return_dict['times_finished'].append(r.time_stamps['finished'])
 			return_dict['budgets'].append(return_dict['budgets'][-1])
 			return_dict['losses'].append(return_dict['losses'][-1])
 
-			
+
 		return (return_dict)
 
 
@@ -361,13 +361,13 @@ class Result(object):
 		"""
 
 		config_ids = self.data.keys() if config_ids is None else config_ids
-		
+
 		lc_dict = {}
-		
+
 		for id in config_ids:
 			runs = self.get_runs_by_id(id)
 			lc_dict[id] = lc_extractor(runs)
-			
+
 		return(lc_dict)
 
 
@@ -430,7 +430,7 @@ class Result(object):
 
 	def num_iterations(self):
 		return(max([k[0] for k in self.data.keys()]) + 1)
-		
+
 
 	def get_fANOVA_data(self, config_space, budgets=None, loss_fn=lambda r: r.loss, failed_loss=None):
 
@@ -444,7 +444,7 @@ class Result(object):
 
 		if len(budgets)>1:
 			config_space.add_hyperparameter(CS.UniformFloatHyperparameter('budget', min(budgets), max(budgets), log=True))
-		
+
 		hp_names = config_space.get_hyperparameter_names()
 		hps = config_space.get_hyperparameters()
 		needs_transform = list(map(lambda h: isinstance(h, CS.CategoricalHyperparameter), hps))
@@ -463,20 +463,20 @@ class Result(object):
 				else: y.append(failed_loss)
 			else:
 				y.append(loss_fn(r))
-				
+
 			config = id2conf[r.config_id]['config']
 			if len(budgets)>1:
 				config['budget'] = r.budget
 
 			config = CS.Configuration(config_space, config)
-			
+
 			x = []
 			for (name, hp, transform) in zip(hp_names, hps, needs_transform):
 				if transform:
 					x.append(hp._inverse_transform(config[name]))
 				else:
 					x.append(config[name])
-			
+
 			X.append(x)
 
 		return(np.array(X), np.array(y), config_space)
@@ -506,18 +506,63 @@ class Result(object):
 
 		for r in all_runs:
 			if r.loss is None: continue
-			config = id2conf[r.config_id]['config']
+			config = id2conf[r.config_id]['config'].copy()
 			if len(budgets)>1:
 				config['budget'] = r.budget
 
 			all_configs.append(config)
 			all_losses.append({'loss': r.loss})
-			
+
 			#df_x = df_x.append(config, ignore_index=True)
 			#df_y = df_y.append({'loss': r.loss}, ignore_index=True)
-		
+
 		df_X = pd.DataFrame(all_configs)
 		df_y = pd.DataFrame(all_losses)
 
 		return(df_X, df_y)
+
+	def get_sorted_runs_dataframe(self):
+		'''
+        Turns the results of self.get_all_runs() to dataframe to make it more user-friendly.
+        The dataframe is sorted by loss and budgets (epochs) to make the hyper-parameter value combination with the
+        smallest loss and budget appear on the top.
+
+        Output:
+        A dataframe where the rows are runs. The first few columns are run_id, budget, and loss. The rest of the columns
+        are hyperparameters, each with a column.
+        '''
+
+		all_runs_results = self.get_all_runs(only_largest_budget=False)
+		id_to_hyper_parameter_value_combination_dictionary = bohb_result.get_id2config_mapping()
+
+		id_list = []
+		budget_list = []
+		loss_list = []
+
+		hyper_parameter_name_to_value_dictionary_list = []  # store hyperparemter value combination of each run
+
+		for i in range(len(all_runs_results)):
+			current_run = all_runs_results[i]
+
+			id_of_the_current_run = current_run.config_id
+			budget_of_the_current_run = current_run.budget
+			loss_of_the_current_run = current_run.loss
+			id_list.append(id_of_the_current_run)
+			budget_list.append(budget_of_the_current_run)
+			loss_list.append(loss_of_the_current_run)
+
+			hyper_parameter_name_to_value_dictionary = \
+				id_to_hyper_parameter_value_combination_dictionary[id_of_the_current_run]['config']
+			hyper_parameter_name_to_value_dictionary_list.append(hyper_parameter_name_to_value_dictionary)
+
+		id_budget_loss_dataframe = pd.DataFrame({'id': id_list, 'budget': budget_list,
+												 'loss': loss_list})  # the dataframe for info associated with the hyperparemter value combination
+		hyper_parameter_value_combination_dataframe = pd.DataFrame(
+			hyper_parameter_name_to_value_dictionary_list)  # the dataframe for hyperparameter value combination
+
+		complete_result_dataframe = pd.concat([id_budget_loss_dataframe, hyper_parameter_value_combination_dataframe],
+											  axis=1).sort_values(['loss', 'budget'])
+
+		return complete_result_dataframe
+
 
