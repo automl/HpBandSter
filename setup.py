@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
 	name='hpbandster',
-	version='0.7.3',
+	version='0.7.4',
 	description='HyPerBAND on STERoids, a distributed Hyperband implementation with lots of room for improvement',
 	author='Stefan Falkner',
 	author_email='sfalkner@cs.uni-freiburg.de',
@@ -16,4 +16,5 @@ setup(
 		'docu': ['sphinx', 'sphinx_rtd_theme', 'sphinx_gallery'],
 	},
 	keywords=['distributed', 'optimization', 'multifidelity'],
+    	test_suite="tests"
 )
