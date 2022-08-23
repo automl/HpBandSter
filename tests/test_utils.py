@@ -1,5 +1,7 @@
 import unittest
 import logging
+from io import StringIO
+import sys
 
 logging.basicConfig(level=logging.WARNING)
 
@@ -31,6 +33,20 @@ class TestUtils(unittest.TestCase):
         ns_host, ns_port = ns.start()
         self.assertEqual(ns.host, '127.0.0.1')
         ns.shutdown()
+
+    def test_predict_bohb_run(self):
+        stdout = StringIO()
+        sys.stdout = stdout
+        utils.predict_bohb_run(1, 9, eta=3, n_iterations=5)
+        expected = """Running BOHB with these parameters will proceed as follows:
+  5 iterations of SuccessiveHalving will be executed.
+  The iterations will start with a number of configurations as [9, 3, 3, 9, 3].
+  With the initial budgets as [1.0, 3.0, 9, 1.0, 3.0].
+  A total of 27 unique configurations will be sampled.
+  A total of 37 runs will be executed.
+"""
+        self.assertEqual(stdout.getvalue(), expected)
+
 
 if __name__ == '__main__':
     unittest.main()
