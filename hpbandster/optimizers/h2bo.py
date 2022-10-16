@@ -140,7 +140,7 @@ class H2BO(Master):
 		# number of 'SH rungs'
 		s = max_SH_iter - 1
 		# number of configurations in that bracket
-		n0 = int(np.floor((self.max_SH_iter)/(s+1)) * eta**s)
+		n0 = np.ceil(np.floor((self.max_SH_iter)/(s+1)) * eta**s)
 		ns = np.array([max(int(n0*(eta**(-i))), 1) for i in range(s+1)])
 		
 		while (ns * budgets[-s-1:]).sum() <= self.budget_per_iteration:
